@@ -31,6 +31,16 @@ Tuple operator-(Tuple const& a, Tuple const& b)
     };
 }
 
+Tuple operator*(Tuple const& a, Tuple const& b)
+{
+    return {
+        a[0] * b[0],
+        a[1] * b[1],
+        a[2] * b[2],
+        a[3] * b[3]
+    };
+}
+
 Tuple operator-(Tuple const& t)
 {
     return {
@@ -54,6 +64,18 @@ Tuple operator*(Tuple const& t, float s)
 Tuple operator/(Tuple const& t, float s)
 {
     return t * (1.f / s);
+}
+
+std::ostream& operator<<(std::ostream& os, Tuple const& t)
+{
+    os << "[" << t[0];
+    for (int i = 1; i < 4; i++)
+    {
+        os << ", " << t[i];
+    }
+    os << "]";
+
+    return os;
 }
 
 Tuple::Tuple(float x, float y, float z, float w)

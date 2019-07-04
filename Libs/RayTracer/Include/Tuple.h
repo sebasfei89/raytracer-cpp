@@ -33,22 +33,14 @@ private:
     float m_w;
 };
 
-Tuple RAYTRACER_EXPORT Point(float x, float y, float z);
-Tuple RAYTRACER_EXPORT Vector(float x, float y, float z);
-Tuple RAYTRACER_EXPORT operator+(Tuple const& a, Tuple const& b);
-Tuple RAYTRACER_EXPORT operator-(Tuple const& a, Tuple const& b);
-Tuple RAYTRACER_EXPORT operator-(Tuple const& t);
-Tuple RAYTRACER_EXPORT operator*(Tuple const& t, float s);
-Tuple RAYTRACER_EXPORT operator/(Tuple const& t, float s);
+RAYTRACER_EXPORT Tuple Point(float x, float y, float z);
+RAYTRACER_EXPORT Tuple Vector(float x, float y, float z);
 
-std::ostream& operator<<(std::ostream& os, Tuple const& t)
-{
-    os << "[" << t[0];
-    for (int i = 1; i < 4; i++)
-    {
-        os << ", " << t[i];
-    }
-    os << "]";
+RAYTRACER_EXPORT Tuple operator+(Tuple const& a, Tuple const& b);
+RAYTRACER_EXPORT Tuple operator-(Tuple const& a, Tuple const& b);
+RAYTRACER_EXPORT Tuple operator*(Tuple const& a, Tuple const& b);
+RAYTRACER_EXPORT Tuple operator*(Tuple const& t, float s);
+RAYTRACER_EXPORT Tuple operator/(Tuple const& t, float s);
+RAYTRACER_EXPORT Tuple operator-(Tuple const& t);
 
-    return os;
-}
+RAYTRACER_EXPORT std::ostream& operator<<(std::ostream& os, Tuple const& t);

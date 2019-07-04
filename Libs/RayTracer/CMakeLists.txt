@@ -6,6 +6,7 @@ include(../../BuildSystem/Utils.cmake)
 AddBinary( RayTracer LIBRARY EXPORT_HEADER
     FOLDER Libs
     SOURCES
+        Include/Color.h
         Include/Tuple.h
         Src/Tuple.cpp
         Src/Util.h
@@ -23,6 +24,7 @@ AddBinary( RayTracerTest EXECUTABLE
     SOURCES
         Test/Src/Main.cpp
         Test/Src/Tuple.cpp
+        Test/Src/Color.cpp
     PRIVATE_DIRS
         "./Test/Src"
         "./Src"
