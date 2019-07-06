@@ -4,10 +4,12 @@ include(../../BuildSystem/Utils.cmake)
 
 # RayTracer library ###########################################################
 AddBinary( RayTracer LIBRARY EXPORT_HEADER
-    FOLDER Libs
+    FOLDER 01_Libs
     SOURCES
+        Include/Canvas.h
         Include/Color.h
         Include/Tuple.h
+        Src/Canvas.cpp
         Src/Tuple.cpp
         Src/Util.h
     PUBLIC_DIRS
@@ -19,19 +21,20 @@ AddBinary( RayTracer LIBRARY EXPORT_HEADER
 
 # RayTracer tests #############################################################
 AddBinary( RayTracerTest EXECUTABLE
-    FOLDER  Tests
+    FOLDER  02_Tests
     DEPS    RayTracer
     SOURCES
+        Test/Src/Canvas.cpp
+        Test/Src/Color.cpp
         Test/Src/Main.cpp
         Test/Src/Tuple.cpp
-        Test/Src/Color.cpp
     PRIVATE_DIRS
         "./Test/Src"
         "./Src"
         "../../External" )
 
 # Sample projects #############################################################
-AddBinary( Ch1SampleApp EXECUTABLE
-    FOLDER  Samples
+AddBinary( RayTracerSampleApp EXECUTABLE
+    FOLDER  03_Samples
     DEPS    RayTracer
-    SOURCES Samples/Chapter1/Src/Main.cpp)
+    SOURCES Samples/Src/Main.cpp)

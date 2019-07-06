@@ -1,5 +1,7 @@
+#include "Canvas.h"
 #include "Tuple.h"
 
+#include <fstream>
 #include <iostream>
 
 struct Projectil
@@ -30,15 +32,25 @@ void Tick(Environment const& env, Projectil& proj)
 
 int main()
 {
-    Projectil proj(Point(2.f, 0.f, 3.f), Vector(10.f, 50.f, 10.f));
-    Environment env(Vector(0.f, -9.8f, 0.f), Vector(1.f, 0.f, 1.f));
+    Tuple velocity = Vector(1.f, 1.8f, 0.f);
+    velocity.Normalize();
 
+    Projectil proj(Point(0.f, 0.f, 0.f), velocity * 11.25);
+    Environment env(Vector(0.f, -0.1f, 0.f), Vector(-0.01f, 0.f, 0.f));
+    Canvas canvas(900, 550);
+    uint32_t const yBias = canvas.Height() - 1;
     std::cout << "Environment => Gravity: " << env.m_gravity << " Wind: " << env.m_wind << std::endl;
     do
     {
         std::cout << "Projectil => Position: " << proj.m_position << " Velocity: " << proj.m_velocity << std::endl;
+        canvas.WritePixel((int)proj.m_position[0], yBias - (int)proj.m_position[1], Color(1.f, 0.f, 0.f));
         Tick(env, proj);
     } while (proj.m_position[1] > 0.0f);
+
+    std::ofstream ppmFile;
+    ppmFile.open("projectil_trajectory.ppm");
+    ppmFile << canvas.GetAsPPM();
+    ppmFile.close();
 
     return 0;
 }

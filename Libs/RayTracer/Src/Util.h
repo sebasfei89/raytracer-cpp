@@ -4,7 +4,12 @@
 
 constexpr float EPSILON = 0.00001f;
 
-bool Equals(float a, float b)
+inline bool Equals(float a, float b)
 {
     return std::abs(a - b) <= EPSILON;
+}
+
+inline int Clamp(int value, int min, int max)
+{
+    return std::max(min, std::min(max, value));
 }
