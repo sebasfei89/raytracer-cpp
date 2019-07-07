@@ -2,7 +2,6 @@
 
 #include "raytracer_export.h"
 
-#include <type_traits>
 #include <ostream>
 
 class RAYTRACER_EXPORT Tuple

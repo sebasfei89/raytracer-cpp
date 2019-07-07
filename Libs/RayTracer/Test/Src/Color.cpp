@@ -1,6 +1,6 @@
 #include "Color.h"
 
-#include "Catch2/catch.hpp"
+#include <Testing.h>
 
 SCENARIO("Colors are [Red, Green, Blue] Tuples", "[Color]")
 {
@@ -17,7 +17,7 @@ SCENARIO("Colors are [Red, Green, Blue] Tuples", "[Color]")
     }
 }
 
-SCENARIO("Color operations")
+SCENARIO("Color operations", "[Color]")
 {
     GIVEN("Two colors a=[0.9, 0.6, 0.75] and b=[0.7, 0.1, 0.25]")
     {
