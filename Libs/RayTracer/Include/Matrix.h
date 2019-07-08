@@ -28,9 +28,16 @@ public:
 
     void Transpose();
 
+    template<uint8_t R=ROWS, uint8_t C=COLS>
+    typename std::enable_if<(R > 2) && (C > 2), float>::type
+    Minor(uint8_t row, uint8_t col) const { return Submatrix(row, col).Determinant(); }
+
+    template<uint8_t R = ROWS, uint8_t C = COLS>
+    typename std::enable_if<(R > 2) && (C > 2), float>::type
+    Cofactor(uint8_t row, uint8_t col) const { return Minor(row, col) * (((row + col) % 2) == 0 ? 1 : -1); }
+
     float Determinant() const;
-    float Minor(uint8_t row, uint8_t col) const;
-    float Cofactor(uint8_t row, uint8_t col) const;
+
     bool IsInvertible() const { return Determinant() != 0.f; }
     Matrix Inverse() const;
 
@@ -39,6 +46,10 @@ public:
 private:
     float m_data[ROWS][COLS];
 };
+
+using Mat22 = Matrix<2, 2>;
+using Mat33 = Matrix<3, 3>;
+using Mat44 = Matrix<4, 4>;
 
 template<uint8_t ROWS, uint8_t COLS>
 Matrix<ROWS, COLS>::Matrix(std::initializer_list<std::initializer_list<float>> data)
@@ -119,6 +130,9 @@ void Matrix<ROWS, COLS>::Transpose()
     }
 }
 
+template<>
+RAYTRACER_EXPORT float Matrix<2, 2>::Determinant() const;
+
 template<uint8_t ROWS, uint8_t COLS>
 float Matrix<ROWS,COLS>::Determinant() const
 {
@@ -128,24 +142,6 @@ float Matrix<ROWS,COLS>::Determinant() const
         det += At(0, j) * Cofactor(0, j);
     }
     return det;
-}
-
-template<>
-float Matrix<2, 2>::Determinant() const
-{
-    return m_data[0][0] * m_data[1][1] - m_data[0][1] * m_data[1][0];
-}
-
-template<uint8_t ROWS, uint8_t COLS>
-float Matrix<ROWS, COLS>::Minor(uint8_t row, uint8_t col) const
-{
-    return Submatrix(row, col).Determinant();
-}
-
-template<uint8_t ROWS, uint8_t COLS>
-float Matrix<ROWS, COLS>::Cofactor(uint8_t row, uint8_t col) const
-{
-    return Minor(row, col) * (((row + col) % 2) == 0 ? 1 : -1);
 }
 
 template<uint8_t ROWS, uint8_t COLS>
