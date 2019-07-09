@@ -3,6 +3,19 @@
 
 #include <Testing.h>
 
+SCENARIO("A default constructed Tuple is initialized to all 0s", "[math]")
+{
+    GIVEN_1(
+        Tuple t;
+    REQUIRE_
+        , t[0] == 0.f
+        , t[1] == 0.f
+        , t[2] == 0.f
+        , t[3] == 0.f
+        , t.IsPoint() == false
+        , t.IsVector() == true)
+}
+
 SCENARIO("A Tuple with w == 1.0 is a Point", "[math]")
 {
     GIVEN_1(

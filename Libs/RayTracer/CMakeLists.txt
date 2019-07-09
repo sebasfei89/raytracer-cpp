@@ -6,14 +6,17 @@ include(../../BuildSystem/Utils.cmake)
 set( RT_SOURCES
     Include/Canvas.h
     Include/Color.h
+    Include/Intersection.h
     Include/Matrix.h
+    Include/Ray.h
     Include/Transformations.h
     Include/Tuple.h
     Include/Util.h
     Src/Canvas.cpp
-    Src/Matrix.cpp
+    Src/Intersection.cpp
+    Src/Ray.cpp
     Src/Transformations.cpp
-    Src/Tuple.cpp)
+    Src/Tuple.cpp )
 
 AddBinary( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 01_Libs
@@ -25,10 +28,12 @@ AddBinary( RayTracer LIBRARY EXPORT_HEADER
 set( TEST_SOURCES
     Test/Src/Canvas.cpp
     Test/Src/Color.cpp
+    Test/Src/Intersection.cpp
     Test/Src/Main.cpp
     Test/Src/Matrix.cpp
+    Test/Src/Ray.cpp
     Test/Src/Transformations.cpp
-    Test/Src/Tuple.cpp)
+    Test/Src/Tuple.cpp )
 
 AddBinary( RayTracerTest EXECUTABLE
     FOLDER  02_Tests
@@ -46,3 +51,8 @@ AddBinary( WallClock EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/WallClock.cpp )
+
+AddBinary( SphereSilhouette EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/SphereSilhouette.cpp )

@@ -7,6 +7,7 @@
 class RAYTRACER_EXPORT Tuple
 {
 public:
+    Tuple();
     Tuple(float x, float y, float z, float w);
 
     float operator[](size_t index) const;

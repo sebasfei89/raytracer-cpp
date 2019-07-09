@@ -78,6 +78,14 @@ std::ostream& operator<<(std::ostream& os, Tuple const& t)
     return os;
 }
 
+Tuple::Tuple()
+    : m_x(0.f)
+    , m_y(0.f)
+    , m_z(0.f)
+    , m_w(0.f)
+{
+}
+
 Tuple::Tuple(float x, float y, float z, float w)
     : m_x(x)
     , m_y(y)

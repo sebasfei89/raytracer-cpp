@@ -13,6 +13,8 @@ public:
     Matrix() {}
     explicit Matrix(std::initializer_list<std::initializer_list<float>> data);
 
+    static Matrix Identity();
+
     template<uint8_t row, uint8_t col>
     typename std::enable_if<(row < ROWS) && (col < COLS), float>::type
     At() const { return m_data[row][col]; }
@@ -131,7 +133,40 @@ void Matrix<ROWS, COLS>::Transpose()
 }
 
 template<>
-RAYTRACER_EXPORT float Matrix<2, 2>::Determinant() const;
+inline float Matrix<2, 2>::Determinant() const
+{
+    return m_data[0][0] * m_data[1][1] - m_data[0][1] * m_data[1][0];
+}
+
+template<>
+inline Matrix<2, 2> Matrix<2, 2>::Identity()
+{
+    return Matrix<2, 2>{
+        {1.f, 0.f},
+        { 0.f, 1.f }
+    };
+}
+
+template<>
+inline Matrix<3, 3> Matrix<3, 3>::Identity()
+{
+    return Matrix<3, 3>{
+        {1.f, 0.f, 0.f},
+        { 0.f, 1.f, 0.f },
+        { 0.f, 0.f, 1.f }
+    };
+}
+
+template<>
+inline Matrix<4, 4> Matrix<4, 4>::Identity()
+{
+    return Matrix<4, 4>{
+        { 1.f, 0.f, 0.f, 0.f },
+        { 0.f, 1.f, 0.f, 0.f },
+        { 0.f, 0.f, 1.f, 0.f },
+        { 0.f, 0.f, 0.f, 1.f }
+    };
+}
 
 template<uint8_t ROWS, uint8_t COLS>
 float Matrix<ROWS,COLS>::Determinant() const
