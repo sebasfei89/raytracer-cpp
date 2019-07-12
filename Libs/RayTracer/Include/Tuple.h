@@ -22,9 +22,12 @@ public:
     float Length() const;
 
     void Normalize();
+    Tuple Normalized() const;
 
     float Dot(Tuple const& other) const;
     Tuple Cross(Tuple const& other) const;
+
+    Tuple Reflect(Tuple const& other) const;
 
 private:
     float m_x;

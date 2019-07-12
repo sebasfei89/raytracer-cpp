@@ -173,3 +173,26 @@ SCENARIO("Vectors cross product", "[math]")
         , v1.Cross(v2) == Vector(-1.f, 2.f, -1.f)
         , v2.Cross(v1) == Vector(1.f, -2.f, 1.f) )
 }
+
+SCENARIO("Reflecting a vector approaching at 45 deg", "[math]")
+{
+    GIVEN_2(
+        Tuple const v = Vector(1.f, -1.f, 0.f);
+        Tuple const n = Vector(0.f, 1.f, 0.f);
+    WHEN_,
+        auto const r = v.Reflect(n);
+    REQUIRE_,
+        r == Vector(1.f, 1.f, 0.f))
+}
+
+SCENARIO("Reflecting a vector off a slanted surface", "[math]")
+{
+    GIVEN_2(
+        float const coord = std::sqrt(2.f) / 2.f;
+        Tuple const v = Vector(0.f, -1.f, 0.f);
+        Tuple const n = Vector(coord, coord, 0.f);
+    WHEN_,
+        auto const r = v.Reflect(n);
+    REQUIRE_,
+        r == Vector(1.f, 0.f, 0.f))
+}

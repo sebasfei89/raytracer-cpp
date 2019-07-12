@@ -7,14 +7,20 @@ set( RT_SOURCES
     Include/Canvas.h
     Include/Color.h
     Include/Intersection.h
+    Include/Lighting.h
+    Include/Material.h
     Include/Matrix.h
     Include/Ray.h
+    Include/Sphere.h
     Include/Transformations.h
     Include/Tuple.h
     Include/Util.h
     Src/Canvas.cpp
     Src/Intersection.cpp
+    Src/Lighting.cpp
+    Src/Material.cpp
     Src/Ray.cpp
+    Src/Sphere.cpp
     Src/Transformations.cpp
     Src/Tuple.cpp )
 
@@ -29,9 +35,11 @@ set( TEST_SOURCES
     Test/Src/Canvas.cpp
     Test/Src/Color.cpp
     Test/Src/Intersection.cpp
+    Test/Src/Light.cpp
     Test/Src/Main.cpp
     Test/Src/Matrix.cpp
     Test/Src/Ray.cpp
+    Test/Src/Sphere.cpp
     Test/Src/Transformations.cpp
     Test/Src/Tuple.cpp )
 
@@ -56,3 +64,8 @@ AddBinary( SphereSilhouette EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/SphereSilhouette.cpp )
+
+AddBinary( LitSphere EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/LitSphere.cpp )

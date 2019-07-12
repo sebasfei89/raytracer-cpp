@@ -141,6 +141,13 @@ void Tuple::Normalize()
     }
 }
 
+Tuple Tuple::Normalized() const
+{
+    Tuple t = (*this);
+    t.Normalize();
+    return t;
+}
+
 float Tuple::Dot(Tuple const& other) const
 {
     float result = 0.f;
@@ -159,4 +166,9 @@ Tuple Tuple::Cross(Tuple const& other) const
         m_z * other[0] - m_x * other[2],
         m_x * other[1] - m_y * other[0]
     );
+}
+
+Tuple Tuple::Reflect(Tuple const& other) const
+{
+    return (*this) - (other * 2.f * this->Dot(other));
 }

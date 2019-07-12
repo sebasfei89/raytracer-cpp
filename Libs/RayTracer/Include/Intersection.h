@@ -2,24 +2,11 @@
 
 #include "raytracer_export.h"
 #include "Matrix.h"
+#include "Sphere.h"
 #include "Tuple.h"
 
 #include <ostream>
 #include <vector>
-
-class Sphere
-{
-public:
-    Sphere() : m_transform(Mat44::Identity()) {}
-
-    Tuple Center() const { return Point(0.f, 0.f, 0.f); }
-
-    void SetTransform(Mat44 const& t) { m_transform = t; }
-    Mat44 const& Transform() const { return m_transform; }
-
-private:
-    Mat44 m_transform;
-};
 
 class Intersection
 {
