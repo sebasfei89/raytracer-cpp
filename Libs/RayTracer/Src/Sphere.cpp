@@ -16,3 +16,9 @@ Tuple Sphere::NormalAt(Tuple const& worldPoint) const
     worldNormal[3] = 0.f;
     return worldNormal.Normalized();
 }
+
+bool Sphere::operator==(Sphere const& other) const
+{
+    return m_material == other.m_material
+        && m_transform == other.m_transform;
+}

@@ -11,10 +11,20 @@ Canvas::Canvas(uint32_t width, uint32_t height)
     m_pixels = (Color*)calloc(width * height, sizeof(Color));
 }
 
+Canvas::Canvas(Canvas&& other)
+    : m_width(std::exchange(other.m_width, 0))
+    , m_height(std::exchange(other.m_height, 0))
+    , m_pixels(std::exchange(other.m_pixels, nullptr))
+{
+}
+
 Canvas::~Canvas()
 {
-    free(m_pixels);
-    m_pixels = nullptr;
+    if (m_pixels != nullptr)
+    {
+        free(m_pixels);
+        m_pixels = nullptr;
+    }
 }
 
 Color Canvas::PixelAt(uint32_t x, uint32_t y) const

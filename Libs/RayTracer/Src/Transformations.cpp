@@ -62,4 +62,17 @@ namespace matrix
             {0.f, 0.f, 0.f, 1.f} });
     }
 
+    Matrix<4, 4> View(Tuple const& from, Tuple const& to, Tuple const& up)
+    {
+        auto const forward = (to - from).Normalized();
+        auto const left = forward.Cross(up.Normalized());
+        auto const fixedUp = left.Cross(forward);
+        Mat44 const orientation{
+            {    left[0],    left[1],    left[2], 0.f },
+            { fixedUp[0], fixedUp[1], fixedUp[2], 0.f },
+            {-forward[0],-forward[1],-forward[2], 0.f },
+            {        0.f,        0.f,        0.f, 1.f }
+        };
+        return orientation * Translation(-from[0], -from[1], -from[2]);
+    }
 }

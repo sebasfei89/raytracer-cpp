@@ -33,3 +33,9 @@ Color Lighting(Material const& m, PointLight const& light, Tuple const& position
     Color const specular = light.Intensity() * m.Specular() * factor;
     return ambient + diffuse + specular;
 }
+
+bool PointLight::operator==(PointLight const& other) const
+{
+    return m_position == other.m_position
+        && m_intensity == other.m_intensity;
+}

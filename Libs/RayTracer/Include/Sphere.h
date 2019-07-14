@@ -15,8 +15,11 @@ public:
     void SetTransform(Mat44 const& t) { m_transform = t; }
     Mat44 const& Transform() const { return m_transform; }
 
+    Material& ModifyMaterial() { return m_material; }
     Material const& GetMaterial() const { return m_material; }
     void SetMaterial(Material const& material) { m_material = material; }
+
+    RAYTRACER_EXPORT bool operator==(Sphere const& other) const;
 
 private:
     Mat44 m_transform;

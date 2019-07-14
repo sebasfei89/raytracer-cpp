@@ -13,6 +13,8 @@ public:
     Tuple const& Position() const { return m_position; }
     Color const& Intensity() const { return m_intensity; }
 
+    RAYTRACER_EXPORT bool operator==(PointLight const& other) const;
+
 private:
     Tuple m_position;
     Color m_intensity;

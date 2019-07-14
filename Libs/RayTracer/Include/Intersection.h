@@ -8,6 +8,17 @@
 #include <ostream>
 #include <vector>
 
+class Sphere;
+struct IntersectionData
+{
+    Tuple m_point;
+    Tuple m_eyev;
+    Tuple m_normalv;
+    float m_distance;
+    bool m_inside;
+    Sphere const* m_object;
+};
+
 class Intersection
 {
 public:
@@ -17,6 +28,7 @@ public:
     Sphere const* Object() const { return m_object; }
 
     RAYTRACER_EXPORT bool operator==(Intersection const& other) const;
+    RAYTRACER_EXPORT bool operator<(Intersection const& other) const;
 
 private:
     float m_distance;

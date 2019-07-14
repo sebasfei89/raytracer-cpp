@@ -10,6 +10,11 @@ bool Intersection::operator==(Intersection const& other) const
     return m_distance == other.m_distance && m_object == other.m_object;
 }
 
+bool Intersection::operator<(Intersection const& other) const
+{
+    return m_distance < other.m_distance;
+}
+
 Intersection Hit(std::vector<Intersection> const& xs)
 {
     int minIdx = -1;    

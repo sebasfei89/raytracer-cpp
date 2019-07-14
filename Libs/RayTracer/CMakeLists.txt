@@ -4,6 +4,7 @@ include(../../BuildSystem/Utils.cmake)
 
 # RayTracer library ###########################################################
 set( RT_SOURCES
+    Include/Camera.h
     Include/Canvas.h
     Include/Color.h
     Include/Intersection.h
@@ -15,6 +16,8 @@ set( RT_SOURCES
     Include/Transformations.h
     Include/Tuple.h
     Include/Util.h
+    Include/World.h
+    Src/Camera.cpp
     Src/Canvas.cpp
     Src/Intersection.cpp
     Src/Lighting.cpp
@@ -22,7 +25,8 @@ set( RT_SOURCES
     Src/Ray.cpp
     Src/Sphere.cpp
     Src/Transformations.cpp
-    Src/Tuple.cpp )
+    Src/Tuple.cpp
+    Src/World.cpp )
 
 AddBinary( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 01_Libs
@@ -33,6 +37,7 @@ AddBinary( RayTracer LIBRARY EXPORT_HEADER
 # RayTracer tests #############################################################
 set( TEST_SOURCES
     Test/Src/Canvas.cpp
+    Test/Src/Camera.cpp
     Test/Src/Color.cpp
     Test/Src/Intersection.cpp
     Test/Src/Light.cpp
@@ -41,7 +46,8 @@ set( TEST_SOURCES
     Test/Src/Ray.cpp
     Test/Src/Sphere.cpp
     Test/Src/Transformations.cpp
-    Test/Src/Tuple.cpp )
+    Test/Src/Tuple.cpp
+    Test/Src/World.cpp )
 
 AddBinary( RayTracerTest EXECUTABLE
     FOLDER  02_Tests
@@ -50,22 +56,27 @@ AddBinary( RayTracerTest EXECUTABLE
     PRIVATE_DIRS "./Test/Src" "./Src" "../../External" )
 
 # Sample projects #############################################################
-AddBinary( ProjectilTrajectory EXECUTABLE
+AddBinary( Ch2_ProjectilTrajectory EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/ProjectilTrajectory.cpp )
 
-AddBinary( WallClock EXECUTABLE
+AddBinary( Ch4_WallClock EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/WallClock.cpp )
 
-AddBinary( SphereSilhouette EXECUTABLE
+AddBinary( Ch5_SphereSilhouette EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/SphereSilhouette.cpp )
 
-AddBinary( LitSphere EXECUTABLE
+AddBinary( Ch6_LitSphere EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/LitSphere.cpp )
+
+AddBinary( Ch7_Scene EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/Scene.cpp )

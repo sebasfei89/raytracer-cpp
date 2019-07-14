@@ -190,3 +190,56 @@ SCENARIO("Chained transformations must be applied in reverse order", "[math]")
     REQUIRE_,
         tx * p == Point(15.f, 0.f, 7.f) )
 }
+
+SCENARIO("The view transformation matrix for the default orientation", "[math]")
+{
+    GIVEN_2(
+        auto const from = Point(0.f, 0.f, 0.f);
+        auto const to = Point(0.f, 0.f, -1.f);
+        auto const up = Vector(0.f, 1.f, 0.f);
+    WHEN_,
+        auto const t = matrix::View(from, to, up);
+    REQUIRE_,
+        t == Mat44::Identity() )
+}
+
+SCENARIO("The view transformation matrix looking in positive z direction", "[math]")
+{
+    GIVEN_2(
+        auto const from = Point(0.f, 0.f, 0.f);
+        auto const to = Point(0.f, 0.f, 1.f);
+        auto const up = Vector(0.f, 1.f, 0.f);
+    WHEN_,
+        auto const t = matrix::View(from, to, up);
+    REQUIRE_,
+        t == matrix::Scaling(-1.f, 1.f, -1.f) )
+}
+
+SCENARIO("The view transformation moves the world", "[math]")
+{
+    GIVEN_2(
+        auto const from = Point(0.f, 0.f, 8.f);
+        auto const to = Point(0.f, 0.f, 0.f);
+        auto const up = Vector(0.f, 1.f, 0.f);
+    WHEN_,
+        auto const t = matrix::View(from, to, up);
+    REQUIRE_,
+        t == matrix::Translation(0.f, 0.f, -8.f) )
+}
+
+SCENARIO("An arbitrarry view transformation", "[math]")
+{
+    GIVEN_2(
+        auto const from = Point(1.f, 3.f, 2.f);
+        auto const to = Point(4.f, -2.f, 8.f);
+        auto const up = Vector(1.f, 1.f, 0.f);
+    WHEN_,
+        auto const t = matrix::View(from, to, up);
+    REQUIRE_,
+        t == Mat44({
+            {-0.50709f, 0.50709f,  0.67612f, -2.36643f},
+            { 0.76772f, 0.60609f,  0.12122f, -2.82843f},
+            {-0.35857f, 0.59761f, -0.71714f,  0.f     },
+            { 0.f     , 0.f     , 0.f      ,  1.f     }
+        }) )
+}

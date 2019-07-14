@@ -7,6 +7,8 @@
 class Canvas
 {
 public:
+    Canvas(Canvas const& other) = delete;
+    RAYTRACER_EXPORT Canvas(Canvas&& other);
     RAYTRACER_EXPORT Canvas(uint32_t width, uint32_t height);
     RAYTRACER_EXPORT ~Canvas();
 
