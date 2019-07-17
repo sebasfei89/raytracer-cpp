@@ -13,7 +13,7 @@ int main()
 {
     auto floor = Sphere();
     {
-        floor.SetTransform(matrix::Scaling(10.f, 0.01f, 10.f));
+        floor.SetTransform(matrix::Scaling(10.f, 0.1f, 10.f));
         auto& material = floor.ModifyMaterial();
         material.SetColor({ 1.f, .9f, .9f });
         material.Specular(0.f);
@@ -25,7 +25,7 @@ int main()
             matrix::Translation(0.f, 0.f, 5.f) *
             matrix::RotationY(-PI/4.f) *
             matrix::RotationX(PI/2.f) *
-            matrix::Scaling(10.f, 0.01f, 10.f) );
+            matrix::Scaling(10.f, 0.1f, 10.f) );
         leftWall.SetMaterial(floor.GetMaterial());
     }
 
@@ -35,7 +35,7 @@ int main()
             matrix::Translation(0.f, 0.f, 5.f) *
             matrix::RotationY(PI / 4.f) *
             matrix::RotationX(PI / 2.f) *
-            matrix::Scaling(10.f, 0.01f, 10.f) );
+            matrix::Scaling(10.f, 0.1f, 10.f) );
         rightWall.SetMaterial(floor.GetMaterial());
     }
 
@@ -75,7 +75,7 @@ int main()
     world.Add(leftSphere);
     world.Add(rightSphere);
 
-    auto camera = Camera(800, 600, PI/3.f);
+    auto camera = Camera(800, 600, PI / 3.f);
     camera.SetTransform(matrix::View(Point(0.f, 1.5f, -5.f), Point(0.f, 1.f, 0.f), Vector(0.f, 1.f, 0.f)));
 
     std::cout << "Rendering scene..." << std::endl;

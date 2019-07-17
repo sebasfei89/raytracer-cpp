@@ -1,5 +1,6 @@
 #include "Intersection.h"
 #include "Ray.h"
+#include "Util.h"
 
 #include <Testing.h>
 
@@ -94,4 +95,18 @@ SCENARIO("The hit is always the lowest nonnegative intersection", "[math]")
         auto const i = Hit(xs);
     REQUIRE_,
         i == i4 )
+}
+
+SCENARIO("The hit should offset the point", "[math]")
+{
+    GIVEN_2(
+        auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
+        auto s = Sphere();
+        s.SetTransform(matrix::Translation(0.f, 0.f, 1.f));
+        auto const i = Intersection(5.f, &s);
+    WHEN_,
+        auto const iData = r.Precompute(i);
+    REQUIRE_,
+        iData.m_overPoint[2] < -(EPSILON/2.f),
+        iData.m_point[2] > iData.m_overPoint[2])
 }

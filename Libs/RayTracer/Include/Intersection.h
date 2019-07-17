@@ -12,6 +12,7 @@ class Sphere;
 struct IntersectionData
 {
     Tuple m_point;
+    Tuple m_overPoint;
     Tuple m_eyev;
     Tuple m_normalv;
     float m_distance;

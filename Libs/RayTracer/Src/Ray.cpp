@@ -1,4 +1,5 @@
 #include "Ray.h"
+#include "Util.h"
 
 Ray::Ray(Tuple const& origin, Tuple const& direction)
     : m_origin(origin)
@@ -8,21 +9,21 @@ Ray::Ray(Tuple const& origin, Tuple const& direction)
 
 std::vector<Intersection> Ray::Intersect(Sphere const& sphere) const
 {
-    Ray r = sphere.Transform().Inverse() * (*this);
+    Ray const r = sphere.Transform().Inverse() * (*this);
     auto const sphereToRay = r.m_origin - sphere.Center();
     float const a = r.m_direction.Dot(r.m_direction);
-    float const b = -2.f * r.m_direction.Dot(sphereToRay);
+    float const b = 2.f * r.m_direction.Dot(sphereToRay);
     float const c = sphereToRay.Dot(sphereToRay) - 1.f;
     float const discriminant = (b * b) - (4.f * a * c);
 
     if (discriminant < 0.f) return {};
 
-    float const aTimes2 = 2.f * a;
-    float const sqrtDiscriminant = sqrt(discriminant);
+    float const aTimes2 = 1.f / (2.f * a);
+    float const sqrtDiscriminant = sqrtf(discriminant);
 
     return {
-        { (b - sqrtDiscriminant) / aTimes2, &sphere },
-        { (b + sqrtDiscriminant) / aTimes2, &sphere }
+        { (-b - sqrtDiscriminant) * aTimes2, &sphere },
+        { (-b + sqrtDiscriminant) * aTimes2, &sphere }
     };
 }
 
@@ -51,6 +52,7 @@ IntersectionData Ray::Precompute(Intersection const& i) const
     {
         data.m_normalv = -data.m_normalv;
     }
+    data.m_overPoint = data.m_point + (data.m_normalv * EPSILON);
     return data;
 }
 

@@ -8,8 +8,9 @@ Color World::ShadeHit(IntersectionData const& data) const
     Color color(0.f, 0.f, 0.f);
     for (auto const& light : m_lights)
     {
-        color = color + Lighting(data.m_object->GetMaterial(), m_lights[0],
-            data.m_point, data.m_eyev, data.m_normalv );
+        bool isInShadow = IsShadowed(data.m_overPoint, light);
+        color = color + Lighting(data.m_object->GetMaterial(), light,
+            data.m_overPoint, data.m_eyev, data.m_normalv, isInShadow);
     }
     return color;
 }
@@ -25,4 +26,19 @@ Color World::ColorAt(Ray const& r) const
 
     auto const iData = r.Precompute(i);
     return ShadeHit(iData);
+}
+
+bool World::IsShadowed(Tuple const& point, PointLight const& light) const
+{
+    auto const pointToLight = light.Position() - point;
+    auto const distanceToLight = pointToLight.Length();
+    auto const rayToLight = Ray(point, pointToLight.Normalized());
+    auto const xs = rayToLight.Intersect(*this);
+    auto const hit = Hit(xs);
+    if (hit.Object() == nullptr)
+    {
+        return false;
+    }
+
+    return hit.Distance() < distanceToLight;
 }

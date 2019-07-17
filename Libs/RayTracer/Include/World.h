@@ -25,6 +25,8 @@ public:
     RAYTRACER_EXPORT Color ShadeHit(IntersectionData const& data) const;
     RAYTRACER_EXPORT Color ColorAt(Ray const& r) const;
 
+    RAYTRACER_EXPORT bool IsShadowed(Tuple const& point, PointLight const& light) const;
+
 private:
     std::vector<Sphere> m_objects;
     std::vector<PointLight> m_lights;

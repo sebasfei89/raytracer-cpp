@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-constexpr float EPSILON = 0.00001f;
+constexpr float EPSILON = 0.0001f;
 
 inline bool Equals(float a, float b)
 {

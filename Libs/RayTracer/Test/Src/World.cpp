@@ -156,3 +156,58 @@ SCENARIO("The color with an intersection behind the ray", "[Scene]")
     REQUIRE_,
         c == s2.GetMaterial().GetColor() )
 }
+
+SCENARIO("There is no shadow when nothing is collinear with the point and light", "[Shadows]")
+{
+    GIVEN_1(
+        auto const w = DefaultWorld();
+        auto const point = Point(0.f, 10.f, 0.f);
+    REQUIRE_,
+        !w.IsShadowed(point, w.Lights()[0]) )
+}
+
+SCENARIO("The shadow when an object is between the point and the light", "[Shadows]")
+{
+    GIVEN_1(
+        auto const w = DefaultWorld();
+        auto const point = Point(10.f, -10.f, 10.f);
+    REQUIRE_,
+        w.IsShadowed(point, w.Lights()[0]) )
+}
+
+SCENARIO("There is no shadow when an object is behind the light", "[Shadows]")
+{
+    GIVEN_1(
+        auto const w = DefaultWorld();
+        auto const point = Point(-20.f, 20.f, -20.f);
+    REQUIRE_,
+        !w.IsShadowed(point, w.Lights()[0]) )
+}
+
+SCENARIO("There is no shadow when an object is behind the point", "[Shadows]")
+{
+    GIVEN_1(
+        auto const w = DefaultWorld();
+        auto const point = Point(-2.f, 2.f, -2.f);
+    REQUIRE_,
+        !w.IsShadowed(point, w.Lights()[0]))
+}
+
+SCENARIO("ShadeHit is given an intersection in shadow", "[Scene]")
+{
+    GIVEN_2(
+        auto w = World();
+        w.Add(PointLight(Point(0.f, 0.f, -10.f), Color(1.f, 1.f, 1.f)));
+        auto s1 = Sphere();
+        w.Add(s1);
+        auto s2 = Sphere();
+        s2.SetTransform(matrix::Translation(0.f, 0.f, 10.f));
+        w.Add(s2);
+        auto const r = Ray(Point(0.f, 0.f, 5.f), Vector(0.f, 0.f, 1.f));
+        auto const i = Intersection(4.f, &s2);
+    WHEN_,
+        auto const comps = r.Precompute(i);
+        auto const c = w.ShadeHit(comps);
+    REQUIRE_,
+        c == Color(0.1f, 0.1f, 0.1f) )
+}
