@@ -1,6 +1,7 @@
 #include <Canvas.h>
 #include <Intersection.h>
 #include <Ray.h>
+#include <Sphere.h>
 #include <Transformations.h>
 
 #include <fstream>
@@ -15,8 +16,8 @@ int main()
     float const wallHalfSize = wallSize * 0.5f;
     float const pixelSize = wallSize / (float)canvasPixels;
     Color const red(1.f, 0.f, 0.f);
-    Sphere sphere;
-    sphere.SetTransform(matrix::RotationZ(PI/4.f) * matrix::Scaling(0.5, 1.f, 1.f));
+    auto sphere = std::make_shared<Sphere>();
+    sphere->SetTransform(matrix::RotationZ(PI/4.f) * matrix::Scaling(0.5, 1.f, 1.f));
 
     Canvas canvas(canvasPixels, canvasPixels);
     Ray r(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 0.f));

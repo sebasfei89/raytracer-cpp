@@ -1,27 +1,16 @@
 #pragma once
 
-#include "Material.h"
-#include "Matrix.h"
 #include "raytracer_export.h"
+#include "Shape.h"
 
-class Sphere
+class Sphere : public Shape
 {
 public:
-    RAYTRACER_EXPORT Sphere();
-
     Tuple Center() const { return Point(0.f, 0.f, 0.f); }
-    RAYTRACER_EXPORT Tuple NormalAt(Tuple const& point) const;
 
-    void SetTransform(Mat44 const& t) { m_transform = t; }
-    Mat44 const& Transform() const { return m_transform; }
+    RAYTRACER_EXPORT bool operator==(Shape const& other) const override;
 
-    Material& ModifyMaterial() { return m_material; }
-    Material const& GetMaterial() const { return m_material; }
-    void SetMaterial(Material const& material) { m_material = material; }
+    RAYTRACER_EXPORT std::vector<Intersection> Intersect(Ray const& ray) const override;
 
-    RAYTRACER_EXPORT bool operator==(Sphere const& other) const;
-
-private:
-    Mat44 m_transform;
-    Material m_material;
+    RAYTRACER_EXPORT Tuple NormalAtLocal(Tuple const& point) const override;
 };

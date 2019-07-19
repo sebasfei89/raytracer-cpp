@@ -1,4 +1,5 @@
 #include "Ray.h"
+#include "Sphere.h"
 #include "Transformations.h"
 
 #include <Testing.h>
@@ -30,7 +31,7 @@ SCENARIO("A ray intersects a sphere at two points", "[Math]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto const s = Sphere();
+        auto const s = std::make_shared<Sphere>();
     WHEN_,
         auto xs = r.Intersect(s);
     REQUIRE_,
@@ -43,7 +44,7 @@ SCENARIO("A ray intersects a sphere at a tangent", "[Math]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 1.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto const s = Sphere();
+        auto const s = std::make_shared<Sphere>();
     WHEN_,
         auto xs = r.Intersect(s);
     REQUIRE_,
@@ -56,7 +57,7 @@ SCENARIO("A ray misses a sphere", "[Math]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 2.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto const s = Sphere();
+        auto const s = std::make_shared<Sphere>();
     WHEN_,
         auto xs = r.Intersect(s);
     REQUIRE_,
@@ -67,7 +68,7 @@ SCENARIO("A ray originates inside a sphere", "[Math]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f));
-        auto const s = Sphere();
+        auto const s = std::make_shared<Sphere>();
     WHEN_,
         auto xs = r.Intersect(s);
     REQUIRE_,
@@ -80,7 +81,7 @@ SCENARIO("A sphere is behind a ray", "[Math]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, 5.f), Vector(0.f, 0.f, 1.f));
-        auto const s = Sphere();
+        auto const s = std::make_shared<Sphere>();
     WHEN_,
         auto xs = r.Intersect(s);
     REQUIRE_,
@@ -111,49 +112,4 @@ SCENARIO("Scaling a ray", "[Math]")
     REQUIRE_,
         r2.Origin() == Point(2.f, 6.f, 12.f),
         r2.Direction() == Vector(0.f, 3.f, 0.f))
-}
-
-SCENARIO("A sphere's default transformation", "[Math]")
-{
-    GIVEN_1(
-        auto const s = Sphere();
-    REQUIRE_,
-        s.Transform() == Mat44::Identity() )
-}
-
-SCENARIO("Changing a sphere's transformation", "[Math]")
-{
-    GIVEN_2(
-        auto s = Sphere();
-        auto const t = matrix::Translation(2.f, 3.f, 4.f);
-    WHEN_,
-        s.SetTransform(t);
-    REQUIRE_,
-        s.Transform() == t)
-}
-
-SCENARIO("Intersecting a scaled sphere with a ray", "[Math]")
-{
-    GIVEN_2(
-        auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto s = Sphere();
-    WHEN_,
-        s.SetTransform(matrix::Scaling(2.f, 2.f, 2.f));
-        auto const xs = r.Intersect(s);
-    REQUIRE_,
-        xs.size() == 2,
-        xs[0].Distance() == 3.f,
-        xs[1].Distance() == 7.f )
-}
-
-SCENARIO("Intersecting a translated sphere with a ray", "[Math]")
-{
-    GIVEN_2(
-        auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto s = Sphere();
-    WHEN_,
-        s.SetTransform(matrix::Translation(5.f, 2.f, 2.f));
-        auto const xs = r.Intersect(s);
-    REQUIRE_,
-        xs.size() == 0 )
 }

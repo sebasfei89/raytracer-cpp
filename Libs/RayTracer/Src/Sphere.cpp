@@ -1,24 +1,35 @@
 #include "Sphere.h"
+#include "Ray.h"
 
-Sphere::Sphere()
-    : m_transform(Mat44::Identity())
-    , m_material()
+Tuple Sphere::NormalAtLocal(Tuple const& localPoint) const
 {
+    return localPoint - Center();
 }
 
-Tuple Sphere::NormalAt(Tuple const& worldPoint) const
+std::vector<Intersection> Sphere::Intersect(Ray const& ray) const
 {
-    auto invTx = m_transform.Inverse();
-    auto const localPoint = invTx * worldPoint;
-    auto const localNormal = localPoint - Center();
-    invTx.Transpose();
-    auto worldNormal = invTx * localNormal;
-    worldNormal[3] = 0.f;
-    return worldNormal.Normalized();
+    auto const sphereToRay = ray.Origin() - Center();
+    float const a = ray.Direction().Dot(ray.Direction());
+    float const b = 2.f * ray.Direction().Dot(sphereToRay);
+    float const c = sphereToRay.Dot(sphereToRay) - 1.f;
+    float const discriminant = (b * b) - (4.f * a * c);
+
+    if (discriminant < 0.f)
+    {
+        return {};
+    }
+
+    float const aTimes2 = 1.f / (2.f * a);
+    float const sqrtDiscriminant = sqrtf(discriminant);
+
+    return {
+        { (-b - sqrtDiscriminant) * aTimes2, shared_from_this() },
+        { (-b + sqrtDiscriminant) * aTimes2, shared_from_this() }
+    };
 }
 
-bool Sphere::operator==(Sphere const& other) const
+bool Sphere::operator==(Shape const& other) const
 {
-    return m_material == other.m_material
-        && m_transform == other.m_transform;
+    auto otherSphere = dynamic_cast<Sphere const*>(&other);
+    return otherSphere && Shape::operator==(other);
 }

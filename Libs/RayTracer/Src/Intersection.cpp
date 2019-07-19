@@ -1,13 +1,13 @@
 #include "Intersection.h"
 
-Intersection::Intersection(float distance, Sphere const* s)
+Intersection::Intersection(float distance, ShapeConstPtr const& s)
     : m_distance(distance)
-    , m_object(s)
+    , m_shape(s)
 {}
 
 bool Intersection::operator==(Intersection const& other) const
 {
-    return m_distance == other.m_distance && m_object == other.m_object;
+    return m_distance == other.m_distance && m_shape == other.m_shape;
 }
 
 bool Intersection::operator<(Intersection const& other) const

@@ -1,5 +1,7 @@
 #include "Camera.h"
 #include "World.h"
+#include "TestHelpers.h"
+
 #include <Testing.h>
 
 SCENARIO("Constructing a camera", "[Scene]")

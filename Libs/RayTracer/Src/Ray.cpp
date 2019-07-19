@@ -7,24 +7,10 @@ Ray::Ray(Tuple const& origin, Tuple const& direction)
 {
 }
 
-std::vector<Intersection> Ray::Intersect(Sphere const& sphere) const
+std::vector<Intersection> Ray::Intersect(ShapePtr const& shape) const
 {
-    Ray const r = sphere.Transform().Inverse() * (*this);
-    auto const sphereToRay = r.m_origin - sphere.Center();
-    float const a = r.m_direction.Dot(r.m_direction);
-    float const b = 2.f * r.m_direction.Dot(sphereToRay);
-    float const c = sphereToRay.Dot(sphereToRay) - 1.f;
-    float const discriminant = (b * b) - (4.f * a * c);
-
-    if (discriminant < 0.f) return {};
-
-    float const aTimes2 = 1.f / (2.f * a);
-    float const sqrtDiscriminant = sqrtf(discriminant);
-
-    return {
-        { (-b - sqrtDiscriminant) * aTimes2, &sphere },
-        { (-b + sqrtDiscriminant) * aTimes2, &sphere }
-    };
+    Ray const r = shape->Transform().Inverse() * (*this);
+    return shape->Intersect(r);
 }
 
 std::vector<Intersection> Ray::Intersect(World const& world) const

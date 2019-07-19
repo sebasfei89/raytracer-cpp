@@ -2,6 +2,7 @@
 #include <Canvas.h>
 #include <Intersection.h>
 #include <Lighting.h>
+#include <Plane.h>
 #include <Ray.h>
 #include <Sphere.h>
 #include <Transformations.h>
@@ -12,35 +13,22 @@
 
 int main()
 {
-    auto floor = std::make_shared<Sphere>();
+    auto floor = std::make_shared<Plane>();
     {
-        floor->SetTransform(matrix::Scaling(10.f, 0.1f, 10.f));
         auto& material = floor->ModifyMaterial();
         material.SetColor({ 1.f, .9f, .9f });
         material.Specular(0.f);
     }
 
-    auto leftWall = std::make_shared<Sphere>();
+    auto roof = std::make_shared<Plane>();
     {
-        leftWall->SetTransform(
-            matrix::Translation(0.f, 0.f, 5.f) *
-            matrix::RotationY(-PI/4.f) *
-            matrix::RotationX(PI/2.f) *
-            matrix::Scaling(10.f, 0.1f, 10.f) );
-        leftWall->SetMaterial(floor->GetMaterial());
+        roof->SetTransform(matrix::Translation(0.f, 10.f, 0.f));
+        auto& material = roof->ModifyMaterial();
+        material.SetColor({ .2f, .9f, .1f });
+        material.Specular(0.1f);
     }
 
-    auto rightWall= std::make_shared<Sphere>();
-    {
-        rightWall->SetTransform(
-            matrix::Translation(0.f, 0.f, 5.f) *
-            matrix::RotationY(PI / 4.f) *
-            matrix::RotationX(PI / 2.f) *
-            matrix::Scaling(10.f, 0.1f, 10.f) );
-        rightWall->SetMaterial(floor->GetMaterial());
-    }
-
-    auto middleSphere= std::make_shared<Sphere>();
+    auto middleSphere = std::make_shared<Sphere>();
     {
         middleSphere->SetTransform(matrix::Translation(-.5f, 1.f, .5f));
         auto& material = middleSphere->ModifyMaterial();
@@ -49,7 +37,7 @@ int main()
         material.Specular(.3f);
     }
 
-    auto rightSphere= std::make_shared<Sphere>();
+    auto rightSphere = std::make_shared<Sphere>();
     {
         rightSphere->SetTransform(matrix::Translation(1.5f, .5f, -.5f) * matrix::Scaling(.5f, .5f, .5f));
         auto& material = rightSphere->ModifyMaterial();
@@ -58,7 +46,7 @@ int main()
         material.Specular(.3f);
     }
 
-    auto leftSphere= std::make_shared<Sphere>();
+    auto leftSphere = std::make_shared<Sphere>();
     {
         leftSphere->SetTransform(matrix::Translation(-1.5f, .33f, -.75f) * matrix::Scaling(.33f, .33f, .33f));
         auto& material = leftSphere->ModifyMaterial();
@@ -68,16 +56,15 @@ int main()
     }
 
     auto world = World();
-    world.Add(PointLight(Point(-10.f, 10.f, -10.f), {1.f, 1.f, 1.f}));
+    world.Add(PointLight(Point(-5.f, 5.f, -2.f), { 1.f, 1.f, 1.f }));
     world.Add(floor);
-    world.Add(leftWall);
-    world.Add(rightWall);
+    world.Add(roof);
     world.Add(middleSphere);
     world.Add(leftSphere);
     world.Add(rightSphere);
 
     auto camera = Camera(800, 600, PI / 3.f);
-    camera.SetTransform(matrix::View(Point(0.f, 1.5f, -5.f), Point(0.f, 1.f, 0.f), Vector(0.f, 1.f, 0.f)));
+    camera.SetTransform(matrix::View(Point(5.f, 2.5f, -5.f), Point(-3.f, 2.2f, 0.f), Vector(0.f, 1.f, 0.f)));
 
     std::cout << "Rendering scene..." << std::endl;
     using hrc = std::chrono::high_resolution_clock;
@@ -89,7 +76,7 @@ int main()
     std::cout << "Scene rendered in " << time_span.count() << " seconds." << std::endl;
 
     std::ofstream ppmFile;
-    ppmFile.open("Scene.ppm");
+    ppmFile.open("Ch7_plane.ppm");
     ppmFile << canvas.GetAsPPM();
     ppmFile.close();
 

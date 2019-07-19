@@ -1,4 +1,6 @@
 #include "Ray.h"
+#include "Sphere.h"
+#include "TestHelpers.h"
 #include "Transformations.h"
 #include "World.h"
 
@@ -17,20 +19,20 @@ SCENARIO("The default world", "[Scene]")
 {
     GIVEN_2(
         auto const light = PointLight(Point(-10.f, 10.f, -10.f), Color(1.f, 1.f, 1.f));
-        auto s1 = Sphere();
-        s1.ModifyMaterial().SetColor(Color(.8f, 1.f, .6f));
-        s1.ModifyMaterial().Diffuse(.7f);
-        s1.ModifyMaterial().Specular(.2f);
-        auto s2 = Sphere();
-        s2.SetTransform(matrix::Scaling(.5f, .5f, .5f));
+        auto s1 = std::make_shared<Sphere>();
+        s1->ModifyMaterial().SetColor(Color(.8f, 1.f, .6f));
+        s1->ModifyMaterial().Diffuse(.7f);
+        s1->ModifyMaterial().Specular(.2f);
+        auto s2 = std::make_shared<Sphere>();
+        s2->SetTransform(matrix::Scaling(.5f, .5f, .5f));
     WHEN_,
         auto const w = DefaultWorld();
     REQUIRE_,
         w.Lights().size() == 1,
         w.Lights()[0] == light,
         w.Objects().size() == 2,
-        w.Objects()[0] == s1,
-        w.Objects()[1] == s2 )
+        w.Objects()[0]->operator==(*s1.get()),
+        w.Objects()[1]->operator==(*s2.get()) )
 }
 
 SCENARIO("Intersect a world with a ray", "[Scene]")
@@ -52,8 +54,8 @@ SCENARIO("Precomputing the state of an interdection", "[Scene]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto s = Sphere();
-        auto const i = Intersection(4.f, &s);
+        auto s = std::make_shared<Sphere>();
+        auto const i = Intersection(4.f, s);
     WHEN_,
         auto const c = r.Precompute(i);
     REQUIRE_,
@@ -68,8 +70,8 @@ SCENARIO("The hit, when an intersection occurs on the outside", "[Scene]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto s = Sphere();
-        auto const i = Intersection(4.f, &s);
+        auto s = std::make_shared<Sphere>();
+        auto const i = Intersection(4.f, s);
     WHEN_,
         auto const c = r.Precompute(i);
     REQUIRE_,
@@ -80,8 +82,8 @@ SCENARIO("The hit, when an intersection occurs on the inside", "[Scene]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f));
-        auto s = Sphere();
-        auto const i = Intersection(1.f, &s);
+        auto s = std::make_shared<Sphere>();
+        auto const i = Intersection(1.f, s);
     WHEN_,
         auto const c = r.Precompute(i);
     REQUIRE_,
@@ -97,7 +99,7 @@ SCENARIO("Shading and intersection", "[Scene]")
         auto const w = DefaultWorld();
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
         auto const& s = w.Objects()[0];
-        auto const i = Intersection(4.f, &s);
+        auto const i = Intersection(4.f, s);
     WHEN_,
         auto const comps = r.Precompute(i);
         auto const c = w.ShadeHit(comps);
@@ -112,7 +114,7 @@ SCENARIO("Shading and intersection from the inside", "[Scene]")
         w.ModifyLights()[0] = PointLight(Point(0.f, 0.25f, 0.f), Color(1.f, 1.f, 1.f));
         auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f));
         auto const& s = w.Objects()[1];
-        auto const i = Intersection(.5f, &s);
+        auto const i = Intersection(.5f, s);
     WHEN_,
         auto const comps = r.Precompute(i);
         auto const c = w.ShadeHit(comps);
@@ -147,14 +149,14 @@ SCENARIO("The color with an intersection behind the ray", "[Scene]")
     GIVEN_2(
         auto w = DefaultWorld();
         auto& s1 = w.ModifyObjects()[0];
-        s1.ModifyMaterial().Ambient(1.f);
+        s1->ModifyMaterial().Ambient(1.f);
         auto& s2 = w.ModifyObjects()[1];
-        s2.ModifyMaterial().Ambient(1.f);
+        s2->ModifyMaterial().Ambient(1.f);
         auto const r = Ray(Point(0.f, 0.f, 0.75f), Vector(0.f, 0.f, -1.f));
     WHEN_,
         auto const c = w.ColorAt(r);
     REQUIRE_,
-        c == s2.GetMaterial().GetColor() )
+        c == s2->GetMaterial().GetColor() )
 }
 
 SCENARIO("There is no shadow when nothing is collinear with the point and light", "[Shadows]")
@@ -198,13 +200,13 @@ SCENARIO("ShadeHit is given an intersection in shadow", "[Scene]")
     GIVEN_2(
         auto w = World();
         w.Add(PointLight(Point(0.f, 0.f, -10.f), Color(1.f, 1.f, 1.f)));
-        auto s1 = Sphere();
+        auto s1 = std::make_shared<Sphere>();
         w.Add(s1);
-        auto s2 = Sphere();
-        s2.SetTransform(matrix::Translation(0.f, 0.f, 10.f));
+        auto s2 = std::make_shared<Sphere>();
+        s2->SetTransform(matrix::Translation(0.f, 0.f, 10.f));
         w.Add(s2);
         auto const r = Ray(Point(0.f, 0.f, 5.f), Vector(0.f, 0.f, 1.f));
-        auto const i = Intersection(4.f, &s2);
+        auto const i = Intersection(4.f, s2);
     WHEN_,
         auto const comps = r.Precompute(i);
         auto const c = w.ShadeHit(comps);

@@ -11,10 +11,13 @@ set( RT_SOURCES
     Include/Lighting.h
     Include/Material.h
     Include/Matrix.h
+    Include/Plane.h
     Include/Ray.h
+    Include/Shape.h
     Include/Sphere.h
     Include/Transformations.h
     Include/Tuple.h
+    Include/Types.h
     Include/Util.h
     Include/World.h
     Src/Camera.cpp
@@ -22,7 +25,9 @@ set( RT_SOURCES
     Src/Intersection.cpp
     Src/Lighting.cpp
     Src/Material.cpp
+    Src/Plane.cpp
     Src/Ray.cpp
+    Src/Shape.cpp
     Src/Sphere.cpp
     Src/Transformations.cpp
     Src/Tuple.cpp
@@ -43,8 +48,12 @@ set( TEST_SOURCES
     Test/Src/Light.cpp
     Test/Src/Main.cpp
     Test/Src/Matrix.cpp
+    Test/Src/Plane.cpp
     Test/Src/Ray.cpp
+    Test/Src/Shape.cpp
     Test/Src/Sphere.cpp
+    Test/Src/TestHelpers.h
+    Test/Src/TestHelpers.cpp
     Test/Src/Transformations.cpp
     Test/Src/Tuple.cpp
     Test/Src/World.cpp )
@@ -80,3 +89,8 @@ AddBinary( Ch7_Scene EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Scene.cpp )
+
+AddBinary( Ch9_Planes EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/Plane.cpp )

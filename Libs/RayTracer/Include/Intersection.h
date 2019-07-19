@@ -2,13 +2,12 @@
 
 #include "raytracer_export.h"
 #include "Matrix.h"
-#include "Sphere.h"
 #include "Tuple.h"
+#include "Types.h"
 
 #include <ostream>
 #include <vector>
 
-class Sphere;
 struct IntersectionData
 {
     Tuple m_point;
@@ -17,23 +16,23 @@ struct IntersectionData
     Tuple m_normalv;
     float m_distance;
     bool m_inside;
-    Sphere const* m_object;
+    ShapeConstPtr m_object;
 };
 
 class Intersection
 {
 public:
-    RAYTRACER_EXPORT Intersection(float distance, Sphere const* s);
+    RAYTRACER_EXPORT Intersection(float distance, ShapeConstPtr const& s);
 
     float Distance() const { return m_distance; }
-    Sphere const* Object() const { return m_object; }
+    ShapeConstPtr Object() const { return m_shape; }
 
     RAYTRACER_EXPORT bool operator==(Intersection const& other) const;
     RAYTRACER_EXPORT bool operator<(Intersection const& other) const;
 
 private:
     float m_distance;
-    Sphere const* m_object;
+    ShapeConstPtr m_shape;
 };
 
 RAYTRACER_EXPORT Intersection Hit(std::vector<Intersection> const& xs);

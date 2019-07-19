@@ -2,6 +2,7 @@
 #include <Intersection.h>
 #include <Lighting.h>
 #include <Ray.h>
+#include <Sphere.h>
 #include <Transformations.h>
 
 #include <fstream>
@@ -15,10 +16,10 @@ int main()
     float const wallSize = 7.f;
     float const wallHalfSize = wallSize * 0.5f;
     float const pixelSize = wallSize / (float)canvasPixels;
-    Sphere sphere;
+    auto sphere = std::make_shared<Sphere>();
     Material m;
     m.SetColor({ 1.f, 0.2f, 1.f });
-    sphere.SetMaterial(m);
+    sphere->SetMaterial(m);
     PointLight const light(Point(-10.f, 10.f, -10.f), {1.f, 1.f, 1.f});
 
     Canvas canvas(canvasPixels, canvasPixels);
