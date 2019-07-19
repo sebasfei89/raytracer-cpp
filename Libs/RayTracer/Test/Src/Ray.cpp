@@ -33,7 +33,8 @@ SCENARIO("A ray intersects a sphere at two points", "[Math]")
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
         auto const s = std::make_shared<Sphere>();
     WHEN_,
-        auto xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         xs.size() == 2,
         xs[0].Distance() == 4.0f,
@@ -46,7 +47,8 @@ SCENARIO("A ray intersects a sphere at a tangent", "[Math]")
         auto const r = Ray(Point(0.f, 1.f, -5.f), Vector(0.f, 0.f, 1.f));
         auto const s = std::make_shared<Sphere>();
     WHEN_,
-        auto xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         xs.size() == 2,
         xs[0].Distance() == 5.0f,
@@ -59,7 +61,8 @@ SCENARIO("A ray misses a sphere", "[Math]")
         auto const r = Ray(Point(0.f, 2.f, -5.f), Vector(0.f, 0.f, 1.f));
         auto const s = std::make_shared<Sphere>();
     WHEN_,
-        auto xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         xs.size() == 0 )
 }
@@ -70,7 +73,8 @@ SCENARIO("A ray originates inside a sphere", "[Math]")
         auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f));
         auto const s = std::make_shared<Sphere>();
     WHEN_,
-        auto xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         xs.size() == 2,
         xs[0].Distance() == -1.0f,
@@ -83,7 +87,8 @@ SCENARIO("A sphere is behind a ray", "[Math]")
         auto const r = Ray(Point(0.f, 0.f, 5.f), Vector(0.f, 0.f, 1.f));
         auto const s = std::make_shared<Sphere>();
     WHEN_,
-        auto xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         xs.size() == 2,
         xs[0].Distance() == -6.0f,

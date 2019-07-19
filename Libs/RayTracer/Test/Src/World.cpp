@@ -41,7 +41,8 @@ SCENARIO("Intersect a world with a ray", "[Scene]")
         auto const w = DefaultWorld();
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
     WHEN_,
-        auto const xs = r.Intersect(w);
+        std::vector<Intersection> xs;
+        r.Intersect(w, xs);
     REQUIRE_,
         xs.size() == 4,
         xs[0].Distance() == 4.f, 

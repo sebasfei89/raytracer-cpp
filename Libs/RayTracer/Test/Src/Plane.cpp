@@ -23,7 +23,8 @@ SCENARIO("Intersects a plane with a ray paralel to the plane", "[Shapes]")
         Plane p;
         auto const r = Ray(Point(0.f, 10.f, 0.f), Vector(0.f, 0.f, 1.f));
     WHEN_,
-        auto const xs = p.Intersect(r);
+        std::vector<Intersection> xs;
+        p.Intersect(r, xs);
     REQUIRE_,
         xs.size() == 0 )
 }
@@ -34,7 +35,8 @@ SCENARIO("Intersects a plane with a coplanar ray", "[Shapes]")
         Plane p;
         auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f));
     WHEN_,
-        auto const xs = p.Intersect(r);
+        std::vector<Intersection> xs;
+        p.Intersect(r, xs);
     REQUIRE_,
         xs.size() == 0)
 }
@@ -45,7 +47,8 @@ SCENARIO("A ray intersecting a plane from above", "[Shapes]")
         auto p = std::make_shared<Plane>();
         auto const r = Ray(Point(0.f, 1.f, 0.f), Vector(0.f, -1.f, 0.f));
     WHEN_,
-        auto const xs = p->Intersect(r);
+        std::vector<Intersection> xs;
+        p->Intersect(r, xs);
     REQUIRE_,
         xs.size() == 1,
         xs[0].Distance() == 1.f,
@@ -58,7 +61,8 @@ SCENARIO("A ray intersecting a plane from below", "[Shapes]")
         auto p = std::make_shared<Plane>();
         auto const r = Ray(Point(0.f, -1.f, 0.f), Vector(0.f, 1.f, 0.f));
     WHEN_,
-        auto const xs = p->Intersect(r);
+        std::vector<Intersection> xs;
+        p->Intersect(r, xs);
     REQUIRE_,
         xs.size() == 1,
         xs[0].Distance() == 1.f,

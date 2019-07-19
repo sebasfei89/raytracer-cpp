@@ -19,8 +19,8 @@ public:
 
     Tuple Position(float t) const { return m_origin + (m_direction * t); }
 
-    std::vector<Intersection> Intersect(ShapePtr const& shape) const;
-    std::vector<Intersection> Intersect(World const& world) const;
+    void Intersect(ShapePtr const& shape, std::vector<Intersection>& xs) const;
+    void Intersect(World const& world, std::vector<Intersection>& xs) const;
 
     IntersectionData Precompute(Intersection const& i) const;
 

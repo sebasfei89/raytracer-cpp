@@ -15,8 +15,9 @@ class Shape : public std::enable_shared_from_this<Shape>
 public:
     RAYTRACER_EXPORT Shape();
 
-    void SetTransform(Mat44 const& t) { m_transform = t; }
+    void SetTransform(Mat44 const& t) { m_transform = t; m_invTransform = t.Inverse(); }
     Mat44 const& Transform() const { return m_transform; }
+    Mat44 const& InvTransform() const { return m_invTransform; }
 
     Material& ModifyMaterial() { return m_material; }
     Material const& GetMaterial() const { return m_material; }
@@ -28,11 +29,12 @@ public:
     virtual Tuple NormalAtLocal(Tuple const& point) const = 0;
 
     // ray is in shape's local space
-    virtual std::vector<Intersection> Intersect(Ray const& ray) const = 0;
+    virtual void Intersect(Ray const& ray, std::vector<Intersection>& xs) const = 0;
 
     RAYTRACER_EXPORT virtual bool operator==(Shape const& other) const;
 
 private:
     Mat44 m_transform;
+    Mat44 m_invTransform;
     Material m_material;
 };

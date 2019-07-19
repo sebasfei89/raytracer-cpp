@@ -11,61 +11,6 @@ Tuple Vector(float x, float y, float z)
     return { x, y, z, 0.0f };
 }
 
-Tuple operator+(Tuple const& a, Tuple const& b)
-{
-    return {
-        a[0] + b[0],
-        a[1] + b[1],
-        a[2] + b[2],
-        a[3] + b[3]
-    };
-}
-
-Tuple operator-(Tuple const& a, Tuple const& b)
-{
-    return {
-        a[0] - b[0],
-        a[1] - b[1],
-        a[2] - b[2],
-        a[3] - b[3]
-    };
-}
-
-Tuple operator*(Tuple const& a, Tuple const& b)
-{
-    return {
-        a[0] * b[0],
-        a[1] * b[1],
-        a[2] * b[2],
-        a[3] * b[3]
-    };
-}
-
-Tuple operator-(Tuple const& t)
-{
-    return {
-        -t[0],
-        -t[1],
-        -t[2],
-        -t[3]
-    };
-}
-
-Tuple operator*(Tuple const& t, float s)
-{
-    return {
-        t[0] * s,
-        t[1] * s,
-        t[2] * s,
-        t[3] * s
-    };
-}
-
-Tuple operator/(Tuple const& t, float s)
-{
-    return t * (1.f / s);
-}
-
 std::ostream& operator<<(std::ostream& os, Tuple const& t)
 {
     os << "[" << t[0];
@@ -134,29 +79,27 @@ float Tuple::Length() const
 
 void Tuple::Normalize()
 {
-    float const length = Length();
-    for (int i = 0; i < 4; i++)
-    {
-        (this->operator[])(i) /= length;
-    }
+    float const oneOverLength = 1.f / Length();
+    m_x *= oneOverLength;
+    m_y *= oneOverLength;
+    m_z *= oneOverLength;
+    m_w *= oneOverLength;
 }
 
 Tuple Tuple::Normalized() const
 {
-    Tuple t = (*this);
-    t.Normalize();
-    return t;
+    float const oneOverLength = 1.f / Length();
+    return {
+        m_x * oneOverLength,
+        m_y * oneOverLength,
+        m_z * oneOverLength,
+        m_w * oneOverLength
+    };
 }
 
 float Tuple::Dot(Tuple const& other) const
 {
-    float result = 0.f;
-    for (int i = 0; i < 4; i++)
-    {
-        result += (*this)[i] * other[i];
-    }
-
-    return result;
+    return (X() * other.X()) + (Y() * other.Y()) + (Z() * other.Z()) + (W() * other.W());
 }
 
 Tuple Tuple::Cross(Tuple const& other) const

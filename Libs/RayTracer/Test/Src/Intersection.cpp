@@ -36,7 +36,8 @@ SCENARIO("Intersect sets the object on the intersection", "[Math]")
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
         auto const s = std::make_shared<Sphere>();
     WHEN_,
-        auto xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         xs.size() == 2,
         xs[0].Object() == s,

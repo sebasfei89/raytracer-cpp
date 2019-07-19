@@ -7,13 +7,12 @@ Tuple Plane::NormalAtLocal(Tuple const& point) const
     return Vector(0.f, 1.f, 0.f);
 }
 
-std::vector<Intersection> Plane::Intersect(Ray const& ray) const
+void Plane::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
 {
-    float const yDirection = ray.Direction()[1];
+    float const yDirection = ray.Direction().Y();
     if (std::abs(yDirection) < EPSILON)
     {
-        return {};
+        return;
     }
-
-    return { {(-ray.Origin()[1]) / yDirection, shared_from_this() } };
+    xs.push_back({ (-ray.Origin().Y()) / yDirection, shared_from_this() });
 }

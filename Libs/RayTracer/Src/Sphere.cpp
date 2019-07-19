@@ -3,12 +3,13 @@
 
 Tuple Sphere::NormalAtLocal(Tuple const& localPoint) const
 {
-    return localPoint - Center();
+    return { localPoint.X(), localPoint.Y(), localPoint.Z(), 0.f };
 }
 
-std::vector<Intersection> Sphere::Intersect(Ray const& ray) const
+void Sphere::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
 {
-    auto const sphereToRay = ray.Origin() - Center();
+    auto sphereToRay = ray.Origin();
+    sphereToRay.W() = 0.f;
     float const a = ray.Direction().Dot(ray.Direction());
     float const b = 2.f * ray.Direction().Dot(sphereToRay);
     float const c = sphereToRay.Dot(sphereToRay) - 1.f;
@@ -16,16 +17,14 @@ std::vector<Intersection> Sphere::Intersect(Ray const& ray) const
 
     if (discriminant < 0.f)
     {
-        return {};
+        return;
     }
 
     float const aTimes2 = 1.f / (2.f * a);
-    float const sqrtDiscriminant = sqrtf(discriminant);
-
-    return {
-        { (-b - sqrtDiscriminant) * aTimes2, shared_from_this() },
-        { (-b + sqrtDiscriminant) * aTimes2, shared_from_this() }
-    };
+    float const sqrtDiscriminant = sqrtf(discriminant) * aTimes2;
+    float const t = -b * aTimes2;
+    xs.push_back({ t - sqrtDiscriminant, shared_from_this() });
+    xs.push_back({ t + sqrtDiscriminant, shared_from_this() });
 }
 
 bool Sphere::operator==(Shape const& other) const

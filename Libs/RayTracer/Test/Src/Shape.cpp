@@ -11,10 +11,9 @@ public:
         : m_localRay(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f))
     {}
 
-    std::vector<Intersection> Intersect(Ray const& ray) const override
+    void Intersect(Ray const& ray, std::vector<Intersection>& xs) const override
     {
         const_cast<TestShape*>(this)->m_localRay = ray;
-        return {};
     }
 
     Tuple NormalAtLocal(Tuple const& point) const override
@@ -73,7 +72,8 @@ SCENARIO("Intersecting a scaled shape with a ray", "[Math]")
         auto s = std::make_shared<TestShape>();
     WHEN_,
         s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f));
-        auto const xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         s->m_localRay.Origin() == Point(0.f, 0.f, -2.5f),
         s->m_localRay.Direction() == Vector(0.f, 0.f, .5f) )
@@ -86,7 +86,8 @@ SCENARIO("Intersecting a translated shape with a ray", "[Math]")
         auto s = std::make_shared<TestShape>();
     WHEN_,
         s->SetTransform(matrix::Translation(5.f, 0.f, 0.f));
-        auto const xs = r.Intersect(s);
+        std::vector<Intersection> xs;
+        r.Intersect(s, xs);
     REQUIRE_,
         s->m_localRay.Origin() == Point(-5.f, 0.f, -5.f),
         s->m_localRay.Direction() == Vector(0.f, 0.f, 1.f) )

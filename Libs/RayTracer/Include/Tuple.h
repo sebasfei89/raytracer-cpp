@@ -29,6 +29,16 @@ public:
 
     Tuple Reflect(Tuple const& other) const;
 
+    float X() const { return m_x; }
+    float Y() const { return m_y; }
+    float Z() const { return m_z; }
+    float W() const { return m_w; }
+
+    float& X() { return m_x; }
+    float& Y() { return m_y; }
+    float& Z() { return m_z; }
+    float& W() { return m_w; }
+
 private:
     float m_x;
     float m_y;
@@ -39,11 +49,14 @@ private:
 RAYTRACER_EXPORT Tuple Point(float x, float y, float z);
 RAYTRACER_EXPORT Tuple Vector(float x, float y, float z);
 
-RAYTRACER_EXPORT Tuple operator+(Tuple const& a, Tuple const& b);
-RAYTRACER_EXPORT Tuple operator-(Tuple const& a, Tuple const& b);
-RAYTRACER_EXPORT Tuple operator*(Tuple const& a, Tuple const& b);
-RAYTRACER_EXPORT Tuple operator*(Tuple const& t, float s);
-RAYTRACER_EXPORT Tuple operator/(Tuple const& t, float s);
-RAYTRACER_EXPORT Tuple operator-(Tuple const& t);
+#define APPLY_OPERATOR(a, b, op) { a.X() op b.X(), a.Y() op b.Y(), a.Z() op b.Z(), a.W() op b.W() }
+inline Tuple operator+(Tuple const& a, Tuple const& b) { return APPLY_OPERATOR(a, b, +); }
+inline Tuple operator-(Tuple const& a, Tuple const& b) { return APPLY_OPERATOR(a, b, -); }
+inline Tuple operator*(Tuple const& a, Tuple const& b) { return APPLY_OPERATOR(a, b, *); }
+#undef APPLY_OPERATOR
+
+inline Tuple operator*(Tuple const& t, float s) { return { t.X() * s, t.Y() * s, t.Z() * s, t.W() * s }; }
+inline Tuple operator/(Tuple const& t, float s) { return t * (1.f / s); }
+inline Tuple operator-(Tuple const& t) { return { -t.X(), -t.Y(), -t.Z(), -t.W() }; }
 
 RAYTRACER_EXPORT std::ostream& operator<<(std::ostream& os, Tuple const& t);

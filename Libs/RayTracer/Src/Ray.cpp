@@ -7,22 +7,19 @@ Ray::Ray(Tuple const& origin, Tuple const& direction)
 {
 }
 
-std::vector<Intersection> Ray::Intersect(ShapePtr const& shape) const
+void Ray::Intersect(ShapePtr const& shape, std::vector<Intersection>& xs) const
 {
-    Ray const r = shape->Transform().Inverse() * (*this);
-    return shape->Intersect(r);
+    Ray const r = shape->InvTransform() * (*this);
+    return shape->Intersect(r, xs);
 }
 
-std::vector<Intersection> Ray::Intersect(World const& world) const
+void Ray::Intersect(World const& world, std::vector<Intersection>& xs) const
 {
-    std::vector<Intersection> xs;
     for (auto const& obj : world.Objects())
     {
-        auto const objXs = Intersect(obj);
-        xs.insert(xs.end(), objXs.begin(), objXs.end());
+        Intersect(obj, xs);
     }
     std::sort(xs.begin(), xs.end());
-    return xs;
 }
 
 IntersectionData Ray::Precompute(Intersection const& i) const

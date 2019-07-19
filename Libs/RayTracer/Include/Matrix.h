@@ -26,8 +26,20 @@ public:
     bool operator!=(Matrix const& other) const { return !this->operator==(other); }
 
     Matrix operator*(Matrix const& other) const;
-    Tuple operator*(Tuple const& tuple) const;
 
+    template<uint8_t R = ROWS, uint8_t C = COLS>
+    typename std::enable_if<(R == 4) && (C == 4), Tuple>::type
+    operator*(Tuple const& tuple) const
+    {
+        return {
+            (At<0,0>() * tuple.X()) + (At<0,1>() * tuple.Y()) + (At<0,2>() * tuple.Z()) + (At<0,3>() * tuple.W()),
+            (At<1,0>() * tuple.X()) + (At<1,1>() * tuple.Y()) + (At<1,2>() * tuple.Z()) + (At<1,3>() * tuple.W()),
+            (At<2,0>() * tuple.X()) + (At<2,1>() * tuple.Y()) + (At<2,2>() * tuple.Z()) + (At<2,3>() * tuple.W()),
+            (At<3,0>() * tuple.X()) + (At<3,1>() * tuple.Y()) + (At<3,2>() * tuple.Z()) + (At<3,3>() * tuple.W())
+        };
+    }
+
+    Matrix Transposed() const;
     void Transpose();
 
     template<uint8_t R=ROWS, uint8_t C=COLS>
@@ -107,20 +119,6 @@ Matrix<ROWS, COLS> Matrix<ROWS, COLS>::operator*(Matrix const& other) const
 }
 
 template<uint8_t ROWS, uint8_t COLS>
-Tuple Matrix<ROWS, COLS>::operator*(Tuple const& tuple) const
-{
-    Tuple t{ 0.f, 0.f, 0.f, 0.f };
-    for (int i = 0; i < ROWS; i++)
-    {
-        t[i] = At(i, 0) * tuple[0]
-             + At(i, 1) * tuple[1]
-             + At(i, 2) * tuple[2]
-             + At(i, 3) * tuple[3];
-    }
-    return t;
-}
-
-template<uint8_t ROWS, uint8_t COLS>
 void Matrix<ROWS, COLS>::Transpose()
 {
     for (int i = 0; i < (ROWS - 1); i++)
@@ -130,6 +128,14 @@ void Matrix<ROWS, COLS>::Transpose()
             std::swap(m_data[i][j], m_data[j][i]);
         }
     }
+}
+
+template<uint8_t ROWS, uint8_t COLS>
+Matrix<ROWS, COLS> Matrix<ROWS, COLS>::Transposed() const
+{
+    Matrix<ROWS, COLS> tmp = *this;
+    tmp.Transpose();
+    return tmp;
 }
 
 template<>

@@ -5,6 +5,7 @@ Camera::Camera(uint32_t hSize, uint32_t vSize, float fov)
     , m_vSize(vSize)
     , m_fov(fov)
     , m_transform(Mat44::Identity())
+    , m_invTransform(Mat44::Identity())
 {
     float const halfView = std::tanf(m_fov / 2.f);
     float const aspect = (float)m_hSize / (float)m_vSize;
@@ -19,9 +20,8 @@ Ray Camera::RayForPixel(uint32_t x, uint32_t y) const
     float const yOffset = (y + .5f) * m_pixelSize;
     float const worldX = m_halfWidth - xOffset;
     float const worldY = m_halfHeight - yOffset;
-    auto const invTx = m_transform.Inverse();
-    auto const pixel = invTx * Point(worldX, worldY, -1.f);
-    auto const origin = invTx * Point(0.f, 0.f, 0.f);
+    auto const pixel = m_invTransform * Point(worldX, worldY, -1.f);
+    auto const origin = m_invTransform * Point(0.f, 0.f, 0.f);
     auto const direction = (pixel - origin).Normalized();
     return Ray(origin, direction);
 }

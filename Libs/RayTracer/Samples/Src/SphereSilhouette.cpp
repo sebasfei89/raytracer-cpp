@@ -31,7 +31,8 @@ int main()
 
             auto const pointInWall = Point(worldX, worldY, wallZ);
             auto const r = Ray(rayOrigin, (pointInWall - rayOrigin));
-            auto const xs = r.Intersect(sphere);
+            std::vector<Intersection> xs;
+            r.Intersect(sphere, xs);
 
             if (Hit(xs).Object() != nullptr)
             {

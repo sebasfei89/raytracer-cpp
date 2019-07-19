@@ -17,7 +17,7 @@ public:
     float FieldOfView() const { return m_fov; }
     float PixelSize() const { return m_pixelSize; }
 
-    void SetTransform(Mat44 const& transform) { m_transform = transform; }
+    void SetTransform(Mat44 const& transform) { m_transform = transform; m_invTransform = transform.Inverse(); }
     Mat44 const& Transform() const { return m_transform; }
 
     RAYTRACER_EXPORT Ray RayForPixel(uint32_t x, uint32_t y) const;
@@ -26,6 +26,7 @@ public:
 
 private:
     Mat44 m_transform;
+    Mat44 m_invTransform;
     float m_fov;
     float m_halfWidth;
     float m_halfHeight;

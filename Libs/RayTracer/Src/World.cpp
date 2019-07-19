@@ -17,7 +17,10 @@ Color World::ShadeHit(IntersectionData const& data) const
 
 Color World::ColorAt(Ray const& r) const
 {
-    auto const xs = r.Intersect(*this);
+    std::vector<Intersection> xs;
+    xs.reserve(10);
+
+    r.Intersect(*this, xs);
     auto const i = Hit(xs);
     if (i.Object() == nullptr)
     {
@@ -33,7 +36,9 @@ bool World::IsShadowed(Tuple const& point, PointLight const& light) const
     auto const pointToLight = light.Position() - point;
     auto const distanceToLight = pointToLight.Length();
     auto const rayToLight = Ray(point, pointToLight.Normalized());
-    auto const xs = rayToLight.Intersect(*this);
+    std::vector<Intersection> xs;
+    xs.reserve(10);
+    rayToLight.Intersect(*this, xs);
     auto const hit = Hit(xs);
     if (hit.Object() == nullptr)
     {
