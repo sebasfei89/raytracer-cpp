@@ -1,5 +1,23 @@
 #include "Camera.h"
 
+#include <thread>
+
+namespace
+{
+    uint32_t const RENDER_TASKS = 12;
+    void RenderRow(Camera const& camera, World const& world, Canvas &canvas, uint32_t rowBegin, uint32_t rowEnd, uint32_t cols)
+    {
+        for (uint32_t y = rowBegin; y < rowEnd; y++)
+        {
+            for (uint32_t x = 0; x < cols; x++)
+            {
+                Ray const r = camera.RayForPixel(x, y);
+                canvas.WritePixel(x, y, world.ColorAt(r));
+            }
+        }
+    }
+}
+
 Camera::Camera(uint32_t hSize, uint32_t vSize, float fov)
     : m_hSize(hSize)
     , m_vSize(vSize)
@@ -29,13 +47,25 @@ Ray Camera::RayForPixel(uint32_t x, uint32_t y) const
 Canvas Camera::Render(World const& world) const
 {
     Canvas c(m_hSize, m_vSize);
-    for (uint32_t y = 0; y < m_vSize; y++)
+
+    std::vector<std::thread> threadPool;
+    uint32_t const rowsPerThread = m_vSize / RENDER_TASKS;
+
+    // Divide work between RENDER_TASKS - 1 threads
+    for (uint32_t y = 0; y < (RENDER_TASKS - 1); y++)
     {
-        for (uint32_t x = 0; x < m_hSize; x++)
-        {
-            Ray const r = RayForPixel(x, y);
-            c.WritePixel(x, y, world.ColorAt(r));
-        }
+        uint32_t const begin = y * rowsPerThread;
+        uint32_t const end = begin + rowsPerThread;
+        threadPool.push_back(std::thread(RenderRow, std::ref(*this), std::ref(world), std::ref(c), begin, end, m_hSize));
+    }
+
+    // Last task is run on main thread
+    uint32_t const begin = (RENDER_TASKS - 1) * rowsPerThread;
+    RenderRow(*this, world, c, begin, m_vSize, m_hSize);
+
+    for (auto& t : threadPool)
+    {
+        t.join();
     }
 
     return c;
