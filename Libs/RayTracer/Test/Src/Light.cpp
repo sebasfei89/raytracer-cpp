@@ -1,4 +1,7 @@
 #include "Lighting.h"
+#include "Pattern.h"
+#include "Sphere.h"
+
 #include <Testing.h>
 
 SCENARIO("A point light has a position and intesity", "[Lighting]")
@@ -28,13 +31,14 @@ SCENARIO("The default material", "[Lighting]")
 SCENARIO("Lighting with the eye between the light and the surface", "[Lighting]")
 {
     GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
         auto const m = Material();
         auto const position = Point(0.f, 0.f, 0.f);
         auto const eyev = Vector(0.f, 0.f, -1.f);
         auto const normalv = Vector(0.f, 0.f, -1.f);
         auto const light = PointLight(Point(0.f, 0.f, -10.f), {1.f, 1.f, 1.f});
     WHEN_,
-        auto const result = Lighting(m, light, position, eyev, normalv);
+        auto const result = Lighting(m, s, light, position, eyev, normalv);
     REQUIRE_,
         result == Color(1.9f, 1.9f, 1.9f) )
 }
@@ -43,13 +47,14 @@ SCENARIO("Lighting with the eye between the light and the surface, eye offset 45
 {
     float const coord = std::sqrt(2.f) / 2.f;
     GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
         auto const m = Material();
         auto const position = Point(0.f, 0.f, 0.f);
         auto const eyev = Vector(0.f, coord, -coord);
         auto const normalv = Vector(0.f, 0.f, -1.f);
         auto const light = PointLight(Point(0.f, 0.f, -10.f), { 1.f, 1.f, 1.f });
     WHEN_,
-        auto const result = Lighting(m, light, position, eyev, normalv);
+        auto const result = Lighting(m, s, light, position, eyev, normalv);
     REQUIRE_,
         result == Color(1.0f, 1.0f, 1.0f) )
 }
@@ -57,13 +62,14 @@ SCENARIO("Lighting with the eye between the light and the surface, eye offset 45
 SCENARIO("Lighting with eye oposite surface, light offset 45 deg", "[Lighting]")
 {
     GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
         auto const m = Material();
         auto const position = Point(0.f, 0.f, 0.f);
         auto const eyev = Vector(0.f, 0.f, -1.f);
         auto const normalv = Vector(0.f, 0.f, -1.f);
         auto const light = PointLight(Point(0.f, 10.f, -10.f), { 1.f, 1.f, 1.f });
     WHEN_,
-        auto const result = Lighting(m, light, position, eyev, normalv);
+        auto const result = Lighting(m, s, light, position, eyev, normalv);
     REQUIRE_,
         result == Color(0.7364f, 0.7364f, 0.7364f) )
 }
@@ -72,13 +78,14 @@ SCENARIO("Lighting with eye in the path of the reflection vector", "[Lighting]")
 {
     float const coord = std::sqrt(2.f) / 2.f;
     GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
         auto const m = Material();
         auto const position = Point(0.f, 0.f, 0.f);
         auto const eyev = Vector(0.f, -coord, -coord);
         auto const normalv = Vector(0.f, 0.f, -1.f);
         auto const light = PointLight(Point(0.f, 10.f, -10.f), { 1.f, 1.f, 1.f });
     WHEN_,
-        auto const result = Lighting(m, light, position, eyev, normalv);
+        auto const result = Lighting(m, s, light, position, eyev, normalv);
     REQUIRE_,
         result == Color(1.63639f, 1.63639f, 1.63639f) )
 }
@@ -86,20 +93,22 @@ SCENARIO("Lighting with eye in the path of the reflection vector", "[Lighting]")
 SCENARIO("Lighting with the light behind the surface", "[Lighting]")
 {
     GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
         auto const m = Material();
         auto const position = Point(0.f, 0.f, 0.f);
         auto const eyev = Vector(0.f, 0.f, -1.f);
         auto const normalv = Vector(0.f, 0.f, -1.f);
         auto const light = PointLight(Point(0.f, 0.f, 10.f), { 1.f, 1.f, 1.f });
     WHEN_,
-        auto const result = Lighting(m, light, position, eyev, normalv);
+        auto const result = Lighting(m, s, light, position, eyev, normalv);
     REQUIRE_,
         result == Color(0.1f, 0.1f, 0.1f) )
 }
 
-SCENARIO("Lighting with the surface in shadow", "[Shadows]")
+SCENARIO("Lighting with the surface in shadow", "[Lighting]")
 {
     GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
         auto const m = Material();
         auto const position = Point(0.f, 0.f, 0.f);
         auto const eyev = Vector(0.f, 0.f, -1.f);
@@ -107,7 +116,27 @@ SCENARIO("Lighting with the surface in shadow", "[Shadows]")
         auto const light = PointLight(Point(0.f, 0.f, -10.f), { 1.f, 1.f, 1.f });
         auto const inShadow = true;
     WHEN_,
-        auto const result = Lighting(m, light, position, eyev, normalv, inShadow);
+        auto const result = Lighting(m, s, light, position, eyev, normalv, inShadow);
     REQUIRE_,
         result == Color(.1f, .1f, .1f) )
+}
+
+SCENARIO("Lighting with a pattern applied", "[Lighting]")
+{
+    GIVEN_2(
+        auto const s = std::make_shared<Sphere>();
+        auto m = Material();
+        m.Pattern(std::make_shared<StripPattern>(Color::White(), Color::Black()));
+        m.Ambient(1.f);
+        m.Diffuse(0.f);
+        m.Specular(0.f);
+        auto const eyev = Vector(0.f, 0.f, -1.f);
+        auto const normalv = Vector(0.f, 0.f, -1.f);
+        auto const light = PointLight(Point(0.f, 0.f, -10.f), Color::White());
+    WHEN_,
+        auto const c1 = Lighting(m, s, light, Point(.9f, 0.f, 0.f), eyev, normalv, false);
+        auto const c2 = Lighting(m, s, light, Point(1.1f, 0.f, 0.f), eyev, normalv, false);
+    REQUIRE_,
+        c1 == Color::White(),
+        c2 == Color::Black() )
 }

@@ -8,9 +8,9 @@ PointLight::PointLight(Tuple position, Color intensity)
 {
 }
 
-Color Lighting(Material const& m, PointLight const& light, Tuple const& position, Tuple const& eye, Tuple const& normal, bool inShadow)
+Color Lighting(Material const& m, ShapeConstPtr const& shape, PointLight const& light, Tuple const& position, Tuple const& eye, Tuple const& normal, bool inShadow)
 {
-    Color effectiveColor = m.GetColor() * light.Intensity();
+    Color effectiveColor = m.ColorAt(shape, position) * light.Intensity();
 
     Tuple const lightDir = (light.Position() - position).Normalized();
     Color const ambient = effectiveColor * m.Ambient();

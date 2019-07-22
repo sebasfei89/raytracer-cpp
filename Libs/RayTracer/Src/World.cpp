@@ -9,7 +9,7 @@ Color World::ShadeHit(IntersectionData const& data) const
     for (auto const& light : m_lights)
     {
         bool isInShadow = IsShadowed(data.m_overPoint, light);
-        color = color + Lighting(data.m_object->GetMaterial(), light,
+        color = color + Lighting(data.m_object->GetMaterial(), data.m_object, light,
             data.m_overPoint, data.m_eyev, data.m_normalv, isInShadow);
     }
     return color;

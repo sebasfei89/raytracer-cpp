@@ -11,9 +11,11 @@ set( RT_SOURCES
     Include/Lighting.h
     Include/Material.h
     Include/Matrix.h
+    Include/Pattern.h
     Include/Plane.h
     Include/Ray.h
     Include/Shape.h
+    Include/SimplexNoise.h
     Include/Sphere.h
     Include/Transformations.h
     Include/Tuple.h
@@ -25,9 +27,11 @@ set( RT_SOURCES
     Src/Intersection.cpp
     Src/Lighting.cpp
     Src/Material.cpp
+    Src/Pattern.cpp
     Src/Plane.cpp
     Src/Ray.cpp
     Src/Shape.cpp
+    Src/SimplexNoise.cpp
     Src/Sphere.cpp
     Src/Transformations.cpp
     Src/Tuple.cpp
@@ -48,6 +52,7 @@ set( TEST_SOURCES
     Test/Src/Light.cpp
     Test/Src/Main.cpp
     Test/Src/Matrix.cpp
+    Test/Src/Pattern.cpp
     Test/Src/Plane.cpp
     Test/Src/Ray.cpp
     Test/Src/Shape.cpp
@@ -65,32 +70,37 @@ AddBinary( RayTracerTest EXECUTABLE
     PRIVATE_DIRS "./Test/Src" "./Src" "../../External" )
 
 # Sample projects #############################################################
-AddBinary( Ch2_ProjectilTrajectory EXECUTABLE
+AddBinary( Ch02_ProjectilTrajectory EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/ProjectilTrajectory.cpp )
 
-AddBinary( Ch4_WallClock EXECUTABLE
+AddBinary( Ch04_WallClock EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/WallClock.cpp )
 
-AddBinary( Ch5_SphereSilhouette EXECUTABLE
+AddBinary( Ch05_SphereSilhouette EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/SphereSilhouette.cpp )
 
-AddBinary( Ch6_LitSphere EXECUTABLE
+AddBinary( Ch06_LitSphere EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/LitSphere.cpp )
 
-AddBinary( Ch7_Scene EXECUTABLE
+AddBinary( Ch07_Scene EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Scene.cpp )
 
-AddBinary( Ch9_Planes EXECUTABLE
+AddBinary( Ch09_Planes EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Plane.cpp )
+
+AddBinary( Ch10_Patterns EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/Patterns.cpp )

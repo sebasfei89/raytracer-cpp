@@ -20,4 +20,4 @@ private:
     Color m_intensity;
 };
 
-RAYTRACER_EXPORT Color Lighting(Material const& m, PointLight const& light, Tuple const& position, Tuple const& eye, Tuple const& normal, bool inShadow=false);
+RAYTRACER_EXPORT Color Lighting(Material const& m, ShapeConstPtr const& shape, PointLight const& light, Tuple const& position, Tuple const& eye, Tuple const& normal, bool inShadow=false);

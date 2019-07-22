@@ -44,7 +44,7 @@ int main()
                 auto const hitPos = ray.Position(hit.Distance());
                 auto const normal = hit.Object()->NormalAt(hitPos);
                 auto const eye = -ray.Direction();
-                auto const color = Lighting(hit.Object()->GetMaterial(), light, hitPos, eye, normal);
+                auto const color = Lighting(hit.Object()->GetMaterial(), hit.Object(), light, hitPos, eye, normal);
                 canvas.WritePixel(x, y, color);
             }
         }

@@ -61,3 +61,9 @@ SCENARIO("Color operations", "[Color]")
         }
     }
 }
+
+SCENARIO("Common color constants")
+{
+    REQUIRE(Color::White() == Color(1.f, 1.f, 1.f));
+    REQUIRE(Color::Black() == Color(0.f, 0.f, 0.f));
+}

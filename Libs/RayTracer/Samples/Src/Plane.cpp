@@ -76,7 +76,7 @@ int main()
     std::cout << "Scene rendered in " << time_span.count() << " seconds." << std::endl;
 
     std::ofstream ppmFile;
-    ppmFile.open("Ch7_plane.ppm");
+    ppmFile.open("Ch9_plane.ppm");
     ppmFile << canvas.GetAsPPM();
     ppmFile.close();
 
