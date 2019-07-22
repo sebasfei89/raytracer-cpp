@@ -22,6 +22,9 @@ public:
     void Intersect(ShapePtr const& shape, std::vector<Intersection>& xs) const;
     void Intersect(World const& world, std::vector<Intersection>& xs) const;
 
+    bool HasIntersectionNearThan(World const& world, float distance) const;
+    bool IntersectsBefore(ShapePtr const& shape, float distance) const;
+
     IntersectionData Precompute(Intersection const& i) const;
 
 private:

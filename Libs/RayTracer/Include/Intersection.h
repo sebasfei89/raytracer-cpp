@@ -40,7 +40,9 @@ RAYTRACER_EXPORT Intersection Hit(std::vector<Intersection> const& xs);
 template<typename ...Args>
 std::vector<Intersection> Intersections(Args const&... args)
 {
-    return { args... };
+    std::vector<Intersection> xs{ args... };
+    std::sort(xs.begin(), xs.end());
+    return xs;
 }
 
 RAYTRACER_EXPORT std::ostream& operator<<(std::ostream& os, Intersection const& i);

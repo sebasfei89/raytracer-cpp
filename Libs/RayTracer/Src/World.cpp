@@ -36,14 +36,6 @@ bool World::IsShadowed(Tuple const& point, PointLight const& light) const
     auto const pointToLight = light.Position() - point;
     auto const distanceToLight = pointToLight.Length();
     auto const rayToLight = Ray(point, pointToLight.Normalized());
-    std::vector<Intersection> xs;
-    xs.reserve(10);
-    rayToLight.Intersect(*this, xs);
-    auto const hit = Hit(xs);
-    if (hit.Object() == nullptr)
-    {
-        return false;
-    }
 
-    return hit.Distance() < distanceToLight;
+    return rayToLight.HasIntersectionNearThan(*this, distanceToLight);
 }

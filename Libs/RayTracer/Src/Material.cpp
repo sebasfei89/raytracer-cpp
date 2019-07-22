@@ -31,5 +31,6 @@ void Material::SetColor(Color const& color)
 
 Color const& Material::GetColor() const
 {
-    return m_pattern->ColorAt(Point(0.f, 0.f, 0.f));
+    static Color const color = m_pattern->ColorAt(Point(0.f, 0.f, 0.f));
+    return color;
 }

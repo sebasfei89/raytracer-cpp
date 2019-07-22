@@ -22,6 +22,24 @@ void Ray::Intersect(World const& world, std::vector<Intersection>& xs) const
     std::sort(xs.begin(), xs.end());
 }
 
+bool Ray::IntersectsBefore(ShapePtr const& shape, float distance) const
+{
+    Ray const r = shape->InvTransform() * (*this);
+    return shape->IntersectsBefore(r, distance);
+}
+
+bool Ray::HasIntersectionNearThan(World const& world, float distance) const
+{
+    for (auto const& obj : world.Objects())
+    {
+        if (IntersectsBefore(obj, distance))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 IntersectionData Ray::Precompute(Intersection const& i) const
 {
     IntersectionData data;

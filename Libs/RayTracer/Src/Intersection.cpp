@@ -17,18 +17,12 @@ bool Intersection::operator<(Intersection const& other) const
 
 Intersection Hit(std::vector<Intersection> const& xs)
 {
-    int minIdx = -1;    
-    for (int idx = 0; idx < xs.size(); idx++)
+    for (auto const& i : xs)
     {
-        auto const& i = xs[idx];
-        if (i.Distance() < 0.f) continue;
-
-        if ((minIdx < 0) || (i.Distance() < xs[minIdx].Distance()))
-        {
-            minIdx = idx;
-        }
+        if (i.Distance() >= 0.f)
+            return i;
     }
-    return (minIdx >= 0) ? xs[minIdx] : Intersection{0.f, nullptr};
+    return { 0.f, nullptr };
 }
 
 std::ostream& operator<<(std::ostream& os, Intersection const& i)

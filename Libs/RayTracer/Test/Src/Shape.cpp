@@ -16,6 +16,12 @@ public:
         const_cast<TestShape*>(this)->m_localRay = ray;
     }
 
+    bool IntersectsBefore(Ray const& ray, float distance) const
+    {
+        const_cast<TestShape*>(this)->m_localRay = ray;
+        return true;
+    }
+
     Tuple NormalAtLocal(Tuple const& point) const override
     {
         return Vector(point[0], point[1], point[2]);
