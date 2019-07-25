@@ -54,6 +54,7 @@ IntersectionData Ray::Precompute(Intersection const& i) const
         data.m_normalv = -data.m_normalv;
     }
     data.m_overPoint = data.m_point + (data.m_normalv * EPSILON);
+    data.m_reflectv = m_direction.Reflect(data.m_normalv);
     return data;
 }
 

@@ -16,18 +16,6 @@ SCENARIO("A point light has a position and intesity", "[Lighting]")
         light.Intensity() == intensity )
 }
 
-SCENARIO("The default material", "[Lighting]")
-{
-    GIVEN_1(
-        auto const m = Material();
-    REQUIRE_,
-        m.GetColor() == Color(1.f, 1.f, 1.f),
-        m.Ambient() == 0.1f,
-        m.Diffuse() == 0.9f,
-        m.Specular() == 0.9f,
-        m.Shininess() == 200.f )
-}
-
 SCENARIO("Lighting with the eye between the light and the surface", "[Lighting]")
 {
     GIVEN_2(

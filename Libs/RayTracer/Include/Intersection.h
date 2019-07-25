@@ -14,6 +14,7 @@ struct IntersectionData
     Tuple m_overPoint;
     Tuple m_eyev;
     Tuple m_normalv;
+    Tuple m_reflectv;
     float m_distance;
     bool m_inside;
     ShapeConstPtr m_object;

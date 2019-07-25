@@ -6,6 +6,7 @@ Material::Material()
     , m_diffuse(0.9f)
     , m_specular(0.9f)
     , m_shininess(200.f)
+    , m_reflective(0.f)
     , m_pattern(std::make_shared<SolidPattern>(Color(1.f, 1.f, 1.f)))
 {
 }

@@ -1,11 +1,12 @@
 #include "Intersection.h"
+#include "Plane.h"
 #include "Ray.h"
 #include "Sphere.h"
 #include "Util.h"
 
 #include <Testing.h>
 
-SCENARIO("An intersection encapsulates the distance from the ray origin and the object intersected", "[Math]")
+SCENARIO("An intersection encapsulates the distance from the ray origin and the object intersected", "[math]")
 {
     GIVEN_2(
         auto const s = std::make_shared<Sphere>();
@@ -30,7 +31,7 @@ SCENARIO("Agregating intersections", "[math]")
         xs[1].Distance() == 2.f)
 }
 
-SCENARIO("Intersect sets the object on the intersection", "[Math]")
+SCENARIO("Intersect sets the object on the intersection", "[math]")
 {
     GIVEN_2(
         auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
@@ -111,4 +112,18 @@ SCENARIO("The hit should offset the point", "[math]")
     REQUIRE_,
         iData.m_overPoint[2] < -(EPSILON/2.f),
         iData.m_point[2] > iData.m_overPoint[2] )
+}
+
+SCENARIO("Precomputing the reflection vector", "[Reflection]")
+{
+    float const sqrt2 = std::sqrtf(2.f);
+    float const sqrt2over2 = sqrt2 / 2.f;
+    GIVEN_2(
+        auto const shape = std::make_shared<Plane>();
+        auto const r = Ray(Point(0.f, 1.f, -1.f), Vector(0.f, -sqrt2over2, sqrt2over2));
+        auto const i = Intersection(sqrt2, shape);
+    WHEN_,
+        auto comps = r.Precompute(i);
+    REQUIRE_,
+        comps.m_reflectv == Vector(0.f, sqrt2over2, sqrt2over2) )
 }

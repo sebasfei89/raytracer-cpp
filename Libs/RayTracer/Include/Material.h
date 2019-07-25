@@ -19,11 +19,13 @@ public:
     float Diffuse() const { return m_diffuse; }
     float Specular() const { return m_specular; }
     float Shininess() const { return m_shininess; }
+    float Reflective() const { return m_reflective; }
 
     void Ambient(float ambient) { m_ambient = ambient; }
     void Diffuse(float diffuse) { m_diffuse = diffuse; }
     void Specular(float specular) { m_specular = specular; }
     void Shininess(float shininess) { m_shininess = shininess; }
+    void Reflective(float reflective) { m_reflective = reflective; }
 
     void Pattern(PatternPtr const& pattern) { m_pattern = pattern; }
     PatternPtr& ModifyPattern() { return m_pattern; }
@@ -35,5 +37,6 @@ private:
     float m_diffuse;
     float m_specular;
     float m_shininess;
+    float m_reflective;
     PatternPtr m_pattern;
 };

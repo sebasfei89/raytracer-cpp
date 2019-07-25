@@ -1,3 +1,4 @@
+#include "Plane.h"
 #include "Ray.h"
 #include "Sphere.h"
 #include "TestHelpers.h"
@@ -213,4 +214,103 @@ SCENARIO("ShadeHit is given an intersection in shadow", "[Scene]")
         auto const c = w.ShadeHit(comps);
     REQUIRE_,
         c == Color(0.1f, 0.1f, 0.1f) )
+}
+
+SCENARIO("The reflective color for a nonreflective material", "[Reflection]")
+{
+    GIVEN_2(
+        auto w = DefaultWorld();
+        auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f));
+        auto shape = w.Objects()[0];
+        shape->ModifyMaterial().Ambient(1.f);
+        auto const i = Intersection(1.f, shape);
+    WHEN_,
+        auto const comps = r.Precompute(i);
+        auto const color = w.ReflectedColor(comps);
+    REQUIRE_,
+        color == Color(0.f, 0.f, 0.f) )
+}
+
+SCENARIO("The reflective color for a reflective material", "[Reflection]")
+{
+    float const sqrt2 = std::sqrtf(2.f);
+    float const sqrt2over2 = sqrt2 / 2.f;
+
+    GIVEN_2(
+        auto w = DefaultWorld();
+        auto shape = std::make_shared<Plane>();
+        shape->ModifyMaterial().Reflective(0.5f);
+        shape->SetTransform(matrix::Translation(0.f, -1.f, 0.f));
+        w.Add(shape);
+        auto const r = Ray(Point(0.f, 0.f, -3.f), Vector(0.f, -sqrt2over2, sqrt2over2));
+        auto const i = Intersection(sqrt2, shape);
+    WHEN_,
+        auto const comps = r.Precompute(i);
+        auto const color = w.ReflectedColor(comps);
+    REQUIRE_,
+        color == Color(0.19032f, 0.2379f, 0.14274f) )
+}
+
+SCENARIO("ShadeHit with a reflective material", "[Reflection]")
+{
+    float const sqrt2 = std::sqrtf(2.f);
+    float const sqrt2over2 = sqrt2 / 2.f;
+
+    GIVEN_2(
+        auto w = DefaultWorld();
+        auto shape = std::make_shared<Plane>();
+        shape->ModifyMaterial().Reflective(0.5f);
+        shape->SetTransform(matrix::Translation(0.f, -1.f, 0.f));
+        w.Add(shape);
+        auto const r = Ray(Point(0.f, 0.f, -3.f), Vector(0.f, -sqrt2over2, sqrt2over2));
+        auto const i = Intersection(sqrt2, shape);
+    WHEN_,
+        auto const comps = r.Precompute(i);
+        auto const color = w.ShadeHit(comps);
+    REQUIRE_,
+        color == Color(0.87677f, 0.92436f, 0.82918f) )
+}
+
+SCENARIO("ColorAt with mutually reflective surfaces", "[Reflection]")
+{
+    GIVEN_1(
+        World w;
+        w.Add(PointLight(Point(0.f, 0.f, 0.f), Vector(1.f, 1.f, 1.f)));
+        auto lower = std::make_shared<Plane>();
+        lower->ModifyMaterial().Reflective(1.f);
+        lower->ModifyMaterial().Ambient(1.f);
+        lower->ModifyMaterial().Diffuse(0.f);
+        lower->ModifyMaterial().Specular(0.f);
+        lower->SetTransform(matrix::Translation(0.f, -1.f, 0.f));
+        w.Add(lower);
+        auto upper = std::make_shared<Plane>();
+        upper->ModifyMaterial().Reflective(1.f);
+        upper->ModifyMaterial().Ambient(1.f);
+        upper->ModifyMaterial().Diffuse(0.f);
+        upper->ModifyMaterial().Specular(0.f);
+        upper->SetTransform(matrix::Translation(0.f, 1.f, 0.f));
+        w.Add(upper);
+        auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 1.f, 0.f));
+    REQUIRE_,
+        w.ColorAt(r) == Color(5.f, 5.f, 5.f) )
+}
+
+SCENARIO("The reflected color at the maximum recursive depth", "[Reflection]")
+{
+    float const sqrt2 = std::sqrtf(2.f);
+    float const sqrt2over2 = sqrt2 / 2.f;
+
+    GIVEN_2(
+        auto w = DefaultWorld();
+        auto shape = std::make_shared<Plane>();
+        shape->ModifyMaterial().Reflective(0.5f);
+        shape->SetTransform(matrix::Translation(0.f, -1.f, 0.f));
+        w.Add(shape);
+        auto const r = Ray(Point(0.f, 0.f, -3.f), Vector(0.f, -sqrt2over2, sqrt2over2));
+        auto const i = Intersection(sqrt2, shape);
+    WHEN_,
+        auto const comps = r.Precompute(i);
+        auto const color = w.ReflectedColor(comps, 0);
+    REQUIRE_,
+        color == Color(0.f, 0.f, 0.f) )
 }

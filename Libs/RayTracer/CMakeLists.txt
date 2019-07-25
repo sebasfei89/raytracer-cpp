@@ -51,6 +51,7 @@ set( TEST_SOURCES
     Test/Src/Intersection.cpp
     Test/Src/Light.cpp
     Test/Src/Main.cpp
+    Test/Src/Material.cpp
     Test/Src/Matrix.cpp
     Test/Src/Pattern.cpp
     Test/Src/Plane.cpp
