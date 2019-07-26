@@ -37,11 +37,13 @@ set( RT_SOURCES
     Src/Tuple.cpp
     Src/World.cpp )
 
-AddBinary( RayTracer LIBRARY EXPORT_HEADER
+AddTarget( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 01_Libs
     SOURCES ${RT_SOURCES}
-    PUBLIC_DIRS "./Include" "${CMAKE_BINARY_DIR}/Libs/RayTracer"
-    PRIVATE_DIRS "./Src" )
+    PUBLIC_DIRS "./Include"
+    PRIVATE_DIRS "./Src"
+    #PUBLIC_DEFS "USE_SSE" "_ENABLE_EXTENDED_ALIGNED_STORAGE" stuff for MathIntrinsics.h
+    PRIVATE_DEFS "RENDER_TASKS=12" )
 
 # RayTracer tests #############################################################
 set( TEST_SOURCES
@@ -64,44 +66,49 @@ set( TEST_SOURCES
     Test/Src/Tuple.cpp
     Test/Src/World.cpp )
 
-AddBinary( RayTracerTest EXECUTABLE
+AddTarget( RayTracerTest EXECUTABLE
     FOLDER  02_Tests
-    DEPS    RayTracer
+    DEPS    RayTracer BeDDev
     SOURCES ${TEST_SOURCES}
     PRIVATE_DIRS "./Test/Src" "./Src" "../../External" )
 
 # Sample projects #############################################################
-AddBinary( Ch02_ProjectilTrajectory EXECUTABLE
+#AddTarget( 00_MathIntrinsicsTests EXECUTABLE
+#    FOLDER  03_Samples
+#    DEPS    RayTracer
+#    SOURCES Samples/Src/MathIntrinsicsTests.cpp )
+
+AddTarget( Ch02_ProjectilTrajectory EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/ProjectilTrajectory.cpp )
 
-AddBinary( Ch04_WallClock EXECUTABLE
+AddTarget( Ch04_WallClock EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/WallClock.cpp )
 
-AddBinary( Ch05_SphereSilhouette EXECUTABLE
+AddTarget( Ch05_SphereSilhouette EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/SphereSilhouette.cpp )
 
-AddBinary( Ch06_LitSphere EXECUTABLE
+AddTarget( Ch06_LitSphere EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/LitSphere.cpp )
 
-AddBinary( Ch07_Scene EXECUTABLE
+AddTarget( Ch07_Scene EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Scene.cpp )
 
-AddBinary( Ch09_Planes EXECUTABLE
+AddTarget( Ch09_Planes EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Plane.cpp )
 
-AddBinary( Ch10_Patterns EXECUTABLE
+AddTarget( Ch10_Patterns EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Patterns.cpp )

@@ -2,43 +2,65 @@ cmake_minimum_required( VERSION 3.14 )
 
 include(GenerateExportHeader)
 
-function(AddBinary NAME)
-    set( options EXECUTABLE LIBRARY EXPORT_HEADER )
+function(AddTarget NAME)
+    set( options EXECUTABLE LIBRARY INTERFACE EXPORT_HEADER )
     set( oneValueArgs FOLDER )
-    set( multiValueArgs SOURCES DEPS PUBLIC_DIRS PRIVATE_DIRS )
-    cmake_parse_arguments( ADDBINARY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+    set( multiValueArgs SOURCES DEPS INTERFACE_DIRS PUBLIC_DIRS PRIVATE_DIRS PUBLIC_DEFS PRIVATE_DEFS )
+    cmake_parse_arguments( ADDTARGET "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-    if (ADDBINARY_EXECUTABLE)
+    if (ADDTARGET_EXECUTABLE)
         add_executable( ${NAME} )
-    elseif (ADDBINARY_LIBRARY)
+    elseif (ADDTARGET_LIBRARY)
         add_library( ${NAME} )
+    elseif (ADDTARGET_INTERFACE)
+        add_library( ${NAME} INTERFACE )
     else()
-        message( FATAL_ERROR "AddBinary expects on of EXECUTABLE or LIBRARY to be set" )
+        message( FATAL_ERROR "AddTarget expects one of EXECUTABLE, LIBRARY or INTERFACE options set" )
     endif()
 
-    if (ADDBINARY_EXPORT_HEADER)
+    if (ADDTARGET_EXPORT_HEADER)
         generate_export_header( ${NAME} )
     endif()
 
-    set_property( TARGET ${NAME} PROPERTY CXX_STANDARD 17 )
-    set_property( TARGET ${NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${NAME}>" )
+    if (ADDTARGET_EXECUTABLE OR ADDTARGET_LIBRARY)
 
-    if (DEFINED ADDBINARY_FOLDER)
-        set_property(
-            TARGET ${NAME}
-            PROPERTY FOLDER ${ADDBINARY_FOLDER} )
+        target_compile_features( ${NAME} PUBLIC cxx_std_17 )
+
+        set_property( TARGET ${NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${NAME}>" )
+        if (DEFINED ADDTARGET_FOLDER)
+            set_property( TARGET ${NAME} PROPERTY FOLDER ${ADDTARGET_FOLDER} )
+        endif()
+
+        target_sources( ${NAME} PRIVATE ${ADDTARGET_SOURCES} )
+        list(APPEND ADDTARGET_PUBLIC_DIRS "${CMAKE_BINARY_DIR}/Libs/${NAME}")
+        target_include_directories( ${NAME} INTERFACE ${ADDTARGET_INTERFACE_DIRS} PUBLIC ${ADDTARGET_PUBLIC_DIRS} PRIVATE ${ADDTARGET_PRIVATE_DIRS} )
+
+    elseif (ADDTARGET_INTERFACE)
+
+        target_compile_features( ${NAME} INTERFACE cxx_std_17 )
+
+        target_sources( ${NAME} INTERFACE ${ADDTARGET_SOURCES} )
+        target_include_directories( ${NAME} INTERFACE ${ADDTARGET_INTERFACE_DIRS} )
+
     endif()
 
-    target_sources( ${NAME} PRIVATE ${ADDBINARY_SOURCES} )
-    source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ADDBINARY_SOURCES} )
+    source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ADDTARGET_SOURCES} )
 
-    target_include_directories( ${NAME}
-        PUBLIC ${ADDBINARY_PUBLIC_DIRS}
-        PRIVATE ${ADDBINARY_PRIVATE_DIRS} )
-
-    if (DEFINED ADDBINARY_DEPS)
-        foreach(DEP ${ADDBINARY_DEPS})
+    if (DEFINED ADDTARGET_DEPS)
+        foreach(DEP ${ADDTARGET_DEPS})
             target_link_libraries( ${NAME} PRIVATE ${DEP} )
         endforeach()
     endif()
+
+	if (DEFINED ADDTARGET_PUBLIC_DEFS)
+		foreach(DEF ${ADDTARGET_PUBLIC_DEFS})
+			target_compile_definitions( ${NAME} PUBLIC ${DEF} )
+        endforeach()
+	endif()
+
+	if (DEFINED ADDTARGET_PRIVATE_DEFS)
+		foreach(PRIV_DEF ${ADDTARGET_PRIVATE_DEFS})
+			target_compile_definitions( ${NAME} PRIVATE ${PRIV_DEF} )
+        endforeach()
+	endif()
 endfunction()
