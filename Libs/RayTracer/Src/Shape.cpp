@@ -4,6 +4,7 @@ Shape::Shape()
     : m_transform(Mat44::Identity())
     , m_invTransform(Mat44::Identity())
     , m_material()
+    , m_castShadows(true)
 {
 }
 

@@ -50,3 +50,5 @@ std::vector<Intersection> Intersections(Args const&... args)
 }
 
 RAYTRACER_EXPORT std::ostream& operator<<(std::ostream& os, Intersection const& i);
+
+RAYTRACER_EXPORT float Schlick(IntersectionData const& iData);

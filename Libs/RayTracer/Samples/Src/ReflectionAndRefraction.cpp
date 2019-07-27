@@ -13,7 +13,7 @@ int main()
 {
     auto world = World();
 
-    world.Add(PointLight(Point(-5.f, 5.f, -2.f), { 1.f, 1.f, 1.f }));
+    world.Add(PointLight(Point(-5.f, 5.f, -2.f), { 1.f, .9f, .8f }));
 
     // Floot
     {
@@ -100,11 +100,24 @@ int main()
         auto rightSphere = std::make_shared<Sphere>();
         rightSphere->SetTransform(matrix::Translation(1.5f, .5f, -.5f) * matrix::RotationZ(PI / 4.f) * matrix::Scaling(.5f, .5f, .5f));
         auto& material = rightSphere->ModifyMaterial();
-        material.Pattern(std::make_shared<GradientPattern>(Color(0.f, 0.f, 1.f), Color(1.f, .0f, .0f)));
-        material.ModifyPattern()->SetTransform(matrix::Translation(-1.f, 0.f, 0.f) * matrix::Scaling(2.f, 1.f, 1.f));
-        material.Diffuse(.7f);
-        material.Specular(.3f);
+        material.SetColor(Color(0.f, 0.f, 0.f));
+        material.Diffuse(.1f);
+        material.Transparency(.9f);
+        material.Reflective(.9f);
+        material.Specular(1.f);
+        material.Shininess(300.f);
+        material.RefractiveIndex(Material::GetIndexOfRefraction(Material::Type::Glass));
         world.Add(rightSphere);
+
+        auto airBubble = std::make_shared<Sphere>();
+        airBubble->SetTransform(matrix::Translation(1.5f, .5f, -.5f) * matrix::RotationZ(PI / 4.f) * matrix::Scaling(.25f, .25f, .25f));
+        auto& m2 = airBubble->ModifyMaterial();
+        m2.SetColor(Color(.0f, 0.f, 0.f));
+        m2.Diffuse(.1f);
+        m2.Transparency(.9f);
+        m2.Reflective(.9f);
+        m2.RefractiveIndex(Material::GetIndexOfRefraction(Material::Type::Air));
+        world.Add(airBubble);
     }
 
     // Left Sphere

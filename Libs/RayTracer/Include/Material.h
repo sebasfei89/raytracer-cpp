@@ -41,10 +41,10 @@ public:
 
     // Material type to index of refraction mapping
     enum class Type { Vacuum, Air, Water, Glass, Diamond };
-    float GetIndexOfRefraction(Type type) const { return s_iorTable[type]; }
+    static float GetIndexOfRefraction(Type type) { return s_iorTable[type]; }
 
 private:
-    static std::unordered_map<Type, float> s_iorTable;
+    RAYTRACER_EXPORT static std::unordered_map<Type, float> s_iorTable;
 
     float m_ambient;
     float m_diffuse;

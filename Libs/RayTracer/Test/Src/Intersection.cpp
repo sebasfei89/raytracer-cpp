@@ -91,7 +91,7 @@ SCENARIO("The hit should offset the point", "math")
         , iData.m_point[2] > iData.m_overPoint[2] )
 }
 
-SCENARIO("Precomputing the reflection vector", "[Reflection]")
+SCENARIO("Precomputing the reflection vector", "reflection")
 {
     GIVEN( auto const shape = std::make_shared<Plane>()
          , auto const r = Ray(Point(0.f, 1.f, -1.f), Vector(0.f, -SQRT2OVR2, SQRT2OVR2))
@@ -100,7 +100,7 @@ SCENARIO("Precomputing the reflection vector", "[Reflection]")
     THEN( comps.m_reflectv == Vector(0.f, SQRT2OVR2, SQRT2OVR2) )
 }
 
-SCENARIO("Finding n1 and n2 at various intersections", "[Refraction]")
+SCENARIO("Finding n1 and n2 at various intersections", "refraction")
 {
     GIVEN( auto a = GlassySphere()
          , a->SetTransform(matrix::Scaling(2.f, 2.f, 2.f))
@@ -130,7 +130,7 @@ SCENARIO("Finding n1 and n2 at various intersections", "[Refraction]")
         , comps5.m_n1 == 1.5f, comps5.m_n2 == 1.f )
 }
 
-SCENARIO("The under point is offset below the surface", "[Refraction]")
+SCENARIO("The under point is offset below the surface", "refraction")
 {
     GIVEN( auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f))
          , auto s = GlassySphere()
@@ -140,4 +140,34 @@ SCENARIO("The under point is offset below the surface", "[Refraction]")
     WHEN( auto const comps = r.Precompute(i, xs) )
     THEN( comps.m_underPoint.Z() > (EPSILON / 2.f)
         , comps.m_point.Z() < comps.m_underPoint.Z() )
+}
+
+SCENARIO("The Schlick aproximation under total internal reflection", "refraction")
+{
+    GIVEN( auto s = GlassySphere()
+         , auto const r = Ray(Point(0.f, 0.f, SQRT2OVR2), Vector(0.f, 1.f, 0.f))
+         , auto const xs = Intersections(Intersection{-SQRT2OVR2, s}, Intersection{SQRT2OVR2, s}) )
+    WHEN( auto const comps = r.Precompute(xs[1], xs)
+        , auto const reflectance = Schlick(comps) )
+    THEN( reflectance == 1.0f )
+}
+
+SCENARIO("The Schlick aproximation with a perpendicular viewing angle", "refraction")
+{
+    GIVEN( auto s = GlassySphere()
+         , auto const r = Ray(Point(0.f, 0.f, 0.f), Vector(0.f, 1.f, 0.f))
+         , auto const xs = Intersections(Intersection{ -1.f, s }, Intersection{ 1.f, s }) )
+    WHEN( auto const comps = r.Precompute(xs[1], xs)
+        , auto const reflectance = Schlick(comps) )
+    THEN( Equals(reflectance, .04f) )
+}
+
+SCENARIO("The Schlick aproximation with small angle and n2 > n1", "refraction")
+{
+    GIVEN( auto s = GlassySphere()
+         , auto const r = Ray(Point(0.f, .99f, -2.f), Vector(0.f, 0.f, 1.f))
+         , auto const xs = Intersections(Intersection{ 1.8589f, s }) )
+    WHEN( auto const comps = r.Precompute(xs[0], xs)
+        , auto const reflectance = Schlick(comps) )
+    THEN( Equals(reflectance, .48873f) )
 }

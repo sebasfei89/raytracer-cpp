@@ -25,7 +25,7 @@ void Ray::Intersect(World const& world, std::vector<Intersection>& xs) const
 bool Ray::IntersectsBefore(ShapePtr const& shape, float distance) const
 {
     Ray const r = shape->InvTransform() * (*this);
-    return shape->IntersectsBefore(r, distance);
+    return shape->CastShadows() && shape->IntersectsBefore(r, distance);
 }
 
 bool Ray::HasIntersectionNearThan(World const& world, float distance) const

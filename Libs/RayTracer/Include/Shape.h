@@ -23,6 +23,9 @@ public:
     Material const& GetMaterial() const { return m_material; }
     void SetMaterial(Material const& material) { m_material = material; }
 
+    void CastShadows(bool castShadows) { m_castShadows = castShadows; }
+    bool CastShadows() const { return m_castShadows; }
+
     RAYTRACER_EXPORT Tuple NormalAt(Tuple const& point) const;
 
     // point is in shape's local space
@@ -40,4 +43,5 @@ private:
     Mat44 m_transform;
     Mat44 m_invTransform;
     Material m_material;
+    bool m_castShadows;
 };

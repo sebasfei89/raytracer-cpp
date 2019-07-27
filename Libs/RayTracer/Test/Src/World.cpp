@@ -174,6 +174,25 @@ SCENARIO("ShadeHit is given an intersection in shadow", "shadows")
     THEN( c == Color(0.1f, 0.1f, 0.1f) )
 }
 
+SCENARIO("ShadeHit is given an intersection occluded by an object with doesn't cast shadows", "shadows")
+{
+    GIVEN( auto w = World()
+         , w.Add(PointLight(Point(0.f, 10.f, -10.f), Color(1.f, 1.f, 1.f)))
+         , auto p1 = std::make_shared<Plane>()
+         , p1->SetTransform(matrix::RotationX(PI/-4.f))
+         , p1->ModifyMaterial().SetColor(Color::Red());
+         , w.Add(p1);
+         , auto p2 = std::make_shared<Plane>()
+         , p2->SetTransform(matrix::Translation(0.f, 5.f, 0.f))
+         , p2->CastShadows(false);
+         , w.Add(p2)
+         , auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f))
+         , auto const i = Intersection(5.f, p1))
+    WHEN( auto const comps = r.Precompute(i)
+        , auto const c = w.ShadeHit(comps) )
+    THEN( c == Color(1.f, 0.f, 0.f) )
+}
+
 SCENARIO("The reflective color for a nonreflective material", "reflection")
 {
     GIVEN( auto w = DefaultWorld()
@@ -317,4 +336,25 @@ SCENARIO("ShadeHit() with a transparent material", "refraction")
     WHEN( auto const comps = r.Precompute(xs[0], xs)
         , auto const color = w.ShadeHit(comps, 5) )
     THEN( color == Color(.93642f, .68642f, .68642f) )
+}
+
+SCENARIO("ShadeHit() with a reflective, transparent material", "refraction")
+{
+    GIVEN( auto w = DefaultWorld()
+         , auto const r = Ray(Point(0.f, 0.f, -3.f), Vector(0.f, -SQRT2OVR2, SQRT2OVR2))
+         , auto floor = std::make_shared<Plane>()
+         , floor->SetTransform(matrix::Translation(0.f, -1.f, 0.f));
+         , floor->ModifyMaterial().Reflective(.5f)
+         , floor->ModifyMaterial().Transparency(.5f)
+         , floor->ModifyMaterial().RefractiveIndex(1.5f)
+         , w.Add(floor);
+         , auto ball = std::make_shared<Sphere>()
+         , ball->ModifyMaterial().SetColor(Color::Red())
+         , ball->ModifyMaterial().Ambient(.5f)
+         , ball->SetTransform(matrix::Translation(0.f, -3.5f, -0.5f));
+         , w.Add(ball);
+         , auto const xs = Intersections(Intersection{ SQRT2, floor }) )
+    WHEN( auto const comps = r.Precompute(xs[0], xs)
+        , auto const color = w.ShadeHit(comps, 5) )
+    THEN( color == Color(.93391f, .69643f, .69243f) )
 }

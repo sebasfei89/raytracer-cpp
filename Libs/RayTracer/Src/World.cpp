@@ -14,6 +14,16 @@ Color World::ShadeHit(IntersectionData const& data, uint8_t remaining) const
     }
     Color const reflected = ReflectedColor(data, remaining);
     Color const refracted = RefractedColor(data, remaining);
+
+    auto const& material = data.m_object->GetMaterial();
+    if ((material.Reflective() > 0.f) && (material.Transparency() > 0.f))
+    {
+        auto const reflectance = Schlick(data);
+        return color
+            + (reflected * reflectance)
+            + (refracted * (1.f - reflectance));
+    }
+
     return color + reflected + refracted;
 }
 
