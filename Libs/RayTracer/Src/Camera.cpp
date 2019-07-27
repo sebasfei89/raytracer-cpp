@@ -2,9 +2,13 @@
 
 #include <thread>
 
+#ifndef RENDER_TASKS
+#   define RENDER_TASKS 1
+#endif
+
 namespace
 {
-    uint32_t const RENDER_TASKS = 12;
+    constexpr uint32_t kRenderTasks = RENDER_TASKS;
     void RenderRow(Camera const& camera, World const& world, Canvas &canvas, uint32_t rowBegin, uint32_t rowEnd, uint32_t cols)
     {
         for (uint32_t y = rowBegin; y < rowEnd; y++)
@@ -49,10 +53,10 @@ Canvas Camera::Render(World const& world) const
     Canvas c(m_hSize, m_vSize);
 
     std::vector<std::thread> threadPool;
-    uint32_t const rowsPerThread = m_vSize / RENDER_TASKS;
+    uint32_t const rowsPerThread = m_vSize / kRenderTasks;
 
-    // Divide work between RENDER_TASKS - 1 threads
-    for (uint32_t y = 0; y < (RENDER_TASKS - 1); y++)
+    // Divide work between kRenderTasks - 1 threads
+    for (uint32_t y = 0; y < (kRenderTasks - 1); y++)
     {
         uint32_t const begin = y * rowsPerThread;
         uint32_t const end = begin + rowsPerThread;
@@ -60,7 +64,7 @@ Canvas Camera::Render(World const& world) const
     }
 
     // Last task is run on main thread
-    uint32_t const begin = (RENDER_TASKS - 1) * rowsPerThread;
+    uint32_t const begin = (kRenderTasks - 1) * rowsPerThread;
     RenderRow(*this, world, c, begin, m_vSize, m_hSize);
 
     for (auto& t : threadPool)

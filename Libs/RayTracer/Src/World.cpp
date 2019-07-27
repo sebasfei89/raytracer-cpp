@@ -13,7 +13,8 @@ Color World::ShadeHit(IntersectionData const& data, uint8_t remaining) const
             data.m_overPoint, data.m_eyev, data.m_normalv, isInShadow);
     }
     Color const reflected = ReflectedColor(data, remaining);
-    return color + reflected;
+    Color const refracted = RefractedColor(data, remaining);
+    return color + reflected + refracted;
 }
 
 Color World::ColorAt(Ray const& r, uint8_t remaining) const
@@ -28,7 +29,7 @@ Color World::ColorAt(Ray const& r, uint8_t remaining) const
         return Color(0.f, 0.f, 0.f);
     }
 
-    auto const iData = r.Precompute(i);
+    auto const iData = r.Precompute(i, xs);
     return ShadeHit(iData, remaining);
 }
 
@@ -51,4 +52,28 @@ Color World::ReflectedColor(IntersectionData const& data, uint8_t remaining) con
 
     Ray const reflectedRay(data.m_overPoint, data.m_reflectv);
     return ColorAt(reflectedRay, remaining - 1) * reflective;
+}
+
+Color World::RefractedColor(IntersectionData const& data, uint8_t maxRecursion) const
+{
+    float const transparency = data.m_object->GetMaterial().Transparency();
+    if (transparency == 0.f || maxRecursion < 1)
+    {
+        return Color::Black();
+    }
+
+    // Check for total internal reflection!
+    float const nRatio = data.m_n1 / data.m_n2;
+    float const cosI = data.m_eyev.Dot(data.m_normalv);
+    float const sin2T = (nRatio * nRatio) * (1.f - (cosI * cosI));
+    if (sin2T > 1.f)
+    {
+        return Color::Black();
+    }
+
+    float const cosT = std::sqrtf(1.f - sin2T);
+    auto const direction = (data.m_normalv * ((nRatio * cosI) - cosT)) - (data.m_eyev * nRatio);
+    Ray const refractedRay(data.m_underPoint, direction);
+
+    return ColorAt(refractedRay, maxRecursion - 1) * transparency;
 }

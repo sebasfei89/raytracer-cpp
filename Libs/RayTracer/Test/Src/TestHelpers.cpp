@@ -1,7 +1,5 @@
 #include "TestHelpers.h"
 
-#include "Sphere.h"
-
 World DefaultWorld()
 {
     World w;
@@ -20,4 +18,12 @@ World DefaultWorld()
     w.Add(l);
 
     return w;
+}
+
+ShapePtr GlassySphere()
+{
+    auto s = std::make_shared<Sphere>();
+    s->ModifyMaterial().Transparency(1.f);
+    s->ModifyMaterial().RefractiveIndex(1.5f);
+    return s;
 }

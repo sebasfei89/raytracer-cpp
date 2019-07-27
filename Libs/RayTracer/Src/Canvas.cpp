@@ -74,9 +74,9 @@ void Canvas::WritePPMPixelsRow(std::ostream& os, uint32_t row) const
 uint32_t Canvas::WritePPMPixel(std::ostream& os, uint32_t row, uint32_t col, uint32_t rowWidth) const
 {
     Color const c = PixelAt(col, row);
-    rowWidth = WritePPMColorComponent(os, c.Red(), rowWidth);
-    rowWidth = WritePPMColorComponent(os, c.Green(), rowWidth);
-    return WritePPMColorComponent(os, c.Blue(), rowWidth);
+    rowWidth = WritePPMColorComponent(os, c.R(), rowWidth);
+    rowWidth = WritePPMColorComponent(os, c.G(), rowWidth);
+    return WritePPMColorComponent(os, c.B(), rowWidth);
 }
 
 std::string Canvas::GetAsPPMColor(float color) const

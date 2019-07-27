@@ -112,3 +112,8 @@ AddTarget( Ch10_Patterns EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer
     SOURCES Samples/Src/Patterns.cpp )
+
+AddTarget( Ch11_ReflectionAndRefraction EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/ReflectionAndRefraction.cpp )

@@ -1,6 +1,7 @@
 #include "Material.h"
 #include "Sphere.h"
 #include "Transformations.h"
+#include "TestHelpers.h"
 
 #include <Testing.h>
 
@@ -56,4 +57,14 @@ SCENARIO("The normal is a normalized vector", "[Geometry]")
         auto const n = s.NormalAt(Point(coord, coord, coord));
     REQUIRE_,
         n == n.Normalized() )
+}
+
+SCENARIO("Helper for producing a sphere with a glassy material", "[Geometry]")
+{
+    GIVEN_1(
+        auto const s = GlassySphere();
+    REQUIRE_,
+        s->Transform() == Mat44::Identity(),
+        s->GetMaterial().Transparency() == 1.f,
+        s->GetMaterial().RefractiveIndex() == 1.5f )
 }

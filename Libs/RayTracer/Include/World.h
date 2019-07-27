@@ -24,6 +24,7 @@ public:
 
     RAYTRACER_EXPORT Color ShadeHit(IntersectionData const& data, uint8_t remaining = 4u) const;
     RAYTRACER_EXPORT Color ReflectedColor(IntersectionData const& data, uint8_t maxRecursion = 4u) const;
+    RAYTRACER_EXPORT Color RefractedColor(IntersectionData const& data, uint8_t maxRecursion = 4u) const;
     RAYTRACER_EXPORT Color ColorAt(Ray const& r, uint8_t remaining = 4u) const;
 
     RAYTRACER_EXPORT bool IsShadowed(Tuple const& point, PointLight const& light) const;

@@ -1,12 +1,22 @@
 #include "Material.h"
 #include "Pattern.h"
 
+std::unordered_map<Material::Type, float> Material::s_iorTable = {
+    {Type::Vacuum , 1.f      },
+    {Type::Air    , 1.00029f },
+    {Type::Water  , 1.333f   },
+    {Type::Glass  , 1.52f    },
+    {Type::Diamond, 2.417f   }
+};
+
 Material::Material()
     : m_ambient(0.1f)
     , m_diffuse(0.9f)
     , m_specular(0.9f)
     , m_shininess(200.f)
     , m_reflective(0.f)
+    , m_transparency(0.f)
+    , m_refractiveIndex(1.f)
     , m_pattern(std::make_shared<SolidPattern>(Color(1.f, 1.f, 1.f)))
 {
 }

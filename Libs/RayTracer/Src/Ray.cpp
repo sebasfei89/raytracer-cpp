@@ -40,7 +40,7 @@ bool Ray::HasIntersectionNearThan(World const& world, float distance) const
     return false;
 }
 
-IntersectionData Ray::Precompute(Intersection const& i) const
+IntersectionData Ray::Precompute(Intersection const& i, std::vector<Intersection> const& xs) const
 {
     IntersectionData data;
     data.m_distance = i.Distance();
@@ -54,7 +54,35 @@ IntersectionData Ray::Precompute(Intersection const& i) const
         data.m_normalv = -data.m_normalv;
     }
     data.m_overPoint = data.m_point + (data.m_normalv * EPSILON);
+    data.m_underPoint = data.m_point - (data.m_normalv * EPSILON);
     data.m_reflectv = m_direction.Reflect(data.m_normalv);
+
+    std::vector<ShapeConstPtr> containers;
+    for (auto const& current : xs)
+    {
+        bool const currentIsHit = current == i;
+        if (currentIsHit)
+        {
+            data.m_n1 = containers.empty() ? 1.f : containers.back()->GetMaterial().RefractiveIndex();
+        }
+
+        auto it = std::find(containers.begin(), containers.end(), current.Object());
+        if (it != containers.end())
+        {
+            containers.erase(it);
+        }
+        else
+        {
+            containers.push_back(current.Object());
+        }
+
+        if (currentIsHit)
+        {
+            data.m_n2 = containers.empty() ? 1.f : containers.back()->GetMaterial().RefractiveIndex();
+            break;
+        }
+    }
+
     return data;
 }
 

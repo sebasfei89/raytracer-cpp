@@ -25,7 +25,7 @@ public:
     bool HasIntersectionNearThan(World const& world, float distance) const;
     bool IntersectsBefore(ShapePtr const& shape, float distance) const;
 
-    IntersectionData Precompute(Intersection const& i) const;
+    IntersectionData Precompute(Intersection const& i, std::vector<Intersection> const& xs = {}) const;
 
 private:
     Tuple m_origin;

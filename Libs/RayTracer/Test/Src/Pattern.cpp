@@ -2,14 +2,9 @@
 #include "Pattern.h"
 #include "Sphere.h"
 #include "Transformations.h"
+#include "TestHelpers.h"
 
 #include <Testing.h>
-
-class TestPattern : public IPattern
-{
-public:
-    Color ColorAt(Tuple const& point) const override { return Color(point.X(), point.Y(), point.Z()); }
-};
 
 SCENARIO("The default pattern transformation", "[Patterns]")
 {

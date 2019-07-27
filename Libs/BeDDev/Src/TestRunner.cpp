@@ -99,9 +99,9 @@ void TestRunner::OutputSummary(std::ostream& os, uint32_t col1w, uint32_t col2w,
     os << TestingImpl::Colour(TestingImpl::ColorCode::White)
         << header << ": " << std::setw(col1w) << total
         << TestingImpl::Colour(TestingImpl::ColorCode::SecondaryText) << " | "
-        << TestingImpl::Colour(TestingImpl::ColorCode::Success) << std::setw(col2w) << passed
+        << TestingImpl::Colour(TestingImpl::ColorCode::Success) << std::setw(col2w) << passed << " passed"
         << TestingImpl::Colour(TestingImpl::ColorCode::SecondaryText) << " | "
-        << TestingImpl::Colour(TestingImpl::ColorCode::Error) << std::setw(col3w) << failed << std::endl;
+        << TestingImpl::Colour(TestingImpl::ColorCode::Error) << std::setw(col3w) << failed << " failed" << std::endl;
 }
 
 } // EON beddev

@@ -12,5 +12,7 @@ SCENARIO("The default material", "[Materials]")
         m.Diffuse() == 0.9f,
         m.Specular() == 0.9f,
         m.Reflective() == 0.f,
-        m.Shininess() == 200.f)
+        m.Transparency() == 0.f,
+        m.RefractiveIndex() == 1.f,
+        m.Shininess() == 200.f )
 }
