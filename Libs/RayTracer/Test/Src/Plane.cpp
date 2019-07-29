@@ -1,5 +1,5 @@
-#include "Plane.h"
-#include "Ray.h"
+#include <RayTracer/Plane.h>
+#include <RayTracer/Ray.h>
 
 #include <Testing.h>
 

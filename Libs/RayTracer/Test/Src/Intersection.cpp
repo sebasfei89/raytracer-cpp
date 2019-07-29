@@ -1,9 +1,10 @@
-#include "Intersection.h"
-#include "Plane.h"
-#include "Ray.h"
-#include "Sphere.h"
 #include "TestHelpers.h"
-#include "Util.h"
+
+#include <RayTracer/Intersection.h>
+#include <RayTracer/Plane.h>
+#include <RayTracer/Ray.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Util.h>
 
 #include <Beddev/Beddev.h>
 

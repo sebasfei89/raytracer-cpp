@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Pattern.h"
-#include "Sphere.h"
-#include "World.h"
+#include <RayTracer/Pattern.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/World.h>
 
 World DefaultWorld();
 ShapePtr GlassySphere();

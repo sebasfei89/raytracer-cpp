@@ -1,12 +1,11 @@
-#include <Canvas.h>
-#include <Intersection.h>
-#include <Lighting.h>
-#include <Ray.h>
-#include <Sphere.h>
-#include <Transformations.h>
+#include <RayTracer/Canvas.h>
+#include <RayTracer/Intersection.h>
+#include <RayTracer/Lighting.h>
+#include <RayTracer/Ray.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Transformations.h>
 
-#include <fstream>
-#include <iostream>
+#include <SampleUtils.h>
 
 int main()
 {
@@ -50,10 +49,7 @@ int main()
         }
     }
 
-    std::ofstream ppmFile;
-    ppmFile.open("LitSphere.ppm");
-    ppmFile << canvas.GetAsPPM();
-    ppmFile.close();
+    SampleUtils::SaveCanvas(canvas, "LitSphere.ppm");
 
     return 0;
 }

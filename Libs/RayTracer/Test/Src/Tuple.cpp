@@ -1,5 +1,5 @@
-#include "Tuple.h"
-#include "Util.h"
+#include <RayTracer/Tuple.h>
+#include <RayTracer/Util.h>
 
 #include <Testing.h>
 

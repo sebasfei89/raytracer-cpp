@@ -1,5 +1,5 @@
-#include "Matrix.h"
-#include "Tuple.h"
+#include <RayTracer/Matrix.h>
+#include <RayTracer/Tuple.h>
 
 #include <Testing.h>
 

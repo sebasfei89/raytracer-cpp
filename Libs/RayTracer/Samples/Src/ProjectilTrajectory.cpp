@@ -1,7 +1,8 @@
-#include "Canvas.h"
-#include "Tuple.h"
+#include "SampleUtils.h"
 
-#include <fstream>
+#include <RayTracer/Canvas.h>
+#include <RayTracer/Tuple.h>
+
 #include <iostream>
 
 struct Projectil
@@ -47,10 +48,7 @@ int main()
         Tick(env, proj);
     } while (proj.m_position[1] > 0.0f);
 
-    std::ofstream ppmFile;
-    ppmFile.open("projectil_trajectory.ppm");
-    ppmFile << canvas.GetAsPPM();
-    ppmFile.close();
+    SampleUtils::SaveCanvas(canvas, "projectil_trajectory.ppm");
 
     return 0;
 }

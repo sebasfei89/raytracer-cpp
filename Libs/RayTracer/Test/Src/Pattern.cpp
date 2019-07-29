@@ -1,8 +1,9 @@
-#include "Color.h"
-#include "Pattern.h"
-#include "Sphere.h"
-#include "Transformations.h"
 #include "TestHelpers.h"
+
+#include <RayTracer/Color.h>
+#include <RayTracer/Pattern.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Transformations.h>
 
 #include <Testing.h>
 

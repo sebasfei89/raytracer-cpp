@@ -1,4 +1,4 @@
-#include "Color.h"
+#include <RayTracer/Color.h>
 
 #include <Beddev/Beddev.h>
 
@@ -27,5 +27,6 @@ SCENARIO("Common color constants", "color")
            , Color::Black() == Color(0.f, 0.f, 0.f)
            , Color::Red() == Color(1.f, 0.f, 0.f)
            , Color::Green() == Color(0.f, 1.f, 0.f)
-           , Color::Blue() == Color(0.f, 0.f, 1.f) )
+           , Color::Blue() == Color(0.f, 0.f, 1.f)
+           , Color::Yellow() == Color(1.f, 1.f, 0.f) )
 }

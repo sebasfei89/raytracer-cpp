@@ -1,6 +1,7 @@
-#include "Camera.h"
-#include "World.h"
 #include "TestHelpers.h"
+
+#include <RayTracer/Camera.h>
+#include <RayTracer/World.h>
 
 #include <Beddev/Beddev.h>
 

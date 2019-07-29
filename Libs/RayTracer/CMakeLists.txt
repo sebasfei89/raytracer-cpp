@@ -4,24 +4,24 @@ include(../../BuildSystem/Utils.cmake)
 
 # RayTracer library ###########################################################
 set( RT_SOURCES
-    Include/Camera.h
-    Include/Canvas.h
-    Include/Color.h
-    Include/Intersection.h
-    Include/Lighting.h
-    Include/Material.h
-    Include/Matrix.h
-    Include/Pattern.h
-    Include/Plane.h
-    Include/Ray.h
-    Include/Shape.h
-    Include/SimplexNoise.h
-    Include/Sphere.h
-    Include/Transformations.h
-    Include/Tuple.h
-    Include/Types.h
-    Include/Util.h
-    Include/World.h
+    Include/RayTracer/Camera.h
+    Include/RayTracer/Canvas.h
+    Include/RayTracer/Color.h
+    Include/RayTracer/Intersection.h
+    Include/RayTracer/Lighting.h
+    Include/RayTracer/Material.h
+    Include/RayTracer/Matrix.h
+    Include/RayTracer/Pattern.h
+    Include/RayTracer/Plane.h
+    Include/RayTracer/Ray.h
+    Include/RayTracer/Shape.h
+    Include/RayTracer/SimplexNoise.h
+    Include/RayTracer/Sphere.h
+    Include/RayTracer/Transformations.h
+    Include/RayTracer/Tuple.h
+    Include/RayTracer/Types.h
+    Include/RayTracer/Util.h
+    Include/RayTracer/World.h
     Src/Camera.cpp
     Src/Canvas.cpp
     Src/Intersection.cpp
@@ -41,7 +41,7 @@ AddTarget( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 01_Libs
     SOURCES ${RT_SOURCES}
     PUBLIC_DIRS "./Include"
-    PRIVATE_DIRS "./Src"
+    PRIVATE_DIRS "./Include/RayTracer" "./Src"
     #PUBLIC_DEFS "USE_SSE" "_ENABLE_EXTENDED_ALIGNED_STORAGE" stuff for MathIntrinsics.h
     PRIVATE_DEFS "RENDER_TASKS=12" )
 
@@ -70,9 +70,15 @@ AddTarget( RayTracerTest EXECUTABLE
     FOLDER  02_Tests
     DEPS    RayTracer BeDDev
     SOURCES ${TEST_SOURCES}
-    PRIVATE_DIRS "./Test/Src" "./Src" "../../External" )
+    PRIVATE_DIRS "./Test/Src" "../../External" )
 
 # Sample projects #############################################################
+AddTarget( SampleUtils LIBRARY EXPORT_HEADER
+    FOLDER  03_Samples
+    DEPS    RayTracer
+    SOURCES Samples/Src/SampleUtils.h Samples/Src/SampleUtils.cpp
+    PUBLIC_DIRS "./Samples/Src" )
+
 #AddTarget( 00_MathIntrinsicsTests EXECUTABLE
 #    FOLDER  03_Samples
 #    DEPS    RayTracer
@@ -80,40 +86,45 @@ AddTarget( RayTracerTest EXECUTABLE
 
 AddTarget( Ch02_ProjectilTrajectory EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/ProjectilTrajectory.cpp )
 
 AddTarget( Ch04_WallClock EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/WallClock.cpp )
 
 AddTarget( Ch05_SphereSilhouette EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/SphereSilhouette.cpp )
 
 AddTarget( Ch06_LitSphere EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/LitSphere.cpp )
 
 AddTarget( Ch07_Scene EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/Scene.cpp )
 
 AddTarget( Ch09_Planes EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/Plane.cpp )
 
 AddTarget( Ch10_Patterns EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/Patterns.cpp )
 
-AddTarget( Ch11_ReflectionAndRefraction EXECUTABLE
+AddTarget( Ch11a_ReflectionAndRefraction EXECUTABLE
     FOLDER  03_Samples
-    DEPS    RayTracer
+    DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/ReflectionAndRefraction.cpp )
+
+AddTarget( Ch11b_FresnelEffect EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer SampleUtils
+    SOURCES Samples/Src/FresnelEffect.cpp )

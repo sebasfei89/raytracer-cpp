@@ -1,6 +1,6 @@
-#include "Ray.h"
-#include "Sphere.h"
-#include "Transformations.h"
+#include <RayTracer/Ray.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Transformations.h>
 
 #include <Testing.h>
 

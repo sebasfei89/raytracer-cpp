@@ -1,11 +1,10 @@
-#include "Material.h"
-#include "Sphere.h"
-#include "Transformations.h"
 #include "TestHelpers.h"
 
-#include <Testing.h>
+#include <RayTracer/Material.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Transformations.h>
 
-#include <cmath>
+#include <Testing.h>
 
 SCENARIO("The normal on a sphere at a point on te x axis", "[Geometry]")
 {

@@ -1,4 +1,4 @@
-#include "Canvas.h"
+#include <RayTracer/Canvas.h>
 
 #include <Beddev/Beddev.h>
 

@@ -1,10 +1,11 @@
-#include "Plane.h"
-#include "Ray.h"
-#include "Sphere.h"
 #include "TestHelpers.h"
-#include "Transformations.h"
-#include "Util.h"
-#include "World.h"
+
+#include <RayTracer/Plane.h>
+#include <RayTracer/Ray.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Transformations.h>
+#include <RayTracer/Util.h>
+#include <RayTracer/World.h>
 
 #include <Beddev/Beddev.h>
 

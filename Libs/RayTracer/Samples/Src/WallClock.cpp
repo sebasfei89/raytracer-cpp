@@ -1,8 +1,7 @@
-#include <Canvas.h>
-#include <Transformations.h>
+#include <SampleUtils.h>
 
-#include <fstream>
-#include <iostream>
+#include <RayTracer/Canvas.h>
+#include <RayTracer/Transformations.h>
 
 int main()
 {
@@ -25,10 +24,7 @@ int main()
         canvas.WritePixel((uint32_t)actualHour[0], canvas.Height() - (uint32_t)actualHour[1], white);
     }
 
-    std::ofstream ppmFile;
-    ppmFile.open("wall_clock.ppm");
-    ppmFile << canvas.GetAsPPM();
-    ppmFile.close();
+    SampleUtils::SaveCanvas(canvas, "wall_clock.ppm");
 
     return 0;
 }

@@ -1,13 +1,11 @@
-#include "Camera.h"
-#include "Pattern.h"
-#include "Plane.h"
-#include "Sphere.h"
-#include "Transformations.h"
-#include "World.h"
+#include <RayTracer/Camera.h>
+#include <RayTracer/Pattern.h>
+#include <RayTracer/Plane.h>
+#include <RayTracer/Sphere.h>
+#include <RayTracer/Transformations.h>
+#include <RayTracer/World.h>
 
-#include <chrono>
-#include <fstream>
-#include <iostream>
+#include <SampleUtils.h>
 
 int main()
 {
@@ -102,19 +100,7 @@ int main()
     auto camera = Camera(1300, 600, PI / 3.f);
     camera.SetTransform(matrix::View(Point(0.f, 1.5f, -5.f), Point(0.f, 1.f, 0.f), Vector(0.f, 1.f, 0.f)));
 
-    std::cout << "Rendering scene..." << std::endl;
-    using hrc = std::chrono::high_resolution_clock;
-    auto t1 = hrc::now();
-    auto const canvas = camera.Render(world);
-    auto t2 = hrc::now();
-
-    auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
-    std::cout << "Scene rendered in " << time_span.count() << " seconds." << std::endl;
-
-    std::ofstream ppmFile;
-    ppmFile.open("Ch10_patterns.ppm");
-    ppmFile << canvas.GetAsPPM();
-    ppmFile.close();
+    SampleUtils::RenderScene(camera, world, "Ch10_patterns.ppm");
 
     return 0;
 }
