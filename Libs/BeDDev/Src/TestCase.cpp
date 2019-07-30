@@ -1,6 +1,7 @@
 #include "TestCase.h"
 
 #include "ColoredOutput.h"
+#include "Expression.h"
 #include "TestRunner.h"
 
 #include <iomanip>
@@ -40,7 +41,20 @@ TestCase::TestCase(std::string const& desc, std::string const& fileAndLine, std:
 
 bool TestCase::Run(std::ostream& os)
 {
-    bool succeed = RunImpl();
+    bool succeed = false;
+    try
+    {
+        succeed = RunImpl();
+    }
+    catch (std::exception const&)
+    {
+        succeed = false;
+    }
+    catch (...)
+    {
+        succeed = false;
+    }
+
     if (!succeed)
     {
         os << std::setw(80) << std::setfill('-') << "-" << std::endl << std::setfill(' ');
@@ -61,7 +75,7 @@ bool TestCase::Run(std::ostream& os)
                 << TestingImpl::Colour(TestingImpl::ColorCode::Error) << "FAILED:" << std::endl
                 << TestingImpl::Colour(TestingImpl::ColorCode::OriginalExpression) << "  " << a.test << std::endl
                 << TestingImpl::Colour(TestingImpl::ColorCode::White) << "with expansion:" << std::endl
-                << TestingImpl::Colour(TestingImpl::ColorCode::ReconstructedExpression) << "  " << a.test << std::endl;
+                << TestingImpl::Colour(TestingImpl::ColorCode::ReconstructedExpression) << "  " << a.expanded << std::endl;
         }
     }
     return succeed;
@@ -84,23 +98,10 @@ TestCase::AssertionsSummary TestCase::Assertions() const
     });
 }
 
-bool TestCase::AddTest(std::string const& test, std::string const& file, long line, std::function<bool()> testFn)
+bool TestCase::AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
 {
-    bool result = true;
-    try
-    {
-        result = testFn();
-    }
-    catch (std::exception const&)
-    {
-        result = false;
-    }
-    catch (...)
-    {
-        result = false;
-    }
-    m_tests.push_back({ test, file, line, result });
-    return result;
+    m_tests.push_back({ test, file, line, expr.Succeeded(), expr.ExpandedExpression() });
+    return expr.Succeeded();
 }
 
 } // EON beddev

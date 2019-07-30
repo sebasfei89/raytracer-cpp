@@ -1,8 +1,8 @@
-#include "Ray.h"
-#include "Shape.h"
-#include "Transformations.h"
+#include <RayTracer/Ray.h>
+#include <RayTracer/Shape.h>
+#include <RayTracer/Transformations.h>
 
-#include <Testing.h>
+#include <Beddev/Beddev.h>
 
 class TestShape : public Shape
 {
@@ -30,94 +30,70 @@ public:
     Ray m_localRay;
 };
 
-SCENARIO("A sphere's default transformation", "[Shapes]")
+SCENARIO("A sphere's default transformation", "shapes")
 {
-    GIVEN_1(
-        auto const s = std::make_shared<TestShape>();
-    REQUIRE_,
-        s->Transform() == Mat44::Identity() )
+    GIVEN( auto const s = std::make_shared<TestShape>() )
+    THEN( s->Transform() == Mat44::Identity() )
 }
 
-SCENARIO("Changing a sphere's transformation", "[Shapes]")
+SCENARIO("Changing a sphere's transformation", "shapes")
 {
-    GIVEN_2(
-        auto s = std::make_shared<TestShape>();
-        auto const t = matrix::Translation(2.f, 3.f, 4.f);
-    WHEN_,
-        s->SetTransform(t);
-    REQUIRE_,
-        s->Transform() == t )
+    GIVEN( auto s = std::make_shared<TestShape>()
+         , auto const t = matrix::Translation(2.f, 3.f, 4.f) )
+    WHEN( s->SetTransform(t) )
+    THEN( s->Transform() == t )
 }
 
-SCENARIO("Shape default material", "[Shapes]")
+SCENARIO("Shape default material", "shapes")
 {
-    GIVEN_2(
-        auto s = std::make_shared<TestShape>();
-    WHEN_,
-        auto const m = s->GetMaterial();
-    REQUIRE_,
-        m == Material() )
+    GIVEN( auto s = std::make_shared<TestShape>() )
+    WHEN( auto const m = s->GetMaterial() )
+    THEN( m == Material() )
 }
 
-SCENARIO("Assigning a material to a shape", "[Shapes]")
+SCENARIO("Assigning a material to a shape", "shapes")
 {
-    GIVEN_2(
-        auto s = std::make_shared<TestShape>();
-    WHEN_,
-        auto m = s->GetMaterial();
-        m.Ambient(1.f);
-        s->SetMaterial(m);
-    REQUIRE_,
-        s->GetMaterial() == m )
+    GIVEN( auto s = std::make_shared<TestShape>() )
+    WHEN( auto m = s->GetMaterial()
+        , m.Ambient(1.f)
+        , s->SetMaterial(m) )
+    THEN( s->GetMaterial() == m )
 }
 
-SCENARIO("Intersecting a scaled shape with a ray", "[Math]")
+SCENARIO("Intersecting a scaled shape with a ray", "math")
 {
-    GIVEN_2(
-        auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto s = std::make_shared<TestShape>();
-    WHEN_,
-        s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f));
-        std::vector<Intersection> xs;
-        r.Intersect(s, xs);
-    REQUIRE_,
-        s->m_localRay.Origin() == Point(0.f, 0.f, -2.5f),
-        s->m_localRay.Direction() == Vector(0.f, 0.f, .5f) )
+    GIVEN( auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f))
+         , auto s = std::make_shared<TestShape>() )
+    WHEN( s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f))
+        , std::vector<Intersection> xs = {}
+        , r.Intersect(s, xs) )
+    THEN( s->m_localRay.Origin() == Point(0.f, 0.f, -2.5f)
+        , s->m_localRay.Direction() == Vector(0.f, 0.f, .5f) )
 }
 
-SCENARIO("Intersecting a translated shape with a ray", "[Math]")
+SCENARIO("Intersecting a translated shape with a ray", "math")
 {
-    GIVEN_2(
-        auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f));
-        auto s = std::make_shared<TestShape>();
-    WHEN_,
-        s->SetTransform(matrix::Translation(5.f, 0.f, 0.f));
-        std::vector<Intersection> xs;
-        r.Intersect(s, xs);
-    REQUIRE_,
-        s->m_localRay.Origin() == Point(-5.f, 0.f, -5.f),
-        s->m_localRay.Direction() == Vector(0.f, 0.f, 1.f) )
+    GIVEN( auto const r = Ray(Point(0.f, 0.f, -5.f), Vector(0.f, 0.f, 1.f))
+         , auto s = std::make_shared<TestShape>() )
+    WHEN( s->SetTransform(matrix::Translation(5.f, 0.f, 0.f))
+        , std::vector<Intersection> xs = {}
+        , r.Intersect(s, xs) )
+    THEN( s->m_localRay.Origin() == Point(-5.f, 0.f, -5.f)
+        , s->m_localRay.Direction() == Vector(0.f, 0.f, 1.f) )
 }
 
-SCENARIO("Computing the normal on a translated shape", "[Geometry]")
+SCENARIO("Computing the normal on a translated shape", "geometry")
 {
-    GIVEN_2(
-        auto s = std::make_shared<TestShape>();
-    WHEN_,
-        s->SetTransform(matrix::Translation(0.f, 1.f, 0.f));
-        auto const n = s->NormalAt(Point(0.f, 1.70711f, -0.70711f));
-    REQUIRE_,
-        n == Vector(0.f, 0.70711f, -0.70711f) )
+    GIVEN( auto s = std::make_shared<TestShape>() )
+    WHEN( s->SetTransform(matrix::Translation(0.f, 1.f, 0.f))
+        , auto const n = s->NormalAt(Point(0.f, 1.70711f, -0.70711f)) )
+    THEN( n == Vector(0.f, 0.70711f, -0.70711f) )
 }
 
-SCENARIO("Computing the normal on a transformed shape", "[Geometry]")
+SCENARIO("Computing the normal on a transformed shape", "geometry")
 {
-    GIVEN_2(
-        auto s = std::make_shared<TestShape>();
-        float const coord = std::sqrt(2.f) / 2.f;
-    WHEN_,
-        s->SetTransform(matrix::Scaling(1.f, 0.5f, 1.f) * matrix::RotationZ(PI / 5.f));
-        auto const n = s->NormalAt(Point(0.f, coord, -coord));
-    REQUIRE_,
-        n == Vector(0.f, 0.97014f, -0.24254f) )
+    GIVEN( auto s = std::make_shared<TestShape>() )
+    WHEN( s->SetTransform(matrix::Scaling(1.f, 0.5f, 1.f) * matrix::RotationZ(PI / 5.f))
+        , auto const n = s->NormalAt(Point(0.f, SQRT2OVR2, -SQRT2OVR2)) )
+    THEN( n == Vector(0.f, 0.97014f, -0.24254f) )
 }

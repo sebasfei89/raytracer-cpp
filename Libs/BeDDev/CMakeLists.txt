@@ -7,6 +7,8 @@ set( LIB_SOURCES
     Include/Beddev/Beddev.h
 	Include/Beddev/BeddevImpl.h
     Include/Beddev/ColoredOutput.h
+	Include/Beddev/Expression.h
+	Include/Beddev/ExpressionParser.h
 	Include/Beddev/TestCase.h
 	Include/Beddev/TestRunner.h
 	Src/TestCase.cpp
@@ -21,7 +23,8 @@ AddTarget( BeDDev LIBRARY EXPORT_HEADER
 # BeDDev tests #############################################################
 set( TEST_SOURCES
 	Test/Src/Main.cpp
-	Test/Src/Beddev.cpp )
+	Test/Src/Beddev.cpp
+	Test/Src/ExpressionParser.cpp )
 
 AddTarget( BeDDevTests EXECUTABLE
     FOLDER  02_Tests

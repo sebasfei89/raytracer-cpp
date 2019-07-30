@@ -83,7 +83,7 @@ int TestRunner::RunAll(std::ostream& os) const
             os << TestingImpl::Colour(TestingImpl::ColorCode::ResultSuccess)
                 << std::setw((int)((float)passedAssertions * factor)) << std::setfill('=') << "=";
         }
-        os << std::endl;
+        os << std::setfill(' ') << std::endl;
         int const col1w = GetMaxWidth({ total, totalAssertions });
         int const col2w = GetMaxWidth({ passed, passedAssertions });
         int const col3w = GetMaxWidth({ failed, failedAssertions });

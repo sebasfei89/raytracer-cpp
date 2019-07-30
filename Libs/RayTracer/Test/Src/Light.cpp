@@ -1,6 +1,6 @@
-#include "Lighting.h"
-#include "Pattern.h"
-#include "Sphere.h"
+#include <RayTracer/Lighting.h>
+#include <RayTracer/Pattern.h>
+#include <RayTracer/Sphere.h>
 
 #include <Beddev/Beddev.h>
 
