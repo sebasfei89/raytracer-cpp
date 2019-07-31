@@ -70,7 +70,7 @@ AddTarget( RayTracerTest EXECUTABLE
     FOLDER  02_Tests
     DEPS    RayTracer BeDDev
     SOURCES ${TEST_SOURCES}
-    PRIVATE_DIRS "./Test/Src" "../../External" )
+    PRIVATE_DIRS "./Test/Src" )
 
 # Sample projects #############################################################
 AddTarget( SampleUtils LIBRARY EXPORT_HEADER

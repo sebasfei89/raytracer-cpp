@@ -5,154 +5,122 @@
 #include <RayTracer/Sphere.h>
 #include <RayTracer/Transformations.h>
 
-#include <Testing.h>
+#include <Beddev/Beddev.h>
 
-SCENARIO("The default pattern transformation", "[Patterns]")
+SCENARIO("The default pattern transformation", "patterns")
 {
-    GIVEN_1(
-        auto const p = TestPattern();
-    REQUIRE_,
-        p.Transform() == Mat44::Identity())
+    GIVEN( auto const p = TestPattern() )
+    THEN( p.Transform() == Mat44::Identity() )
 }
 
-SCENARIO("Assigning a transformation", "[Patterns]")
+SCENARIO("Assigning a transformation", "patterns")
 {
-    GIVEN_2(
-        auto p = TestPattern();
-    WHEN_,
-        p.SetTransform(matrix::Translation(1.f, 2.f, 3.f));
-    REQUIRE_,
-        p.Transform() == matrix::Translation(1.f, 2.f, 3.f))
+    GIVEN( auto p = TestPattern() )
+    WHEN( p.SetTransform(matrix::Translation(1.f, 2.f, 3.f)) )
+    THEN( p.Transform() == matrix::Translation(1.f, 2.f, 3.f) )
 }
 
-SCENARIO("A pattern with an object transformation", "[Patterns]")
+SCENARIO("A pattern with an object transformation", "patterns")
 {
-    GIVEN_2(
-        auto s = std::make_shared<Sphere>();
-    s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f));
-    auto const p = TestPattern();
-    WHEN_,
-        auto const c = p.ShapeColorAt(s, Point(2.f, 3.f, 4.f));
-    REQUIRE_,
-        c == Color(1.f, 1.5f, 2.f))
+    GIVEN( auto s = std::make_shared<Sphere>()
+         , s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f))
+         , auto const p = TestPattern() )
+    WHEN( auto const c = p.ShapeColorAt(s, Point(2.f, 3.f, 4.f)) )
+    THEN( c == Color(1.f, 1.5f, 2.f) )
 }
 
-SCENARIO("A pattern with a pattern transformation", "[Patterns]")
+SCENARIO("A pattern with a pattern transformation", "patterns")
 {
-    GIVEN_2(
-        auto s = std::make_shared<Sphere>();
-    auto p = TestPattern();
-    p.SetTransform(matrix::Scaling(2.f, 2.f, 2.f));
-    WHEN_,
-        auto const c = p.ShapeColorAt(s, Point(2.f, 3.f, 4.f));
-    REQUIRE_,
-        c == Color(1.f, 1.5f, 2.f))
+    GIVEN( auto s = std::make_shared<Sphere>()
+         , auto p = TestPattern()
+         , p.SetTransform(matrix::Scaling(2.f, 2.f, 2.f)) )
+    WHEN( auto const c = p.ShapeColorAt(s, Point(2.f, 3.f, 4.f)) )
+    THEN( c == Color(1.f, 1.5f, 2.f) )
 }
 
-SCENARIO("A pattern with both an object and a pattern transformation", "[Patterns]")
+SCENARIO("A pattern with both an object and a pattern transformation", "patterns")
 {
-    GIVEN_2(
-        auto s = std::make_shared<Sphere>();
-    s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f));
-    auto p = TestPattern();
-    p.SetTransform(matrix::Translation(.5f, 1.f, 1.5f));
-    WHEN_,
-        auto const c = p.ShapeColorAt(s, Point(2.5, 3.f, 3.5f));
-    REQUIRE_,
-        c == Color(.75f, .5f, .25f))
+    GIVEN( auto s = std::make_shared<Sphere>()
+         , s->SetTransform(matrix::Scaling(2.f, 2.f, 2.f))
+         , auto p = TestPattern()
+         , p.SetTransform(matrix::Translation(.5f, 1.f, 1.5f)) )
+    WHEN( auto const c = p.ShapeColorAt(s, Point(2.5, 3.f, 3.5f)) )
+    THEN( c == Color(.75f, .5f, .25f) )
 }
 
-SCENARIO("A strip pattern is constant in y", "[Patterns]")
+SCENARIO("A strip pattern is constant in y", "patterns")
 {
-    GIVEN_1(
-        auto const p = StripPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(0.f, 1.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(0.f, 2.f, 0.f)) == Color::White() )
+    GIVEN( auto const p = StripPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(0.f, 1.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(0.f, 2.f, 0.f)) == Color::White() )
 }
 
-SCENARIO("A strip pattern is constant in z", "[Patterns]")
+SCENARIO("A strip pattern is constant in z", "patterns")
 {
-    GIVEN_1(
-        auto const p = StripPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(0.f, 0.f, 1.f)) == Color::White(),
-        p.ColorAt(Point(0.f, 0.f, 2.f)) == Color::White() )
+    GIVEN( auto const p = StripPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(0.f, 0.f, 1.f)) == Color::White()
+        , p.ColorAt(Point(0.f, 0.f, 2.f)) == Color::White() )
 }
 
-SCENARIO("A strip pattern alternates in x", "[Patterns]")
+SCENARIO("A strip pattern alternates in x", "patterns")
 {
-    GIVEN_1(
-        auto const p = StripPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(.9f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(1.f, 0.f, 0.f)) == Color::Black(),
-        p.ColorAt(Point(-.1f, 0.f, 0.f)) == Color::Black(),
-        p.ColorAt(Point(-1.f, 0.f, 0.f)) == Color::Black(),
-        p.ColorAt(Point(-1.1f, 0.f, 0.f)) == Color::White() )
+    GIVEN( auto const p = StripPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(.9f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(1.f, 0.f, 0.f)) == Color::Black()
+        , p.ColorAt(Point(-.1f, 0.f, 0.f)) == Color::Black()
+        , p.ColorAt(Point(-1.f, 0.f, 0.f)) == Color::Black()
+        , p.ColorAt(Point(-1.1f, 0.f, 0.f)) == Color::White() )
 }
 
-SCENARIO("A gradient linearly interpolates between colors", "[Patterns]")
+SCENARIO("A gradient linearly interpolates between colors", "patterns")
 {
-    GIVEN_1(
-        auto const p = GradientPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(.25f, 0.f, 0.f)) == Color(.75f, .75f, .75f),
-        p.ColorAt(Point(.5f, 0.f, 0.f)) == Color(.5f, .5f, .5f),
-        p.ColorAt(Point(.75f, 0.f, 0.f)) == Color(.25f, .25f, .25f) )
+    GIVEN( auto const p = GradientPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(.25f, 0.f, 0.f)) == Color(.75f, .75f, .75f)
+        , p.ColorAt(Point(.5f, 0.f, 0.f)) == Color(.5f, .5f, .5f)
+        , p.ColorAt(Point(.75f, 0.f, 0.f)) == Color(.25f, .25f, .25f) )
 }
 
-SCENARIO("A ring should extend in both x and z", "[Patterns]")
+SCENARIO("A ring should extend in both x and z", "patterns")
 {
-    GIVEN_1(
-        auto const p = RingPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(1.f, 0.f, 0.f)) == Color::Black(),
-        p.ColorAt(Point(0.f, 0.f, 1.f)) == Color::Black(),
-        p.ColorAt(Point(.708f, 0.f, .708f)) == Color::Black() )
+    GIVEN( auto const p = RingPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(1.f, 0.f, 0.f)) == Color::Black()
+        , p.ColorAt(Point(0.f, 0.f, 1.f)) == Color::Black()
+        , p.ColorAt(Point(.708f, 0.f, .708f)) == Color::Black() )
 }
 
-SCENARIO("Checkers should repeat in x", "[Patterns]")
+SCENARIO("Checkers should repeat in x", "patterns")
 {
-    GIVEN_1(
-        auto const p = CheckerPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(.99f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(1.01f, 0.f, 0.f)) == Color::Black() )
+    GIVEN( auto const p = CheckerPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(.99f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(1.01f, 0.f, 0.f)) == Color::Black() )
 }
 
-SCENARIO("Checkers should repeat in y", "[Patterns]")
+SCENARIO("Checkers should repeat in y", "patterns")
 {
-    GIVEN_1(
-        auto const p = CheckerPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(0.f, .99f, 0.f)) == Color::White(),
-        p.ColorAt(Point(0.f, 1.01f, 0.f)) == Color::Black() )
+    GIVEN( auto const p = CheckerPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(0.f, .99f, 0.f)) == Color::White()
+        , p.ColorAt(Point(0.f, 1.01f, 0.f)) == Color::Black() )
 }
 
-SCENARIO("Checkers should repeat in z", "[Patterns]")
+SCENARIO("Checkers should repeat in z", "patterns")
 {
-    GIVEN_1(
-        auto const p = CheckerPattern(Color::White(), Color::Black());
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White(),
-        p.ColorAt(Point(0.f, 0.f, 0.99f)) == Color::White(),
-        p.ColorAt(Point(0.f, 0.f, 1.01f)) == Color::Black() )
+    GIVEN( auto const p = CheckerPattern(Color::White(), Color::Black()) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color::White()
+        , p.ColorAt(Point(0.f, 0.f, 0.99f)) == Color::White()
+        , p.ColorAt(Point(0.f, 0.f, 1.01f)) == Color::Black() )
 }
 
-SCENARIO("Solid pattern always return same color", "[Patterns]")
+SCENARIO("Solid pattern always return same color", "patterns")
 {
-    GIVEN_1(
-        auto const p = SolidPattern(Color(1.f, 0.f, 0.f));
-    REQUIRE_,
-        p.ColorAt(Point(0.f, 0.f, 0.f)) == Color(1.f, 0.f, 0.f),
-        p.ColorAt(Point(0.f, 0.f, 0.99f)) == Color(1.f, 0.f, 0.f),
-        p.ColorAt(Point(0.f, 0.f, 1.01f)) == Color(1.f, 0.f, 0.f) )
+    GIVEN( auto const p = SolidPattern(Color(1.f, 0.f, 0.f)) )
+    THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color(1.f, 0.f, 0.f)
+        , p.ColorAt(Point(0.f, 0.f, 0.99f)) == Color(1.f, 0.f, 0.f)
+        , p.ColorAt(Point(0.f, 0.f, 1.01f)) == Color(1.f, 0.f, 0.f) )
 }
