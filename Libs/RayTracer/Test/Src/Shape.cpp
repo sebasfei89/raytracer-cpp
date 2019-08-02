@@ -16,7 +16,7 @@ public:
         const_cast<TestShape*>(this)->m_localRay = ray;
     }
 
-    bool IntersectsBefore(Ray const& ray, float distance) const
+    bool IntersectsBefore(Ray const& ray, float distance) const override
     {
         const_cast<TestShape*>(this)->m_localRay = ray;
         return true;

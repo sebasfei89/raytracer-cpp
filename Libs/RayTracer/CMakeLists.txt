@@ -7,6 +7,7 @@ set( RT_SOURCES
     Include/RayTracer/Camera.h
     Include/RayTracer/Canvas.h
     Include/RayTracer/Color.h
+    Include/RayTracer/Cube.h
     Include/RayTracer/Intersection.h
     Include/RayTracer/Lighting.h
     Include/RayTracer/Material.h
@@ -24,6 +25,7 @@ set( RT_SOURCES
     Include/RayTracer/World.h
     Src/Camera.cpp
     Src/Canvas.cpp
+    Src/Cube.cpp
     Src/Intersection.cpp
     Src/Lighting.cpp
     Src/Material.cpp
@@ -50,6 +52,7 @@ set( TEST_SOURCES
     Test/Src/Canvas.cpp
     Test/Src/Camera.cpp
     Test/Src/Color.cpp
+    Test/Src/Cube.cpp
     Test/Src/Intersection.cpp
     Test/Src/Light.cpp
     Test/Src/Main.cpp
@@ -128,3 +131,8 @@ AddTarget( Ch11b_FresnelEffect EXECUTABLE
     FOLDER  03_Samples
     DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/FresnelEffect.cpp )
+
+AddTarget( Ch12_Cubes EXECUTABLE
+    FOLDER  03_Samples
+    DEPS    RayTracer SampleUtils
+    SOURCES Samples/Src/Cubes.cpp )
