@@ -12,7 +12,15 @@ namespace
         uint32_t tmp = 1;
         for (auto i : args)
         {
-            if (i > 9 && tmp < 2) tmp = 2;
+            for (uint32_t exp = 1; ; exp++)
+            {
+                auto upper = (uint32_t)std::pow(10, exp);
+                if (i < upper)
+                {
+                    if (tmp < exp) tmp = exp;
+                    break;
+                }
+            }
         }
         return tmp;
     }
@@ -23,6 +31,7 @@ namespace beddev
 
 TestRunner::TestRunner()
     : m_testCases()
+    , m_isRunning(false)
 {
 }
 
@@ -31,9 +40,12 @@ TestRunner::~TestRunner()
     m_testCases.clear();
 }
 
-void TestRunner::Register(TestCase* testCase)
+void TestRunner::Register(ITestCase* testCase)
 {
-    m_testCases.push_back(testCase);
+    if (!m_isRunning)
+    {
+        m_testCases.push_back(testCase);
+    }
 }
 
 TestRunner& TestRunner::Get()
@@ -42,8 +54,9 @@ TestRunner& TestRunner::Get()
     return s_testRunner;
 }
 
-int TestRunner::RunAll(std::ostream& os) const
+int TestRunner::RunAll(std::ostream& os)
 {
+    m_isRunning = true;
     uint32_t failedAssertions = 0;
     uint32_t passedAssertions = 0;
     uint32_t passed = 0;
@@ -91,6 +104,7 @@ int TestRunner::RunAll(std::ostream& os) const
         OutputSummary(os, col1w, col2w, col3w, "assertions", totalAssertions, passedAssertions, failedAssertions);
     }
 
+    m_isRunning = false;
     return failed;
 }
 

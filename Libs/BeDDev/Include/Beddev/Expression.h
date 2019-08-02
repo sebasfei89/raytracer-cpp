@@ -67,8 +67,12 @@ protected:
     GetExpandedExpression(T const& value) const { return "<?>"; }
 
     template<typename T = LHST>
-    typename std::enable_if<is_printable<T>::value, std::string>::type
+    typename std::enable_if<is_printable<T>::value && !is_c_str<T>::value && !std::is_same_v<T, std::string>, std::string>::type
     GetExpandedExpression(T const& value) const { std::ostringstream oss; oss << std::boolalpha << value; return oss.str(); }
+
+    template<typename T = LHST>
+    typename std::enable_if_t<is_c_str<T>::value || std::is_same_v<T, std::string>, std::string>
+    GetExpandedExpression(T const& value) const { std::ostringstream oss; oss << std::boolalpha << std::quoted(value); return oss.str(); }
 
     constexpr std::string GetOperator() const
     {
@@ -119,14 +123,22 @@ public:
     template<typename RHST>
     BinaryExpression<LHST, RHST> operator>=(RHST value) const { return { m_lhs, value, EOperator::GREATEREQUAL, static_cast<bool>(m_lhs >= value) }; }
 
+    // Operators == and != for c-strings
+    BinaryExpression<LHST, char const*> operator==(char const* value) const { return { m_lhs, value, EOperator::EQUALS, static_cast<bool>(m_lhs == std::string(value)) }; }
+    BinaryExpression<LHST, char const*> operator!=(char const* value) const { return { m_lhs, value, EOperator::NOTEQUALS, static_cast<bool>(m_lhs != std::string(value)) }; }
+
 protected:
     template<typename T = LHST>
     typename std::enable_if<!is_printable<T>::value, std::string>::type
     GetExpandedExpression() const { return "<?>"; }
 
     template<typename T = LHST>
-    typename std::enable_if<is_printable<T>::value, std::string>::type
+    typename std::enable_if<is_printable<T>::value && !is_c_str<T>::value && !std::is_same_v<T, std::string>, std::string>::type
     GetExpandedExpression() const { std::ostringstream oss; oss << std::boolalpha << m_lhs; return oss.str(); }
+
+    template<typename T = LHST>
+    typename std::enable_if_t<is_c_str<T>::value || std::is_same_v<T, std::string>, std::string>
+    GetExpandedExpression() const { std::ostringstream oss; oss << std::boolalpha << std::quoted(m_lhs); return oss.str(); }
 
     template<typename T = LHST>
     typename std::enable_if<!is_c_str<T>::value && !std::is_class<T>::value, bool>::type

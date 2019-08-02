@@ -93,7 +93,7 @@ SCENARIO("Unary expression that returns 0", "expressions")
 SCENARIO("Unary expression with empty c-string", "expressions")
 {
     GIVEN( auto ep = ExpressionParser::Get() <= "" )
-    THEN( ep.ExpandedExpression() == ""
+    THEN( ep.ExpandedExpression() == "\"\""
         , ep.Type() == IExpression::EType::UNARY
         , !ep.Succeeded() )
 }
@@ -101,7 +101,7 @@ SCENARIO("Unary expression with empty c-string", "expressions")
 SCENARIO("Unary expression with non-empty c-string", "expressions")
 {
     GIVEN( auto ep = ExpressionParser::Get() <= "test" )
-    THEN( ep.ExpandedExpression() == "test"
+    THEN( ep.ExpandedExpression() == "\"test\""
         , ep.Type() == IExpression::EType::UNARY
         , ep.Succeeded() )
 }
@@ -220,6 +220,41 @@ SCENARIO("Binary expression where false != true", "expressions")
 {
     GIVEN( auto ep = ExpressionParser::Get() <= false != true )
     THEN( ep.ExpandedExpression() == "false != true"
+        , ep.Type() == IExpression::EType::BINARY
+        , ep.Succeeded() )
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////    c-string binary expressions
+////////////////////////////////////////////////////////////////////////////////
+SCENARIO("Binary expression where \"test\" == \"test\"", "expressions")
+{
+    GIVEN( auto ep = ExpressionParser::Get() <= "test" == "test" )
+    THEN( ep.ExpandedExpression() == "\"test\" == \"test\""
+        , ep.Type() == IExpression::EType::BINARY
+        , ep.Succeeded() )
+}
+
+SCENARIO("Binary expression where \"test\" == \"test2\"", "expressions")
+{
+    GIVEN( auto ep = ExpressionParser::Get() <= "test" == "test2" )
+    THEN( ep.ExpandedExpression() == "\"test\" == \"test2\""
+        , ep.Type() == IExpression::EType::BINARY
+        , !ep.Succeeded() )
+}
+
+SCENARIO("Binary expression where \"test\" != \"test\"", "expressions")
+{
+    GIVEN( auto ep = ExpressionParser::Get() <= "test" != "test" )
+    THEN( ep.ExpandedExpression() == "\"test\" != \"test\""
+        , ep.Type() == IExpression::EType::BINARY
+        , !ep.Succeeded() )
+}
+
+SCENARIO("Binary expression where \"test\" != \"test2\"", "expressions")
+{
+    GIVEN( auto ep = ExpressionParser::Get() <= "test" != "test2" )
+    THEN( ep.ExpandedExpression() == "\"test\" != \"test2\""
         , ep.Type() == IExpression::EType::BINARY
         , ep.Succeeded() )
 }

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(TheRayTracerChallenge)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "0.BuildSystem")
 
 option(BUILD_SHARED_LIBS "Build shared libs?" ON)
 

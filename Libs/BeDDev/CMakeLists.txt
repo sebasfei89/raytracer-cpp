@@ -11,23 +11,24 @@ set( LIB_SOURCES
 	Include/Beddev/ExpressionParser.h
 	Include/Beddev/TestCase.h
 	Include/Beddev/TestRunner.h
-	Src/TestCase.cpp
 	Src/TestRunner.cpp )
 
 AddTarget( BeDDev LIBRARY EXPORT_HEADER
-    FOLDER 01_Libs
+    FOLDER 1.Libs
     SOURCES ${LIB_SOURCES}
     INTERFACE_DIRS "./Include"
 	PRIVATE_DIRS "./Include/Beddev" )
 
 # BeDDev tests #############################################################
 set( TEST_SOURCES
-	Test/Src/Main.cpp
 	Test/Src/Beddev.cpp
-	Test/Src/ExpressionParser.cpp )
+	Test/Src/ExpressionParser.cpp
+	Test/Src/Main.cpp
+	Test/Src/ParametrizedTestCase.cpp
+	Test/Src/TestCase.cpp )
 
 AddTarget( BeDDevTests EXECUTABLE
-    FOLDER  02_Tests
+    FOLDER  2.Tests
     DEPS    BeDDev
     SOURCES ${TEST_SOURCES}
     PRIVATE_DIRS "./Test/Src" )
