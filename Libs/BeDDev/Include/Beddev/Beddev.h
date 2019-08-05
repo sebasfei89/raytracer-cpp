@@ -2,7 +2,7 @@
 
 #include "./BeddevImpl.h"
 
-#define PSCENARIO(desc, cat, args) BEDDEV_PSCENARIO(desc, cat, args)
+#define PSCENARIO(ARGT, DESC, ...) BEDDEV_PSCENARIO(ARGT, DESC, __VA_ARGS__)
 #define PARAMS(...) BEDDEV_PARAMS(__VA_ARGS__)
 
 #define SCENARIO(desc, ...) BEDDEV_SCENARIO(desc, __VA_ARGS__)

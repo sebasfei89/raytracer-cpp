@@ -31,12 +31,13 @@ SCENARIO("Given/When/Then test")
     THEN( a + b == c )
 }
 
-static float s_total = 0.f;
-static int s_iteration = 0;
-PSCENARIO("Basic parametrized test", "ptest", PARAMS(1.f, 2.f, 3.f))
+PSCENARIO(float, "Basic parametrized test", "ptest")
 {
-    s_iteration++;
-    GIVEN( auto p = GetParam() )
-    WHEN( s_total += p )
+    PARAMS( 1.f, 2.f, 3.f )
+    GIVEN( auto p = GetParam()
+         , static float s_total = 0.f
+         , static int s_iteration = 0 )
+    WHEN( s_total += p
+        , s_iteration++ )
     THEN( s_total == s_iteration * (s_iteration + 1) * .5f)
 }

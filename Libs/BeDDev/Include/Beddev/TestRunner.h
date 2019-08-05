@@ -19,10 +19,11 @@ public:
 
     BEDDEV_EXPORT void Register(ITestCase* testCase);
 
-private:
-    TestRunner();
-    ~TestRunner();
+protected:
+    BEDDEV_EXPORT TestRunner();
+    BEDDEV_EXPORT ~TestRunner();
 
+private:
     void OutputSummary(std::ostream& os, uint32_t col1w, uint32_t col2w, uint32_t col3w, std::string const& header, uint32_t total, uint32_t passed, uint32_t failed) const;
 
     std::vector<ITestCase*> m_testCases;

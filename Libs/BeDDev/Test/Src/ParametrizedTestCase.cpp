@@ -33,10 +33,12 @@ class DummyPTestCase : public ParametrizedTestCase<PARAM_T>
 {
 public:
     DummyPTestCase(std::string const& fl, std::vector<PARAM_T> const& params, std::vector<PARAM_T> const& testValues)
-        : ParametrizedTestCase("DummyPTestCase", fl, "ptest", params)
+        : ParametrizedTestCase("DummyPTestCase", fl, "ptest")
         , m_usedParams()
         , m_testValues(testValues)
-    {}
+    {
+        SetParams(params);
+    }
 
     bool RunImpl() override
     {
@@ -69,11 +71,12 @@ SCENARIO("An empty parametrized test case")
 {
     auto const pArgs = { 1, 1 };
     std::vector<int> const tArgs = {};
-    GIVEN(auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
-         , std::ostringstream oss)
-    WHEN( tc.Run(oss)
-        , auto tests = tc.Assertions() )
-    THEN( std::get<0>(tests) == 0
+    GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
+         , std::ostringstream oss )
+    WHEN( auto const succeed = tc.Run(oss)
+        , auto const tests = tc.Assertions() )
+    THEN( succeed
+        , std::get<0>(tests) == 0
         , std::get<1>(tests) == 0
         , oss.str() == ""
         , tc.m_usedParams.size() == 2
@@ -86,9 +89,10 @@ SCENARIO("A parametrized test case with a single assertion")
     auto const pArgs = { 1, 2 };
     GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, {1} )
          , std::ostringstream oss )
-    WHEN( tc.Run(oss)
-        , auto tests = tc.Assertions() )
-    THEN( std::get<0>(tests) == 1
+    WHEN( auto const succeed = tc.Run(oss)
+        , auto const tests = tc.Assertions() )
+    THEN( !succeed
+        , std::get<0>(tests) == 1
         , std::get<1>(tests) == 1
         , oss.str() == tc.GetExpectedOutput()
         , tc.m_usedParams.size() == 2
@@ -102,9 +106,10 @@ SCENARIO("A parametrized test case with some assertions")
     auto const tArgs = { 1, 2, 3, 3 };
     GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
          , std::ostringstream oss )
-    WHEN( tc.Run(oss)
+    WHEN( auto const succeed = tc.Run(oss)
         , auto tests = tc.Assertions() )
-    THEN( std::get<0>(tests) == 4
+    THEN( !succeed
+        , std::get<0>(tests) == 4
         , std::get<1>(tests) == 8
         , oss.str() == tc.GetExpectedOutput()
         , tc.m_usedParams.size() == 3
@@ -119,9 +124,10 @@ SCENARIO("A test case parametrized with structured args")
     std::vector<ArgT> const tArgs = { ArgT{1,"one"} };
     GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
          , std::ostringstream oss )
-    WHEN( tc.Run(oss)
+    WHEN( auto const succeed = tc.Run(oss)
         , auto tests = tc.Assertions() )
-    THEN( std::get<0>(tests) == 1
+    THEN( !succeed
+        , std::get<0>(tests) == 1
         , std::get<1>(tests) == 2
         , oss.str() == tc.GetExpectedOutput()
         , tc.m_usedParams.size() == 3

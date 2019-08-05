@@ -84,14 +84,14 @@ int TestRunner::RunAll(std::ostream& os)
             << "All tests passed"
             << TestingImpl::Colour(TestingImpl::ColorCode::White)
             << " (" << passedAssertions << " assertion" << ((passedAssertions != 1) ? "s" : "")
-            << " in " << passed << " test case" << ((passed != 1) ? "s " : "") << ")" << std::endl;
+            << " in " << passed << " test case" << ((passed != 1) ? "s" : "") << ")" << std::endl;
     }
     else
     {
         float const factor = 80.f / (float)totalAssertions;
         os << TestingImpl::Colour(TestingImpl::ColorCode::ResultError)
             << std::setw((int)((float)failedAssertions * factor)) << std::setfill('=') << "=";
-        if (passed > 0)
+        if (passedAssertions > 0)
         {
             os << TestingImpl::Colour(TestingImpl::ColorCode::ResultSuccess)
                 << std::setw((int)((float)passedAssertions * factor)) << std::setfill('=') << "=";

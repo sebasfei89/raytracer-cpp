@@ -21,11 +21,12 @@ AddTarget( BeDDev LIBRARY EXPORT_HEADER
 
 # BeDDev tests #############################################################
 set( TEST_SOURCES
-	Test/Src/Beddev.cpp
-	Test/Src/ExpressionParser.cpp
-	Test/Src/Main.cpp
-	Test/Src/ParametrizedTestCase.cpp
-	Test/Src/TestCase.cpp )
+    Test/Src/Beddev.cpp
+    Test/Src/ExpressionParser.cpp
+    Test/Src/Main.cpp
+    Test/Src/ParametrizedTestCase.cpp
+    Test/Src/TestCase.cpp
+    Test/Src/TestRunner.cpp )
 
 AddTarget( BeDDevTests EXECUTABLE
     FOLDER  2.Tests

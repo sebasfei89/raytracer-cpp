@@ -32,26 +32,18 @@ template<typename PARAM_T>
 class ParametrizedTestCase : public ITestCase
 {
 public:
-    ParametrizedTestCase(std::string const& desc, std::string const& fileAndLine, std::string const& category, std::vector<PARAM_T> const& params)
+    ParametrizedTestCase(std::string const& desc, std::string const& fileAndLine, std::string const& category = "")
         : m_description(desc)
         , m_category(category)
         , m_fileAndLine(fileAndLine)
         , m_facts()
         , m_actions()
         , m_tests()
-        , m_params(params)
+        , m_params()
         , m_currentParam(0)
     {
         TestRunner::Get().Register(this);
     }
-
-    ParametrizedTestCase(std::string const& desc, std::string const& fileAndLine, std::vector<PARAM_T> const& params)
-        : ParametrizedTestCase(desc, fileAndLine, "", params)
-    {}
-
-    ParametrizedTestCase(std::string const& desc, std::string const& fileAndLine, std::string const& category = "")
-        : ParametrizedTestCase(desc, fileAndLine, category, { NoParam{} })
-    {}
 
     bool Run(std::ostream& os) override;
 
@@ -72,14 +64,23 @@ public:
 protected:
     virtual bool RunImpl() = 0;
 
-    bool RunInternal()
+    void SetParams(std::vector<PARAM_T> const& params)
+    {
+        m_params = params;
+    }
+
+    template<typename U = PARAM_T>
+    typename std::enable_if_t<std::is_same_v<U, NoParam>, bool>
+    RunInternal() { return RunImpl(); }
+
+    template<typename U = PARAM_T>
+    typename std::enable_if_t<!std::is_same_v<U, NoParam>, bool>
+    RunInternal()
     {
         bool succeed = true;
-        m_currentParam = 0;
-        for (auto const& p : m_params)
+        for (m_currentParam = 0; m_currentParam < m_params.size(); m_currentParam++)
         {
             succeed &= RunImpl();
-            m_currentParam++;
         }
         return succeed;
     }
@@ -87,10 +88,24 @@ protected:
     void AddFact(std::string const& fact) { m_facts.push_back(fact); }
     void AddAction(std::string const& action) { m_actions.push_back(action); }
 
-    bool AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
+    template<typename U = PARAM_T>
+    typename std::enable_if_t<std::is_same_v<U, NoParam>, bool>
+    AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
     {
-        m_tests.push_back({ test, file, line, expr.Succeeded(), expr.ExpandedExpression(), GetParam() });
-        return expr.Succeeded();
+        return AddTest({ test, file, line, expr.Succeeded(), expr.ExpandedExpression(), NoParam{} });
+    }
+
+    template<typename U = PARAM_T>
+    typename std::enable_if_t<!std::is_same_v<U, NoParam>, bool>
+    AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
+    {
+        return AddTest({ test, file, line, expr.Succeeded(), expr.ExpandedExpression(), GetParam() });
+    }
+
+    bool AddTest(TestAssertion const& assertion)
+    {
+        m_tests.push_back(assertion);
+        return assertion.result;
     }
 
     std::vector<TestAssertion> const& GetTests() const { return m_tests; }
@@ -195,7 +210,7 @@ void ParametrizedTestCase<PARAM_T>::FormatItems(std::ostream& os, std::vector<st
     bool isFirst = true;
     for (auto const& i : items)
     {
-        os << std::setw(11) << (isFirst ? tag : "And") << ": " << i << std::endl;
+        os << std::setw(8) << (isFirst ? tag : "And") << ": " << i << std::endl;
         isFirst = false;
     }
 }
@@ -206,7 +221,7 @@ void ParametrizedTestCase<PARAM_T>::FormatItems(std::ostream& os, std::vector<Te
     bool isFirst = true;
     for (auto const& i : items)
     {
-        os << std::setw(11) << (isFirst ? tag : "And") << ": " << i.test << std::endl;
+        os << std::setw(8) << (isFirst ? tag : "And") << ": " << i.test << std::endl;
         isFirst = false;
     }
 }
