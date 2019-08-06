@@ -17,15 +17,18 @@ SCENARIO("Constructing a camera", "Scene")
         , c.Transform() == Mat44::Identity() )
 }
 
-SCENARIO("The pixel size for a horizontal canvas", "Scene")
+struct ArgT
 {
-    GIVEN( auto const c = Camera(200, 125, PI/2.f) )
-    THEN( c.PixelSize() == 0.01f )
-}
+    uint32_t width;
+    uint32_t height;
+};
 
-SCENARIO("The pixel size for a vertical canvas", "Scene")
+PSCENARIO(ArgT, "The pixel size for a horizontal canvas", "Scene")
 {
-    GIVEN( auto const c = Camera(125, 200, PI / 2.f) )
+    PARAMS( { 200, 125 }
+          , { 125, 200 } )
+    GIVEN( auto const arg = GetParam()
+         , auto const c = Camera(arg.width, arg.height, PI/2.f) )
     THEN( c.PixelSize() == 0.01f )
 }
 

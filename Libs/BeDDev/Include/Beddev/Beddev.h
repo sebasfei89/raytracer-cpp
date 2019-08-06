@@ -15,6 +15,6 @@
 #include <iostream>
 int main(int argc, char** argv)
 {
-    return beddev::TestRunner::Get().RunAll(std::cout);
+    return beddev::TestRunner::Get().RunAll(std::cout, argc > 1 ? argv[1] : "");
 }
 #endif

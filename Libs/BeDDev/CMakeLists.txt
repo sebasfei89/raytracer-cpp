@@ -28,7 +28,7 @@ set( TEST_SOURCES
     Test/Src/TestCase.cpp
     Test/Src/TestRunner.cpp )
 
-AddTarget( BeDDevTests EXECUTABLE
+AddTarget( BeDDevTests TEST
     FOLDER  2.Tests
     DEPS    BeDDev
     SOURCES ${TEST_SOURCES}

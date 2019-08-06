@@ -7,21 +7,18 @@ using namespace beddev;
 namespace
 {
 
-#define DUMMY_TESTCASE(...) DummyTestCase(BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__), __VA_ARGS__)
+#define DUMMY_TESTCASE(...) DummyTestCase(__FILE__, __LINE__, __VA_ARGS__)
 #define TEST_ASSERTION(TC, EXPR) TC.AddTestHelper(#EXPR, __FILE__, __LINE__, ExpressionParser::Get() <= EXPR)
 
 class DummyTestCase : public TestCase
 {
 public:
-    DummyTestCase(std::string const& fl, std::string const& cat="")
-        : TestCase("DummyTestCase", fl, cat)
+    DummyTestCase(std::string const& f, long l, std::string const& cat="")
+        : TestCase("DummyTestCase", f, l, cat)
         , m_succeed(true)
     {}
 
-    bool RunImpl() override
-    {
-        return m_succeed;
-    }
+    bool RunImpl(ERunStep runStep) override { return m_succeed; }
 
     void AddTestHelper(std::string const& test, std::string const& file, long line, IExpression const& expr)
     {

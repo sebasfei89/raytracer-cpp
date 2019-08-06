@@ -7,7 +7,7 @@ using namespace beddev;
 namespace
 {
 
-#define DUMMY_PTESTCASE(PARGS, TARGS) DummyPTestCase<decltype(PARGS)::value_type>(BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__), PARGS, TARGS)
+#define DUMMY_PTESTCASE(PARGS, TARGS) DummyPTestCase<decltype(PARGS)::value_type>(__FILE__, __LINE__, PARGS, TARGS)
 #define TEST_ASSERTION(TC, EXPR) TC.AddTestHelper(#EXPR, __FILE__, __LINE__, ExpressionParser::Get() <= EXPR)
 #define TOSTR(EXPR) #EXPR
 
@@ -32,16 +32,22 @@ template<typename PARAM_T>
 class DummyPTestCase : public ParametrizedTestCase<PARAM_T>
 {
 public:
-    DummyPTestCase(std::string const& fl, std::vector<PARAM_T> const& params, std::vector<PARAM_T> const& testValues)
-        : ParametrizedTestCase("DummyPTestCase", fl, "ptest")
+    DummyPTestCase(std::string const& f, long l, std::vector<PARAM_T> const& params, std::vector<PARAM_T> const& testValues)
+        : ParametrizedTestCase("DummyPTestCase", f, l, "ptest")
         , m_usedParams()
         , m_testValues(testValues)
+        , m_testParams(params)
     {
-        SetParams(params);
     }
 
-    bool RunImpl() override
+    bool RunImpl(ERunStep runStep) override
     {
+        if (runStep == ERunStep::REGISTER_TEST_PARAMS)
+        {
+            SetParams(m_testParams);
+            return true;
+        }
+
         auto const& paramValue = GetParam();
         m_usedParams.push_back(paramValue);
         bool succeed = true;
@@ -63,6 +69,7 @@ public:
 
 private:
     std::vector<PARAM_T> m_testValues;
+    std::vector<PARAM_T> m_testParams;
 };
 
 }

@@ -101,9 +101,17 @@ SCENARIO("Precomputing the reflection vector", "reflection")
     THEN( comps.m_reflectv == Vector(0.f, SQRT2OVR2, SQRT2OVR2) )
 }
 
-SCENARIO("Finding n1 and n2 at various intersections", "refraction")
+struct ArgT { float n1, n2; int i; };
+PSCENARIO(ArgT, "Finding n1 and n2 at various intersections", "refraction")
 {
-    GIVEN( auto a = GlassySphere()
+    PARAMS( { 1.0f, 1.5f, 0 }
+          , { 1.5f, 2.0f, 1 }
+          , { 2.0f, 2.5f, 2 }
+          , { 2.5f, 2.5f, 3 }
+          , { 2.5f, 1.5f, 4 }
+          , { 1.5f, 1.0f, 5 } )
+    GIVEN( auto const arg = GetParam()
+         , auto a = GlassySphere()
          , a->SetTransform(matrix::Scaling(2.f, 2.f, 2.f))
          , a->ModifyMaterial().RefractiveIndex(1.5f)
          , auto b = GlassySphere()
@@ -117,18 +125,9 @@ SCENARIO("Finding n1 and n2 at various intersections", "refraction")
              Intersection{ 2.f, a }, Intersection{ 2.75f, b },
              Intersection{ 3.25f, c }, Intersection{ 4.75f, b },
              Intersection{ 5.25f, c }, Intersection{6.f, a}) )
-    WHEN( auto const comps0 = r.Precompute(xs[0], xs)
-        , auto const comps1 = r.Precompute(xs[1], xs)
-        , auto const comps2 = r.Precompute(xs[2], xs)
-        , auto const comps3 = r.Precompute(xs[3], xs)
-        , auto const comps4 = r.Precompute(xs[4], xs)
-        , auto const comps5 = r.Precompute(xs[5], xs) )
-    THEN( comps0.m_n1 == 1.f, comps0.m_n2 == 1.5f
-        , comps1.m_n1 == 1.5f, comps1.m_n2 == 2.f
-        , comps2.m_n1 == 2.f, comps2.m_n2 == 2.5f
-        , comps3.m_n1 == 2.5f, comps3.m_n2 == 2.5f
-        , comps4.m_n1 == 2.5f, comps4.m_n2 == 1.5f
-        , comps5.m_n1 == 1.5f, comps5.m_n2 == 1.f )
+    WHEN( auto const comps = r.Precompute(xs[arg.i], xs) )
+    THEN( comps.m_n1 == arg.n1
+        , comps.m_n2 == arg.n2 )
 }
 
 SCENARIO("The under point is offset below the surface", "refraction")

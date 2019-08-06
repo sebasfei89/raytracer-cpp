@@ -20,8 +20,10 @@ class ITestCase
 public:
     virtual bool Run(std::ostream& os) = 0;
 
-    using AssertionsSummary = std::tuple<uint32_t, uint32_t>; // <passed, failed>
+    using AssertionsSummary = std::tuple<uint32_t, uint32_t, uint32_t>; // <passed, failed, non-assert-failures>
     virtual AssertionsSummary Assertions() const = 0;
+
+    virtual std::string const& GetDescription() const = 0;
 };
 
 class IExpression;
@@ -32,10 +34,11 @@ template<typename PARAM_T>
 class ParametrizedTestCase : public ITestCase
 {
 public:
-    ParametrizedTestCase(std::string const& desc, std::string const& fileAndLine, std::string const& category = "")
+    ParametrizedTestCase(std::string const& desc, std::string const& file, long line, std::string const& category = "")
         : m_description(desc)
         , m_category(category)
-        , m_fileAndLine(fileAndLine)
+        , m_file(file)
+        , m_line(line)
         , m_facts()
         , m_actions()
         , m_tests()
@@ -43,6 +46,11 @@ public:
         , m_currentParam(0)
     {
         TestRunner::Get().Register(this);
+    }
+
+    std::string const& GetDescription() const override
+    {
+        return m_description;
     }
 
     bool Run(std::ostream& os) override;
@@ -57,12 +65,19 @@ public:
         std::string file;
         long line;
         bool result;
+        bool isAssertion;
         std::string expanded;
         PARAM_T param;
     };
 
 protected:
-    virtual bool RunImpl() = 0;
+    enum class ERunStep
+    {
+        REGISTER_TEST_PARAMS,
+        RUN_TEST
+    };
+
+    virtual bool RunImpl(ERunStep runStep) = 0;
 
     void SetParams(std::vector<PARAM_T> const& params)
     {
@@ -71,16 +86,23 @@ protected:
 
     template<typename U = PARAM_T>
     typename std::enable_if_t<std::is_same_v<U, NoParam>, bool>
-    RunInternal() { return RunImpl(); }
+    RunInternal() { return RunImpl(ERunStep::RUN_TEST); }
 
     template<typename U = PARAM_T>
     typename std::enable_if_t<!std::is_same_v<U, NoParam>, bool>
     RunInternal()
     {
+        RunImpl(ERunStep::REGISTER_TEST_PARAMS);
+        if (m_params.size() == 0)
+        {
+            m_tests.push_back({ "No parameters provided to a parametrized test case", m_file, m_line, false, false, "", PARAM_T{} });
+            return false;
+        }
+
         bool succeed = true;
         for (m_currentParam = 0; m_currentParam < m_params.size(); m_currentParam++)
         {
-            succeed &= RunImpl();
+            succeed &= RunImpl(ERunStep::RUN_TEST);
         }
         return succeed;
     }
@@ -92,14 +114,14 @@ protected:
     typename std::enable_if_t<std::is_same_v<U, NoParam>, bool>
     AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
     {
-        return AddTest({ test, file, line, expr.Succeeded(), expr.ExpandedExpression(), NoParam{} });
+        return AddTest({ test, file, line, expr.Succeeded(), true, expr.ExpandedExpression(), NoParam{} });
     }
 
     template<typename U = PARAM_T>
     typename std::enable_if_t<!std::is_same_v<U, NoParam>, bool>
     AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
     {
-        return AddTest({ test, file, line, expr.Succeeded(), expr.ExpandedExpression(), GetParam() });
+        return AddTest({ test, file, line, expr.Succeeded(), true, expr.ExpandedExpression(), GetParam() });
     }
 
     bool AddTest(TestAssertion const& assertion)
@@ -115,7 +137,7 @@ protected:
     void FormatItems(std::ostream& os, std::vector<std::string> const& items, std::string const& tag) const;
     void FormatItems(std::ostream& os, std::vector<TestAssertion> const& items, std::string const& tag) const;
     void FormatFileAndLineInfo(std::ostream& os) const;
-    void FormatFailedTest(std::ostream& os, std::string const& file, long line, std::string const& expr, std::string const& expandedExpr, PARAM_T const& param) const;
+    void FormatFailedTest(std::ostream& os, bool isAssertion, std::string const& file, long line, std::string const& expr, std::string const& expandedExpr, PARAM_T const& param) const;
 
     template<typename U = PARAM_T>
     typename std::enable_if<is_printable<U>::value, std::string>::type
@@ -145,7 +167,8 @@ protected:
 private:
     std::string m_description;
     std::string m_category;
-    std::string m_fileAndLine;
+    std::string m_file;
+    long m_line;
     std::vector<std::string> m_facts;
     std::vector<std::string> m_actions;
     std::vector<TestAssertion> m_tests;
@@ -181,9 +204,13 @@ bool ParametrizedTestCase<PARAM_T>::Run(std::ostream& os)
 template<typename PARAM_T>
 typename ParametrizedTestCase<PARAM_T>::AssertionsSummary ParametrizedTestCase<PARAM_T>::Assertions() const
 {
-    return std::reduce(m_tests.begin(), m_tests.end(), AssertionsSummary{ 0, 0 }, [](auto& summary, auto const& a)
+    return std::reduce(m_tests.begin(), m_tests.end(), AssertionsSummary{ 0, 0, 0 }, [](auto& summary, auto const& a)
     {
-        if (a.result)
+        if (!a.isAssertion)
+        {
+            std::get<2>(summary)++;
+        }
+        else if (a.result)
         {
             std::get<0>(summary)++;
         }
@@ -221,6 +248,7 @@ void ParametrizedTestCase<PARAM_T>::FormatItems(std::ostream& os, std::vector<Te
     bool isFirst = true;
     for (auto const& i : items)
     {
+        if (!i.isAssertion) continue;
         os << std::setw(8) << (isFirst ? tag : "And") << ": " << i.test << std::endl;
         isFirst = false;
     }
@@ -230,14 +258,20 @@ template<typename PARAM_T>
 void ParametrizedTestCase<PARAM_T>::FormatFileAndLineInfo(std::ostream& os) const
 {
     os << std::setw(80) << std::setfill('-') << "-" << std::endl << std::setfill(' ');
-    os << TestingImpl::Colour(TestingImpl::ColorCode::FileName) << m_fileAndLine << std::endl;
+    os << TestingImpl::Colour(TestingImpl::ColorCode::FileName) << m_file << "(" << m_line << ")" << std::endl;
 }
 
 template<typename PARAM_T>
-void ParametrizedTestCase<PARAM_T>::FormatFailedTest(std::ostream& os, std::string const& file, long line, std::string const& expr, std::string const& expandedExpr, PARAM_T const& param) const
+void ParametrizedTestCase<PARAM_T>::FormatFailedTest(std::ostream& os, bool isAssertion, std::string const& file, long line, std::string const& expr, std::string const& expandedExpr, PARAM_T const& param) const
 {
-    os << std::setw(80) << std::setfill('.') << "." << std::endl << std::setfill(' ') << std::endl
-        << TestingImpl::Colour(TestingImpl::ColorCode::FileName) << file << "(" << line << "): "
+    os << std::setw(80) << std::setfill('.') << "." << std::endl << std::setfill(' ') << std::endl;
+    if (!isAssertion)
+    {
+        os << "  " << expr << std::endl << std::endl;
+        return;
+    }
+
+    os << TestingImpl::Colour(TestingImpl::ColorCode::FileName) << file << "(" << line << "): "
         << TestingImpl::Colour(TestingImpl::ColorCode::Error) << "FAILED" << FailedArgumentStr(param) << ":" << std::endl
         << TestingImpl::Colour(TestingImpl::ColorCode::OriginalExpression) << "  " << expr << std::endl;
     if (expandedExpr != expr)
@@ -259,7 +293,23 @@ void ParametrizedTestCase<PARAM_T>::ReportFailure(std::ostream& os) const
     for (auto const& a : m_tests)
     {
         if (a.result) continue;
-        FormatFailedTest(os, a.file, a.line, a.test, a.expanded, a.param);
+        FormatFailedTest(os, a.isAssertion, a.file, a.line, a.test, a.expanded, a.param);
+    }
+}
+
+template<>
+inline void ParametrizedTestCase<NoParam>::ReportFailure(std::ostream& os) const
+{
+    FormatHeader(os);
+    FormatItems(os, m_facts, "Given");
+    FormatItems(os, m_actions, "When");
+    FormatItems(os, m_tests, (m_facts.size() > 0 || m_actions.size() > 0) ? "Then" : "Require");
+    FormatFileAndLineInfo(os);
+
+    for (auto const& a : m_tests)
+    {
+        if (a.result) continue;
+        FormatFailedTest(os, a.isAssertion, a.file, a.line, a.test, a.expanded, a.param);
     }
 }
 

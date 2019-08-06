@@ -3,15 +3,15 @@
 
 #include <Beddev/Beddev.h>
 
-SCENARIO("The normal of a plane is constant everywhere", "shapes")
+PSCENARIO(Tuple, "The normal of a plane is constant everywhere", "shapes")
 {
-    GIVEN( Plane const p )
-    WHEN( auto const n1 = p.NormalAtLocal(Point(0.f, 0.f, 0.f))
-        , auto const n2 = p.NormalAtLocal(Point(10.f, 0.f, -10.f))
-        , auto const n3 = p.NormalAtLocal(Point(-5.f, 0.f, 150.f)) )
-    THEN( n1 == Vector(0.f, 1.f, 0.f)
-        , n2 == Vector(0.f, 1.f, 0.f)
-        , n3 == Vector(0.f, 1.f, 0.f) )
+    PARAMS( { Point(0.f, 0.f, 0.f) }
+          , { Point(10.f, 0.f, -10.f) }
+          , { Point(-5.f, 0.f, 150.f) } )
+    GIVEN( auto const& arg = GetParam()
+         , Plane const p )
+    WHEN( auto const n = p.NormalAtLocal(arg) )
+    THEN( n == Vector(0.f, 1.f, 0.f) )
 }
 
 SCENARIO("Intersects a plane with a ray paralel to the plane", "shapes")

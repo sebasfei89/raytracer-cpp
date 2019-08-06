@@ -69,7 +69,7 @@ set( TEST_SOURCES
     Test/Src/Tuple.cpp
     Test/Src/World.cpp )
 
-AddTarget( RayTracerTest EXECUTABLE
+AddTarget( RayTracerTest TEST
     FOLDER  2.Tests
     DEPS    RayTracer BeDDev
     SOURCES ${TEST_SOURCES}

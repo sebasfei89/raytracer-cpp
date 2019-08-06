@@ -3,12 +3,12 @@ cmake_minimum_required( VERSION 3.14 )
 include(GenerateExportHeader)
 
 function(AddTarget NAME)
-    set( options EXECUTABLE LIBRARY INTERFACE EXPORT_HEADER )
+    set( options EXECUTABLE LIBRARY TEST INTERFACE EXPORT_HEADER )
     set( oneValueArgs FOLDER )
     set( multiValueArgs SOURCES DEPS INTERFACE_DIRS PUBLIC_DIRS PRIVATE_DIRS PUBLIC_DEFS PRIVATE_DEFS )
     cmake_parse_arguments( ADDTARGET "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-    if (ADDTARGET_EXECUTABLE)
+    if (ADDTARGET_EXECUTABLE OR ADDTARGET_TEST)
         add_executable( ${NAME} )
     elseif (ADDTARGET_LIBRARY)
         add_library( ${NAME} )
@@ -18,11 +18,15 @@ function(AddTarget NAME)
         message( FATAL_ERROR "AddTarget expects one of EXECUTABLE, LIBRARY or INTERFACE options set" )
     endif()
 
+    if (ADDTARGET_TEST)
+        add_test( NAME ${NAME}_TEST COMMAND ${NAME} )
+    endif()
+
     if (ADDTARGET_EXPORT_HEADER)
         generate_export_header( ${NAME} )
     endif()
 
-    if (ADDTARGET_EXECUTABLE OR ADDTARGET_LIBRARY)
+    if (ADDTARGET_EXECUTABLE OR ADDTARGET_LIBRARY OR ADDTARGET_TEST)
 
         target_compile_features( ${NAME} PUBLIC cxx_std_17 )
 

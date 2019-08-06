@@ -29,19 +29,19 @@
 #define BEDDEV_FOREACH(action, ...) BEDDEV_EXPAND( BEDDEV_GET_MACRO(__VA_ARGS__, BEDDEV_FE_15, BEDDEV_FE_14, BEDDEV_FE_13, BEDDEV_FE_12, BEDDEV_FE_11, BEDDEV_FE_10, BEDDEV_FE_9, BEDDEV_FE_8, BEDDEV_FE_7, BEDDEV_FE_6, BEDDEV_FE_5, BEDDEV_FE_4, BEDDEV_FE_3, BEDDEV_FE_2, BEDDEV_FE_1)(action, __VA_ARGS__) )
 // END BEDDEV_FOREACH
 
-#define BEDDEV_SCENARIO_DECL(D, FL, CN, BASE, ...) namespace {\
+#define BEDDEV_SCENARIO_DECL(D, F, L, CN, BASE, ...) namespace {\
     class CN : public BASE\
     {\
     private:\
         static CN m_instance;\
-        CN() : BASE(D, FL, __VA_ARGS__) {}\
-        bool RunImpl() override;\
+        CN() : BASE(D, F, L, __VA_ARGS__) {}\
+        bool RunImpl(ERunStep runStep) override;\
     };\
     CN CN::m_instance;\
-    bool CN::RunImpl()
+    bool CN::RunImpl(ERunStep runStep)
 
-#define BEDDEV_START_SCENARIO(D, FL, CN, ...) BEDDEV_SCENARIO_DECL(D, FL, CN, beddev::TestCase, __VA_ARGS__)
-#define BEDDEV_START_PSCENARIO(ARGT, D, FL, CN, ...) BEDDEV_SCENARIO_DECL(D, FL, CN, beddev::ParametrizedTestCase<ARGT>, __VA_ARGS__)
+#define BEDDEV_START_SCENARIO(D, F, L, CN, ...) BEDDEV_SCENARIO_DECL(D, F, L, CN, beddev::TestCase, __VA_ARGS__)
+#define BEDDEV_START_PSCENARIO(ARGT, D, F, L, CN, ...) BEDDEV_SCENARIO_DECL(D, F, L, CN, beddev::ParametrizedTestCase<ARGT>, __VA_ARGS__)
 
 #define BEDDEV_END_SCENARIO() }
 
@@ -53,9 +53,9 @@
 #define BEDDEV_ACTION(action) AddAction(#action); action;
 #define BEDDEV_TEST(test) result &= AddTest(#test, __FILE__, __LINE__, beddev::ExpressionParser::Get() <= test);
 
-#define BEDDEV_SCENARIO(desc, ...) BEDDEV_START_SCENARIO(desc, BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__), BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
-#define BEDDEV_PSCENARIO(ARGT, DESC, ...) BEDDEV_START_PSCENARIO(ARGT, DESC, BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__), BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
+#define BEDDEV_SCENARIO(desc, ...) BEDDEV_START_SCENARIO(desc, __FILE__, __LINE__, BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
+#define BEDDEV_PSCENARIO(ARGT, DESC, ...) BEDDEV_START_PSCENARIO(ARGT, DESC, __FILE__, __LINE__, BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
 #define BEDDEV_GIVEN(...) BEDDEV_FOREACH(BEDDEV_FACT,__VA_ARGS__)
 #define BEDDEV_WHEN(...) BEDDEV_FOREACH(BEDDEV_ACTION,__VA_ARGS__)
 #define BEDDEV_THEN(...) bool result = true; BEDDEV_FOREACH(BEDDEV_TEST,__VA_ARGS__) return result; BEDDEV_END_SCENARIO()
-#define BEDDEV_PARAMS(...) SetParams({__VA_ARGS__});
+#define BEDDEV_PARAMS(...) if (runStep == ERunStep::REGISTER_TEST_PARAMS) { SetParams({__VA_ARGS__}); return true; }
