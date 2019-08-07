@@ -101,7 +101,7 @@ SCENARIO("Precomputing the reflection vector", "reflection")
     THEN( comps.m_reflectv == Vector(0.f, SQRT2OVR2, SQRT2OVR2) )
 }
 
-struct ArgT { float n1; float n2; int i; };
+namespace { struct ArgT { float n1; float n2; int i; }; }
 PSCENARIO(ArgT, "Finding n1 and n2 at various intersections", "refraction")
 {
     PARAMS( { 1.0f, 1.5f, 0 }

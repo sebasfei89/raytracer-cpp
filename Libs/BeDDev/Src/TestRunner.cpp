@@ -3,6 +3,10 @@
 #include "SessionSummary.h"
 #include "TestCase.h"
 
+#ifdef _WIN32
+#   include <crtdbg.h>
+#endif
+
 namespace beddev
 {
 
@@ -17,6 +21,9 @@ TestRunner::TestRunner()
     : m_testCases()
     , m_isRunning(false)
 {
+#ifdef _WIN32
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
+#endif
 }
 
 TestRunner::~TestRunner()

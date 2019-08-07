@@ -57,11 +57,11 @@ void SessionSummary::Print(std::ostream& os) const
         uint32_t const totalAssertions = passedAssertions + failedAssertions;
         float const factor = 80.f / (float)(totalAssertions + nonAssertionFailures);
         os << TestingImpl::Colour(TestingImpl::ColorCode::ResultError)
-            << std::setw((int)((float)(failedAssertions + nonAssertionFailures) * factor)) << std::setfill('=') << "=";
+            << std::setw((int)(std::roundf((float)(failedAssertions + nonAssertionFailures) * factor))) << std::setfill('=') << "=";
         if (passedAssertions > 0)
         {
             os << TestingImpl::Colour(TestingImpl::ColorCode::ResultSuccess)
-                << std::setw((int)((float)passedAssertions * factor)) << std::setfill('=') << "=";
+                << std::setw((int)(std::roundf((float)passedAssertions * factor))) << std::setfill('=') << "=";
         }
         os << std::setfill(' ') << std::endl;
         uint32_t const allTestCases = ranTestCases + skipped;

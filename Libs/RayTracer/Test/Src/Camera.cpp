@@ -17,11 +17,14 @@ SCENARIO("Constructing a camera", "Scene")
         , c.Transform() == Mat44::Identity() )
 }
 
+namespace
+{
 struct ArgT
 {
     uint32_t width;
     uint32_t height;
 };
+}
 
 PSCENARIO(ArgT, "The pixel size for a horizontal canvas", "Scene")
 {
