@@ -58,13 +58,6 @@ public:
         return succeed;
     }
 
-    std::string GetExpectedOutput() const
-    {
-        std::ostringstream oss;
-        ReportFailure(oss);
-        return oss.str();
-    }
-
     std::vector<PARAM_T> m_usedParams;
 
 private:
@@ -72,19 +65,27 @@ private:
     std::vector<PARAM_T> m_testParams;
 };
 
-}
+static std::string const SUMMARY_SEP = "================================================================================\n";
+static std::string const TEST_SEP = "--------------------------------------------------------------------------------\n";
+static std::string const ASSERT_SEP = "................................................................................\n\n";
+
+} // EoF anonymous namespace
+
 
 SCENARIO("An empty parametrized test case")
 {
     auto const pArgs = { 1, 1 };
     std::vector<int> const tArgs = {};
     GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
-         , std::ostringstream oss )
-    WHEN( auto const succeed = tc.Run(oss)
-        , auto const tests = tc.Assertions() )
-    THEN( succeed
-        , std::get<0>(tests) == 0
-        , std::get<1>(tests) == 0
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
+    WHEN( tc.Run(oss, ss) )
+    THEN( ss.passed == 2
+        , ss.failed == 0
+        , ss.skipped == 0
+        , ss.passedAssertions == 0
+        , ss.failedAssertions == 0
+        , ss.nonAssertionFailures == 0
         , oss.str() == ""
         , tc.m_usedParams.size() == 2
         , tc.m_usedParams[0] == 1
@@ -94,31 +95,75 @@ SCENARIO("An empty parametrized test case")
 SCENARIO("A parametrized test case with a single assertion")
 {
     auto const pArgs = { 1, 2 };
-    GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, {1} )
-         , std::ostringstream oss )
-    WHEN( auto const succeed = tc.Run(oss)
-        , auto const tests = tc.Assertions() )
-    THEN( !succeed
-        , std::get<0>(tests) == 1
-        , std::get<1>(tests) == 1
-        , oss.str() == tc.GetExpectedOutput()
+    GIVEN( auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
+         , auto tc = DUMMY_PTESTCASE(pArgs, {1} )
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
+    WHEN( tc.Run(oss, ss) )
+    THEN( ss.passed == 1
+        , ss.failed == 1
+        , ss.passedAssertions == 1
+        , ss.failedAssertions == 1
+        , oss.str() == TEST_SEP
+                    + "Scenario: DummyPTestCase  [ptest]\n"
+                    + "   Param: 2\n"
+                    + " Require: paramValue == testValue\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + BEDDEV_MAKE_FILE_LINE(__FILE__, 56) + ": FAILED with argument [2]:\n"
+                    + "  paramValue == testValue\n"
+                    + "with expansion:\n"
+                    + "  2 == 1\n"
         , tc.m_usedParams.size() == 2
         , tc.m_usedParams[0] == 1
         , tc.m_usedParams[1] == 2 )
 }
 
+#define MAKE_SCENARIO(ARG) TEST_SEP\
+    + "Scenario: DummyPTestCase  [ptest]\n"\
+    + "   Param: " ARG "\n"\
+    + " Require: paramValue == testValue\n"
+
+#define MAKE_SCENARIO1(ARG) MAKE_SCENARIO(ARG)\
+    + TEST_SEP\
+    + fileAndLine + "\n"
+
+#define MAKE_SCENARIO4(ARG) MAKE_SCENARIO(ARG)\
+    + "     And: paramValue == testValue\n"\
+    + "     And: paramValue == testValue\n"\
+    + "     And: paramValue == testValue\n"\
+    + TEST_SEP\
+    + fileAndLine + "\n"
+
+#define MAKE_ASSERT(ARG, VALUE) ASSERT_SEP\
+    + BEDDEV_MAKE_FILE_LINE(__FILE__, 56) + ": FAILED with argument [" ARG "]:\n"\
+    + "  paramValue == testValue\nwith expansion:\n  " ARG " == " VALUE "\n"
+
 SCENARIO("A parametrized test case with some assertions")
 {
     auto const pArgs = { 1, 2, 3 };
     auto const tArgs = { 1, 2, 3, 3 };
-    GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
-         , std::ostringstream oss )
-    WHEN( auto const succeed = tc.Run(oss)
-        , auto tests = tc.Assertions() )
-    THEN( !succeed
-        , std::get<0>(tests) == 4
-        , std::get<1>(tests) == 8
-        , oss.str() == tc.GetExpectedOutput()
+    GIVEN( auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
+         , auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
+    WHEN( tc.Run(oss, ss) )
+    THEN( ss.passed == 0
+        , ss.failed == 3
+        , ss.passedAssertions == 4
+        , ss.failedAssertions == 8
+        , oss.str() == MAKE_SCENARIO4("1")
+                    + MAKE_ASSERT("1", "2")
+                    + MAKE_ASSERT("1", "3")
+                    + MAKE_ASSERT("1", "3")
+                    + MAKE_SCENARIO4("2")
+                    + MAKE_ASSERT("2", "1")
+                    + MAKE_ASSERT("2", "3")
+                    + MAKE_ASSERT("2", "3")
+                    + MAKE_SCENARIO4("3")
+                    + MAKE_ASSERT("3", "1")
+                    + MAKE_ASSERT("3", "2")
         , tc.m_usedParams.size() == 3
         , tc.m_usedParams[0] == 1
         , tc.m_usedParams[1] == 2
@@ -129,14 +174,19 @@ SCENARIO("A test case parametrized with structured args")
 {
     std::vector<ArgT> const pArgs = { ArgT{1,"one"}, ArgT{2,"two"}, ArgT{3,"three"} };
     std::vector<ArgT> const tArgs = { ArgT{1,"one"} };
-    GIVEN( auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
-         , std::ostringstream oss )
-    WHEN( auto const succeed = tc.Run(oss)
-        , auto tests = tc.Assertions() )
-    THEN( !succeed
-        , std::get<0>(tests) == 1
-        , std::get<1>(tests) == 2
-        , oss.str() == tc.GetExpectedOutput()
+    GIVEN( auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
+         , auto tc = DUMMY_PTESTCASE(pArgs, tArgs)
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
+    WHEN( tc.Run(oss, ss) )
+    THEN( ss.passed == 1
+        , ss.failed == 2
+        , ss.passedAssertions == 1
+        , ss.failedAssertions == 2
+        , oss.str() == MAKE_SCENARIO1("[2,two]")
+                    + MAKE_ASSERT("[2,two]", "[1,one]")
+                    + MAKE_SCENARIO1("[3,three]")
+                    + MAKE_ASSERT("[3,three]", "[1,one]")
         , tc.m_usedParams.size() == 3
         , tc.m_usedParams[0] == (ArgT{ 1,"one" })
         , tc.m_usedParams[1] == (ArgT{ 2,"two" })

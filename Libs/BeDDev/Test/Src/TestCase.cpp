@@ -26,7 +26,7 @@ public:
         m_succeed &= expr.Succeeded();
     }
 
-    std::string GetExpectedOutput() const
+    std::string GetExpectedOutput()
     {
         std::ostringstream oss;
         ReportFailure(oss);
@@ -42,65 +42,71 @@ private:
 SCENARIO("An empty test case")
 {
     GIVEN( auto tc = DUMMY_TESTCASE()
-         , std::ostringstream oss )
-    WHEN( tc.Run(oss)
-        , auto tests = tc.Assertions() )
-    THEN( std::get<0>(tests) == 0
-        , std::get<1>(tests) == 0
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
+    WHEN( tc.Run(oss, ss) )
+    THEN( ss.passed == 1
+        , ss.failed == 0
+        , ss.passedAssertions == 0
+        , ss.failedAssertions == 0
         , oss.str() == "" )
 }
 
 SCENARIO("A test case with a single assertion that passes")
 {
     GIVEN( auto tc = DUMMY_TESTCASE()
-         , std::ostringstream oss )
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
     WHEN( TEST_ASSERTION(tc, 1 + 2 == 3)
-        , auto const succeed = tc.Run(oss)
-        , auto const tests = tc.Assertions() )
-    THEN( succeed
-        , std::get<0>(tests) == 1
-        , std::get<1>(tests) == 0
+        , tc.Run(oss, ss) )
+    THEN( ss.passed == 1
+        , ss.failed == 0
+        , ss.passedAssertions == 1
+        , ss.failedAssertions == 0
         , oss.str() == "")
 }
 
 SCENARIO("A test case with multiple assertions that passes")
 {
     GIVEN( auto tc = DUMMY_TESTCASE()
-         , std::ostringstream oss)
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
     WHEN( TEST_ASSERTION(tc, 1 + 2 == 3)
         , TEST_ASSERTION(tc, 3 + 4 == 7)
-        , auto const succeed = tc.Run(oss)
-        , auto const tests = tc.Assertions())
-    THEN( succeed
-        , std::get<0>(tests) == 2
-        , std::get<1>(tests) == 0
+        , tc.Run(oss, ss) )
+    THEN( ss.passed == 1
+        , ss.failed == 0
+        , ss.passedAssertions == 2
+        , ss.failedAssertions == 0
         , oss.str() == "")
 }
 
 SCENARIO("A test case with a single assertion that fails")
 {
     GIVEN( auto tc = DUMMY_TESTCASE()
-         , std::ostringstream oss )
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
     WHEN( TEST_ASSERTION(tc, 1 + 2 == 4)
-        , bool const succeed = tc.Run(oss)
-        , auto const tests = tc.Assertions() )
-    THEN( !succeed
-        , std::get<0>(tests) == 0
-        , std::get<1>(tests) == 1
+        , tc.Run(oss, ss) )
+    THEN( ss.passed == 0
+        , ss.failed == 1
+        , ss.passedAssertions == 0
+        , ss.failedAssertions == 1
         , oss.str() == tc.GetExpectedOutput() )
 }
 
 SCENARIO("A test case with multiple assertions")
 {
     GIVEN( auto tc = DUMMY_TESTCASE()
-         , std::ostringstream oss )
+         , std::ostringstream oss
+         , beddev::SessionSummary ss )
     WHEN( TEST_ASSERTION(tc, 1 + 2 == 4)
         , TEST_ASSERTION(tc, 3 + 4 == 6)
         , TEST_ASSERTION(tc, 5 + 6 == 11)
-        , bool const succeed = tc.Run(oss)
-        , auto const tests = tc.Assertions() )
-    THEN( !succeed
-        , std::get<0>(tests) == 1
-        , std::get<1>(tests) == 2
+        , tc.Run(oss, ss) )
+    THEN( ss.passed == 0
+        , ss.failed == 1
+        , ss.passedAssertions == 1
+        , ss.failedAssertions == 2
         , oss.str() == tc.GetExpectedOutput() )
 }

@@ -275,7 +275,7 @@ SCENARIO("One parametrized test case registered with no assertions", "TestRunner
     WHEN( tr.Register(&tc)
         , auto const failed = tr.RunAll(oss) )
     THEN( failed == 0
-        , oss.str() == SUMMARY_SEP + "All tests passed (0 assertions in 1 test case)\n" )
+        , oss.str() == SUMMARY_SEP + "All tests passed (0 assertions in 2 test cases)\n" )
 }
 
 SCENARIO("One parametrized test case registered with no params", "TestRunner")
@@ -308,7 +308,7 @@ SCENARIO("One parametrized test case registered with a succeeded assertion", "Te
     WHEN( tr.Register(&tc)
         , auto const failed = tr.RunAll(oss) )
     THEN( failed == 0
-        , oss.str() == SUMMARY_SEP + "All tests passed (2 assertions in 1 test case)\n" )
+        , oss.str() == SUMMARY_SEP + "All tests passed (2 assertions in 2 test cases)\n" )
 }
 
 SCENARIO("Two parametrized test cases registered with some succeeded assertions", "TestRunner")
@@ -324,7 +324,7 @@ SCENARIO("Two parametrized test cases registered with some succeeded assertions"
         , tr.Register(&tc2)
         , auto const failed = tr.RunAll(oss) )
     THEN( failed == 0
-        , oss.str() == SUMMARY_SEP + "All tests passed (6 assertions in 2 test cases)\n")
+        , oss.str() == SUMMARY_SEP + "All tests passed (6 assertions in 4 test cases)\n")
 }
 
 SCENARIO("One parametrized test cases registered with some failed assertion", "TestRunner")
@@ -336,28 +336,32 @@ SCENARIO("One parametrized test cases registered with some failed assertion", "T
          , std::ostringstream oss )
     WHEN( tr.Register(&tc)
         , auto const failed = tr.RunAll(oss) )
-    THEN( failed == 1
+    THEN( failed == 2
         , oss.str() == TEST_SEP
-        + "Scenario: PTest with some failed assertion\n"
-        + "   Param: 2"
-        + " Require: 1 == 2\n"
-        + TEST_SEP
-        + fileAndLine + "\n"
-        + ASSERT_SEP
-        + fileAndLine + ": FAILED:\n"
-        + "  1 == 2\n\n"
-        + TEST_SEP
-        + "Scenario: PTest with some failed assertion\n"
-        + "Argument: 3"
-        + " Require: 1 == 3\n"
-        + TEST_SEP
-        + fileAndLine + "\n"
-        + ASSERT_SEP
-        + fileAndLine + ": FAILED:\n"
-        + "  1 == 3\n\n"
-        + SUMMARY_SEP
-        + "test cases: 1 | 0 passed | 1 failed\n"
-        + "assertions: 2 | 0 passed | 2 failed\n" )
+                    + "Scenario: PTest with some failed assertion\n"
+                    + "   Param: 2\n"
+                    + " Require: 1 == GetParam()\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": FAILED with argument [2]:\n"
+                    + "  1 == GetParam()\n"
+                    + "with expansion:\n"
+                    + "  1 == 2\n"
+                    + TEST_SEP
+                    + "Scenario: PTest with some failed assertion\n"
+                    + "   Param: 3\n"
+                    + " Require: 1 == GetParam()\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": FAILED with argument [3]:\n"
+                    + "  1 == GetParam()\n"
+                    + "with expansion:\n"
+                    + "  1 == 3\n"
+                    + SUMMARY_SEP
+                    + "test cases: 2 | 0 passed | 2 failed\n"
+                    + "assertions: 2 | 0 passed | 2 failed\n" )
 }
 
 //SCENARIO("One test cases registered with a failed assertion and expanded expression", "TestRunner")

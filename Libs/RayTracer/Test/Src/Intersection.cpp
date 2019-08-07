@@ -101,7 +101,7 @@ SCENARIO("Precomputing the reflection vector", "reflection")
     THEN( comps.m_reflectv == Vector(0.f, SQRT2OVR2, SQRT2OVR2) )
 }
 
-struct ArgT { float n1, n2; int i; };
+struct ArgT { float n1; float n2; int i; };
 PSCENARIO(ArgT, "Finding n1 and n2 at various intersections", "refraction")
 {
     PARAMS( { 1.0f, 1.5f, 0 }
@@ -110,7 +110,7 @@ PSCENARIO(ArgT, "Finding n1 and n2 at various intersections", "refraction")
           , { 2.5f, 2.5f, 3 }
           , { 2.5f, 1.5f, 4 }
           , { 1.5f, 1.0f, 5 } )
-    GIVEN( auto const arg = GetParam()
+    GIVEN( auto const& arg = GetParam()
          , auto a = GlassySphere()
          , a->SetTransform(matrix::Scaling(2.f, 2.f, 2.f))
          , a->ModifyMaterial().RefractiveIndex(1.5f)

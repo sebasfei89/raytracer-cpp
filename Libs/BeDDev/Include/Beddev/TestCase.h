@@ -3,6 +3,7 @@
 #include "beddev_export.h"
 #include "ColoredOutput.h"
 #include "Expression.h"
+#include "SessionSummary.h"
 #include "TestRunner.h"
 
 #include <functional>
@@ -10,18 +11,18 @@
 #include <numeric>
 #include <ostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace beddev
 {
 
+class SessionSummary;
+
 class ITestCase
 {
 public:
-    virtual bool Run(std::ostream& os) = 0;
-
-    using AssertionsSummary = std::tuple<uint32_t, uint32_t, uint32_t>; // <passed, failed, non-assert-failures>
-    virtual AssertionsSummary Assertions() const = 0;
+    virtual void Run(std::ostream& os, SessionSummary& summary) = 0;
 
     virtual std::string const& GetDescription() const = 0;
 };
@@ -53,11 +54,9 @@ public:
         return m_description;
     }
 
-    bool Run(std::ostream& os) override;
+    void Run(std::ostream& os, SessionSummary& summary) override;
 
-    AssertionsSummary Assertions() const override;
-
-    PARAM_T const& GetParam() { return m_params[m_currentParam]; }
+    PARAM_T const& GetParam() const { return m_params[m_currentParam]; }
 
     struct TestAssertion
     {
@@ -85,30 +84,82 @@ protected:
     }
 
     template<typename U = PARAM_T>
-    typename std::enable_if_t<std::is_same_v<U, NoParam>, bool>
-    RunInternal() { return RunImpl(ERunStep::RUN_TEST); }
+    typename std::enable_if_t<std::is_same_v<U, NoParam>, void>
+    RunInternal(std::ostream& os, SessionSummary& summary)
+    {
+        if (RunImpl(ERunStep::RUN_TEST))
+        {
+            summary.passed++;
+        }
+        else
+        {
+            ReportFailure(os);
+            summary.failed++;
+        }
+
+        for (auto const& assertion : m_tests[0])
+        {
+            if (!assertion.isAssertion)
+            {
+                summary.nonAssertionFailures++;
+            }
+            else if (assertion.result)
+            {
+                summary.passedAssertions++;
+            }
+            else
+            {
+                summary.failedAssertions++;
+            }
+        }
+    }
 
     template<typename U = PARAM_T>
-    typename std::enable_if_t<!std::is_same_v<U, NoParam>, bool>
-    RunInternal()
+    typename std::enable_if_t<!std::is_same_v<U, NoParam>, void>
+    RunInternal(std::ostream& os, SessionSummary& summary)
     {
         RunImpl(ERunStep::REGISTER_TEST_PARAMS);
         if (m_params.size() == 0)
         {
-            m_tests.push_back({ "No parameters provided to a parametrized test case", m_file, m_line, false, false, "", PARAM_T{} });
-            return false;
+            m_tests[0].push_back({ "No parameters provided to a parametrized test case", m_file, m_line, false, false, "", PARAM_T{} });
+            ReportFailure(os);
+            summary.failed++;
+            summary.nonAssertionFailures++;
+            return;
         }
 
-        bool succeed = true;
         for (m_currentParam = 0; m_currentParam < m_params.size(); m_currentParam++)
         {
-            succeed &= RunImpl(ERunStep::RUN_TEST);
+            if (RunImpl(ERunStep::RUN_TEST))
+            {
+                summary.passed++;
+            }
+            else
+            {
+                ReportFailure(os);
+                summary.failed++;
+            }
+
+            for (auto const& assertion : m_tests[m_currentParam])
+            {
+                if (!assertion.isAssertion)
+                {
+                    summary.nonAssertionFailures++;
+                }
+                else if (assertion.result)
+                {
+                    summary.passedAssertions++;
+                }
+                else
+                {
+                    summary.failedAssertions++;
+                }
+            }
         }
-        return succeed;
     }
 
-    void AddFact(std::string const& fact) { m_facts.push_back(fact); }
-    void AddAction(std::string const& action) { m_actions.push_back(action); }
+    void AddFact(std::string const& fact) { m_facts[m_currentParam].push_back(fact); }
+    void AddAction(std::string const& action) { m_actions[m_currentParam].push_back(action); }
 
     template<typename U = PARAM_T>
     typename std::enable_if_t<std::is_same_v<U, NoParam>, bool>
@@ -126,13 +177,11 @@ protected:
 
     bool AddTest(TestAssertion const& assertion)
     {
-        m_tests.push_back(assertion);
+        m_tests[m_currentParam].push_back(assertion);
         return assertion.result;
     }
 
-    std::vector<TestAssertion> const& GetTests() const { return m_tests; }
-
-    void ReportFailure(std::ostream& os) const;
+    void ReportFailure(std::ostream& os);
     void FormatHeader(std::ostream& os) const;
     void FormatItems(std::ostream& os, std::vector<std::string> const& items, std::string const& tag) const;
     void FormatItems(std::ostream& os, std::vector<TestAssertion> const& items, std::string const& tag) const;
@@ -141,89 +190,72 @@ protected:
 
     template<typename U = PARAM_T>
     typename std::enable_if<is_printable<U>::value, std::string>::type
-    FailedArgumentStr(U const& param) const
+    GetParamStr(U const& param) const
     {
         std::ostringstream oss;
-        oss << " with argument [" << param << "]";
+        oss << param;
         return oss.str();
     }
 
     template<typename U = PARAM_T>
     typename std::enable_if_t<!is_printable<U>::value, std::string>
-    FailedArgumentStr(U const& param) const
+    GetParamStr(U const& param) const
     {
-        std::ostringstream oss;
-        oss << " with argument [??]";
-        return oss.str();
+        return "??";
     }
 
-    template<typename U = PARAM_T>
-    typename std::enable_if_t<std::is_same_v<U, NoParam>, std::string>
-    FailedArgumentStr(NoParam const& param) const
-    {
-        return "";
-    }
+    std::string FailedArgumentStr(PARAM_T const& param) const;
 
 private:
     std::string m_description;
     std::string m_category;
     std::string m_file;
     long m_line;
-    std::vector<std::string> m_facts;
-    std::vector<std::string> m_actions;
-    std::vector<TestAssertion> m_tests;
+
+    using TestElements = std::unordered_map<uint32_t, std::vector<std::string>>;
+    using TestAssertions = std::unordered_map<uint32_t, std::vector<TestAssertion>>;
+
+    TestElements m_facts;
+    TestElements m_actions;
+    TestAssertions m_tests;
     std::vector<PARAM_T> m_params;
     uint32_t m_currentParam;
 };
 
 template<typename PARAM_T>
-bool ParametrizedTestCase<PARAM_T>::Run(std::ostream& os)
+void ParametrizedTestCase<PARAM_T>::Run(std::ostream& os, SessionSummary& summary)
 {
-    bool succeed = false;
     try
     {
-        succeed = RunInternal();
+        RunInternal(os, summary);
     }
     catch (std::exception const&)
     {
-        succeed = false;
+        // TODO: summary.nonAssertionFailures++;
+        // ReportFailure(os);
     }
     catch (...)
     {
-        succeed = false;
+        // TODO: summary.nonAssertionFailures++;
+        // ReportFailure(os);
     }
-
-    if (!succeed)
-    {
-        ReportFailure(os);
-    }
-
-    return succeed;
-}
-
-template<typename PARAM_T>
-typename ParametrizedTestCase<PARAM_T>::AssertionsSummary ParametrizedTestCase<PARAM_T>::Assertions() const
-{
-    return std::reduce(m_tests.begin(), m_tests.end(), AssertionsSummary{ 0, 0, 0 }, [](auto& summary, auto const& a)
-    {
-        if (!a.isAssertion)
-        {
-            std::get<2>(summary)++;
-        }
-        else if (a.result)
-        {
-            std::get<0>(summary)++;
-        }
-        else
-        {
-            std::get<1>(summary)++;
-        }
-        return summary;
-    });
 }
 
 template<typename PARAM_T>
 void ParametrizedTestCase<PARAM_T>::FormatHeader(std::ostream& os) const
+{
+    os << std::setw(80) << std::setfill('-') << "-" << std::endl << std::setfill(' ');
+    os << "Scenario: " << m_description;
+    if (!m_category.empty()) os << "  [" << m_category << "]";
+    os << std::endl;
+    if (m_params.size() > 0)
+    {
+        os << "   Param: " << GetParamStr(GetParam()) << std::endl;
+    }
+}
+
+template<>
+inline void ParametrizedTestCase<NoParam>::FormatHeader(std::ostream& os) const
 {
     os << std::setw(80) << std::setfill('-') << "-" << std::endl << std::setfill(' ');
     os << "Scenario: " << m_description;
@@ -282,35 +314,34 @@ void ParametrizedTestCase<PARAM_T>::FormatFailedTest(std::ostream& os, bool isAs
 }
 
 template<typename PARAM_T>
-void ParametrizedTestCase<PARAM_T>::ReportFailure(std::ostream& os) const
+void ParametrizedTestCase<PARAM_T>::ReportFailure(std::ostream& os)
 {
     FormatHeader(os);
-    FormatItems(os, m_facts, "Given");
-    FormatItems(os, m_actions, "When");
-    FormatItems(os, m_tests, (m_facts.size() > 0 || m_actions.size() > 0) ? "Then" : "Require");
+    FormatItems(os, m_facts[m_currentParam], "Given");
+    FormatItems(os, m_actions[m_currentParam], "When");
+    FormatItems(os, m_tests[m_currentParam], (m_facts[m_currentParam].size() > 0 || m_actions[m_currentParam].size() > 0) ? "Then" : "Require");
     FormatFileAndLineInfo(os);
 
-    for (auto const& a : m_tests)
+    auto const testInstance = m_tests[m_currentParam];
+    for (auto const& a : testInstance)
     {
         if (a.result) continue;
         FormatFailedTest(os, a.isAssertion, a.file, a.line, a.test, a.expanded, a.param);
     }
 }
 
-template<>
-inline void ParametrizedTestCase<NoParam>::ReportFailure(std::ostream& os) const
+template<typename PARAM_T>
+std::string ParametrizedTestCase<PARAM_T>::FailedArgumentStr(PARAM_T const& param) const
 {
-    FormatHeader(os);
-    FormatItems(os, m_facts, "Given");
-    FormatItems(os, m_actions, "When");
-    FormatItems(os, m_tests, (m_facts.size() > 0 || m_actions.size() > 0) ? "Then" : "Require");
-    FormatFileAndLineInfo(os);
+    std::ostringstream oss;
+    oss << " with argument [" << GetParamStr(param) << "]";
+    return oss.str();
+}
 
-    for (auto const& a : m_tests)
-    {
-        if (a.result) continue;
-        FormatFailedTest(os, a.isAssertion, a.file, a.line, a.test, a.expanded, a.param);
-    }
+template<>
+inline std::string ParametrizedTestCase<NoParam>::FailedArgumentStr(NoParam const& param) const
+{
+    return "";
 }
 
 using TestCase = ParametrizedTestCase<NoParam>;

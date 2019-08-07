@@ -5,19 +5,21 @@ include(../../BuildSystem/Utils.cmake)
 # BeDDev library ##############################################################
 set( LIB_SOURCES
     Include/Beddev/Beddev.h
-	Include/Beddev/BeddevImpl.h
+    Include/Beddev/BeddevImpl.h
     Include/Beddev/ColoredOutput.h
-	Include/Beddev/Expression.h
-	Include/Beddev/ExpressionParser.h
-	Include/Beddev/TestCase.h
-	Include/Beddev/TestRunner.h
-	Src/TestRunner.cpp )
+    Include/Beddev/Expression.h
+    Include/Beddev/ExpressionParser.h
+    Include/Beddev/SessionSummary.h
+    Include/Beddev/TestCase.h
+    Include/Beddev/TestRunner.h
+    Src/SessionSummary.cpp
+    Src/TestRunner.cpp )
 
 AddTarget( BeDDev LIBRARY EXPORT_HEADER
     FOLDER 1.Libs
     SOURCES ${LIB_SOURCES}
     INTERFACE_DIRS "./Include"
-	PRIVATE_DIRS "./Include/Beddev" )
+    PRIVATE_DIRS "./Include/Beddev" )
 
 # BeDDev tests #############################################################
 set( TEST_SOURCES
