@@ -2,17 +2,21 @@ cmake_minimum_required( VERSION 3.14 )
 
 include(../../BuildSystem/Utils.cmake)
 
-# BeDDev library ##############################################################
+# BeDDev library ###############################################################
 set( LIB_SOURCES
+    Include/Beddev/BaseTestCase.h
     Include/Beddev/Beddev.h
     Include/Beddev/BeddevImpl.h
     Include/Beddev/ColoredOutput.h
     Include/Beddev/Expression.h
     Include/Beddev/ExpressionParser.h
+    Include/Beddev/ParametrizedTestCase.h
     Include/Beddev/SessionSummary.h
     Include/Beddev/TestCase.h
     Include/Beddev/TestRunner.h
+    Src/BaseTestCase.cpp
     Src/SessionSummary.cpp
+    Src/TestCase.cpp
     Src/TestRunner.cpp )
 
 AddTarget( BeDDev LIBRARY EXPORT_HEADER
@@ -21,7 +25,7 @@ AddTarget( BeDDev LIBRARY EXPORT_HEADER
     INTERFACE_DIRS "./Include"
     PRIVATE_DIRS "./Include/Beddev" )
 
-# BeDDev tests #############################################################
+# BeDDev tests #################################################################
 set( TEST_SOURCES
     Test/Src/Beddev.cpp
     Test/Src/ExpressionParser.cpp

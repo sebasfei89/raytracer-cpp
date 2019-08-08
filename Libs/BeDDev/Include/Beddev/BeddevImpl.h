@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./ExpressionParser.h"
+#include "./ParametrizedTestCase.h"
 #include "./TestCase.h"
 #include "./TestRunner.h"
 
@@ -29,19 +30,19 @@
 #define BEDDEV_FOREACH(action, ...) BEDDEV_EXPAND( BEDDEV_GET_MACRO(__VA_ARGS__, BEDDEV_FE_15, BEDDEV_FE_14, BEDDEV_FE_13, BEDDEV_FE_12, BEDDEV_FE_11, BEDDEV_FE_10, BEDDEV_FE_9, BEDDEV_FE_8, BEDDEV_FE_7, BEDDEV_FE_6, BEDDEV_FE_5, BEDDEV_FE_4, BEDDEV_FE_3, BEDDEV_FE_2, BEDDEV_FE_1)(action, __VA_ARGS__) )
 // END BEDDEV_FOREACH
 
-#define BEDDEV_SCENARIO_DECL(D, F, L, CN, BASE, ...) namespace {\
+#define BEDDEV_SCENARIO_DECL(D, F, L, CN, BASE, RUNIMPL, ...) namespace {\
     class CN : public BASE\
     {\
     private:\
         static CN m_instance;\
         CN() : BASE(D, F, L, __VA_ARGS__) {}\
-        bool RunImpl(ERunStep runStep) override;\
+        bool RUNIMPL override;\
     };\
     CN CN::m_instance;\
-    bool CN::RunImpl(ERunStep runStep)
+    bool CN::RUNIMPL
 
-#define BEDDEV_START_SCENARIO(D, F, L, CN, ...) BEDDEV_SCENARIO_DECL(D, F, L, CN, beddev::TestCase, __VA_ARGS__)
-#define BEDDEV_START_PSCENARIO(ARGT, D, F, L, CN, ...) BEDDEV_SCENARIO_DECL(D, F, L, CN, beddev::ParametrizedTestCase<ARGT>, __VA_ARGS__)
+#define BEDDEV_START_SCENARIO(D, F, L, CN, ...) BEDDEV_SCENARIO_DECL(D, F, L, CN, beddev::TestCase, RunImpl(), __VA_ARGS__)
+#define BEDDEV_START_PSCENARIO(ARGT, D, F, L, CN, ...) BEDDEV_SCENARIO_DECL(D, F, L, CN, beddev::ParametrizedTestCase<ARGT>, RunImpl(ERunStep runStep), __VA_ARGS__)
 
 #define BEDDEV_END_SCENARIO() }
 

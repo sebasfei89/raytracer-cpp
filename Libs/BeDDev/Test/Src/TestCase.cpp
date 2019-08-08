@@ -18,7 +18,7 @@ public:
         , m_succeed(true)
     {}
 
-    bool RunImpl(ERunStep runStep) override { return m_succeed; }
+    bool RunImpl() override { return m_succeed; }
 
     void AddTestHelper(std::string const& test, std::string const& file, long line, IExpression const& expr)
     {
@@ -29,6 +29,7 @@ public:
     std::string GetExpectedOutput()
     {
         std::ostringstream oss;
+        FormatHeader(oss);
         ReportFailure(oss);
         return oss.str();
     }

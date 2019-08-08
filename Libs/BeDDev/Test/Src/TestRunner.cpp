@@ -10,10 +10,10 @@ public:
     DummyTestCase(std::string const& desc, std::string const& file, long line, std::string const& category = "")
         : beddev::TestCase(desc, file, line, category) {}
 
-    bool RunImpl(ERunStep runStep) override
+    bool RunImpl() override
     {
         bool result = true;
-        for (auto const& a : m_assertions)
+        for (auto const& a : m_testAssertions)
         {
             result &= AddTest(a);
         }
@@ -22,14 +22,14 @@ public:
 
     void AddAssertion(std::string const& test, std::string const& file, long line, beddev::IExpression const& expr)
     {
-        m_assertions.push_back({ test, file, line, expr.Succeeded(), true, expr.ExpandedExpression(), beddev::NoParam{} });
+        m_testAssertions.push_back({ test, file, line, expr.Succeeded(), expr.ExpandedExpression() });
     }
 
     void AddTestFact(std::string const& fact) { AddFact(fact); }
     void AddTestAction(std::string const& action) { AddAction(action); }
 
 private:
-    std::vector<TestAssertion> m_assertions;
+    std::vector<Assertion> m_testAssertions;
 };
 
 template<typename PARAM_T>
@@ -38,15 +38,25 @@ class DummyPTestCase : public beddev::ParametrizedTestCase<PARAM_T>
 public:
     DummyPTestCase(std::string const& desc, std::string const& file, long line, std::vector<PARAM_T> const& params, std::string const& category = "")
         : ParametrizedTestCase(desc, file, line, category)
-        , m_params(params)
+        , m_testParams(params)
     {}
 
     bool RunImpl(ERunStep runStep) override
     {
         if (runStep == ERunStep::REGISTER_TEST_PARAMS)
         {
-            SetParams(m_params);
+            SetParams(m_testParams);
             return true;
+        }
+
+        for (auto const& fact : m_testFacts)
+        {
+            AddFact(fact);
+        }
+
+        for (auto const& action : m_testActions)
+        {
+            AddAction(action);
         }
 
         bool result = true;
@@ -58,8 +68,8 @@ public:
     }
 
     void AddAssertion(std::string const& test, std::string const& file, long line, beddev::UnaryExpression<PARAM_T> const& expr) { m_assertions.push_back({ test, file, line, expr }); }
-    void AddTestFact(std::string const& fact) { AddFact(fact); }
-    void AddTestAction(std::string const& action) { AddAction(action); }
+    void AddTestFact(std::string const& fact) { m_testFacts.push_back(fact); }
+    void AddTestAction(std::string const& action) { m_testActions.push_back(action); }
 
     struct AssertionData
     {
@@ -72,7 +82,9 @@ public:
 private:
 
     std::vector<AssertionData> m_assertions;
-    std::vector<PARAM_T> m_params;
+    std::vector<PARAM_T> m_testParams;
+    std::vector<std::string> m_testFacts;
+    std::vector<std::string> m_testActions;
 };
 
 #define ADD_FACT(TC, FACT) TC.AddTestFact(#FACT); FACT

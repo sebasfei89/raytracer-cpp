@@ -71,7 +71,6 @@ static std::string const ASSERT_SEP = ".........................................
 
 } // EoF anonymous namespace
 
-
 SCENARIO("An empty parametrized test case")
 {
     auto const pArgs = { 1, 1 };
@@ -170,7 +169,7 @@ SCENARIO("A parametrized test case with some assertions")
         , tc.m_usedParams[2] == 3 )
 }
 
-SCENARIO("A test case parametrized with structured args")
+SCENARIO("A parametrized test case with structured args")
 {
     std::vector<ArgT> const pArgs = { ArgT{1,"one"}, ArgT{2,"two"}, ArgT{3,"three"} };
     std::vector<ArgT> const tArgs = { ArgT{1,"one"} };
