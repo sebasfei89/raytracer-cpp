@@ -52,7 +52,7 @@
 
 #define BEDDEV_FACT(fact) AddFact(#fact); fact;
 #define BEDDEV_ACTION(action) AddAction(#action); action;
-#define BEDDEV_TEST(test) result &= AddTest(#test, __FILE__, __LINE__, beddev::ExpressionParser::Get() <= test);
+#define BEDDEV_TEST(test) result &= AddTest({#test, __FILE__, __LINE__, beddev::ExpressionParser::Get() <= test});
 
 #define BEDDEV_SCENARIO(desc, ...) BEDDEV_START_SCENARIO(desc, __FILE__, __LINE__, BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
 #define BEDDEV_PSCENARIO(ARGT, DESC, ...) BEDDEV_START_PSCENARIO(ARGT, DESC, __FILE__, __LINE__, BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)

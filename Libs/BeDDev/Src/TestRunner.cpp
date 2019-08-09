@@ -39,20 +39,21 @@ void TestRunner::Register(ITestCase* testCase)
     }
 }
 
-int TestRunner::RunAll(std::ostream& os, std::string const& filter)
+int TestRunner::RunAll(std::ostream& os, Config const& config)
 {
     m_isRunning = true;
 
     SessionSummary summary;
     for (auto const& test : m_testCases)
     {
-        if (!filter.empty() && test->GetDescription() != filter)
+        if (test->CanRun(config.m_filter, config.m_tags))
+        {
+            test->Run(os, summary, config.m_fullReport);
+        }
+        else
         {
             summary.skipped++;
-            continue;
         }
-
-        test->Run(os, summary);
     }
 
     summary.Print(os);

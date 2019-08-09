@@ -1,4 +1,5 @@
 #include <Beddev/Beddev.h>
+#include <Beddev/SessionSummary.h>
 
 #include <sstream>
 
@@ -8,7 +9,7 @@ namespace
 {
 
 #define DUMMY_TESTCASE(...) DummyTestCase(__FILE__, __LINE__, __VA_ARGS__)
-#define TEST_ASSERTION(TC, EXPR) TC.AddTestHelper(#EXPR, __FILE__, __LINE__, ExpressionParser::Get() <= EXPR)
+#define TEST_ASSERTION(TC, EXPR) TC.AddTestHelper({#EXPR, __FILE__, __LINE__, ExpressionParser::Get() <= EXPR})
 
 class DummyTestCase : public TestCase
 {
@@ -20,17 +21,17 @@ public:
 
     bool RunImpl() override { return m_succeed; }
 
-    void AddTestHelper(std::string const& test, std::string const& file, long line, IExpression const& expr)
+    void AddTestHelper(Assertion const& assertion)
     {
-        AddTest(test, file, line, expr);
-        m_succeed &= expr.Succeeded();
+        AddTest(assertion);
+        m_succeed &= assertion.result;
     }
 
     std::string GetExpectedOutput()
     {
         std::ostringstream oss;
         FormatHeader(oss);
-        ReportFailure(oss);
+        ReportFailure(oss, false);
         return oss.str();
     }
 

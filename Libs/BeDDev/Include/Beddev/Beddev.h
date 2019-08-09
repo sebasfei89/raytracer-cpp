@@ -15,6 +15,25 @@
 #include <iostream>
 int main(int argc, char** argv)
 {
-    return beddev::TestRunner::Get().RunAll(std::cout, argc > 1 ? argv[1] : "");
+    beddev::TestRunner::Config config = { "", "", false };
+    for (int i = 1; i < argc; i++)
+    {
+        if (std::string(argv[i]) == "-t")
+        {
+            if (((i + 1) < argc))
+            {
+                config.m_tags += argv[++i];
+            }
+        }
+        else if (std::string(argv[i]) == "-v")
+        {
+            config.m_fullReport = true;
+        }
+        else
+        {
+            config.m_filter = argv[i];
+        }
+    }
+    return beddev::TestRunner::Get().RunAll(std::cout, config);
 }
 #endif

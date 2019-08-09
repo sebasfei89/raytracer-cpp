@@ -21,7 +21,7 @@ public:
     uint32_t passedAssertions = 0;
 
     // Other failures such as no params provided to a parametrized test case
-    uint32_t nonAssertionFailures = 0;
+    uint32_t configFailures = 0;
 
     BEDDEV_EXPORT void Print(std::ostream& os) const;
 

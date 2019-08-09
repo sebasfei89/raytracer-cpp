@@ -15,21 +15,27 @@ public:
         bool result = true;
         for (auto const& a : m_testAssertions)
         {
-            result &= AddTest(a);
+            result &= AddTest({a.test, a.file, a.line, a.expression});
         }
         return result;
     }
 
-    void AddAssertion(std::string const& test, std::string const& file, long line, beddev::IExpression const& expr)
+    void AddAssertion(std::string const& test, std::string const& file, long line, beddev::BinaryExpression<int, int> const& expr)
     {
-        m_testAssertions.push_back({ test, file, line, expr.Succeeded(), expr.ExpandedExpression() });
+        m_testAssertions.push_back({ test, file, line, expr });
     }
-
     void AddTestFact(std::string const& fact) { AddFact(fact); }
     void AddTestAction(std::string const& action) { AddAction(action); }
 
 private:
-    std::vector<Assertion> m_testAssertions;
+    struct AssertionData
+    {
+        std::string test;
+        std::string file;
+        long line;
+        beddev::BinaryExpression<int, int> expression;
+    };
+    std::vector<AssertionData> m_testAssertions;
 };
 
 template<typename PARAM_T>
@@ -62,7 +68,7 @@ public:
         bool result = true;
         for (auto& a : m_assertions)
         {
-            result &= AddTest(a.test + " == GetParam()", a.file, a.line, a.partialExpr == GetParam());
+            result &= AddTest({a.test + " == GetParam()", a.file, a.line, a.partialExpr == GetParam()});
         }
         return result;
     }
@@ -141,6 +147,43 @@ SCENARIO("Two test cases registered with some succeeded assertions", "TestRunner
         , auto const failed = tr.RunAll(oss) )
     THEN( failed == 0
         , oss.str() == SUMMARY_SEP + "All tests passed (3 assertions in 2 test cases)\n" )
+}
+
+SCENARIO("Detailed report with two test cases registered with some succeeded assertions", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
+         , DummyTestCase tc1("Test two assertions", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , ADD_ASSERTION(tc1, 2 == 2)
+         , DummyTestCase tc2("Test one assertion", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc2, 3 == 3)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , auto const failed = tr.RunAll(oss, {"", "", true}))
+    THEN( failed == 0
+        , oss.str() == TEST_SEP
+                    + "Scenario: Test two assertions\n"
+                    + " Require: 1 == 1\n"
+                    + "     And: 2 == 2\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": SUCCEEDED:\n"
+                    + "  1 == 1\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": SUCCEEDED:\n"
+                    + "  2 == 2\n"
+                    + TEST_SEP
+                    + "Scenario: Test one assertion\n"
+                    + " Require: 3 == 3\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": SUCCEEDED:\n"
+                    + "  3 == 3\n"
+                    + SUMMARY_SEP + "All tests passed (3 assertions in 2 test cases)\n" )
 }
 
 SCENARIO("One test cases registered with a failed assertion", "TestRunner")
@@ -238,47 +281,6 @@ SCENARIO("Two test cases registered with some failed assertions", "TestRunner")
                     + "assertions: 4 | 1 passed | 3 failed\n" )
 }
 
-SCENARIO("Filter by name with two test cases registered", "TestRunner")
-{
-    GIVEN( DummyTestRunner tr
-         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__)
-         , ADD_ASSERTION(tc1, 1 == 1)
-         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__)
-         , ADD_ASSERTION(tc2, 2 == 2)
-         , std::ostringstream oss )
-    WHEN( tr.Register(&tc1)
-        , tr.Register(&tc2)
-        , auto const failed = tr.RunAll(oss, "Test assertion 2") )
-    THEN( failed == 0
-        , oss.str() == SUMMARY_SEP + "All tests passed (1 assertion in 1 test case, 1 test case skipped)\n")
-}
-
-SCENARIO("Filter by name with two test cases registered and a failing assertion", "TestRunner")
-{
-    GIVEN( DummyTestRunner tr
-         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__)
-         , ADD_ASSERTION(tc1, 1 == 1)
-         , auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
-         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__)
-         , ADD_ASSERTION(tc2, 2 == 3)
-         , std::ostringstream oss)
-    WHEN( tr.Register(&tc1)
-        , tr.Register(&tc2)
-        , auto const failed = tr.RunAll(oss, "Test assertion 2"))
-    THEN( failed == 1
-        , oss.str() == TEST_SEP
-        + "Scenario: Test assertion 2\n"
-        + " Require: 2 == 3\n"
-        + TEST_SEP
-        + fileAndLine + "\n"
-        + ASSERT_SEP
-        + fileAndLine + ": FAILED:\n"
-        + "  2 == 3\n"
-        + SUMMARY_SEP
-        + "test cases: 2 | 0 passed | 1 failed | 1 skipped\n"
-        + "assertions: 1 | 0 passed | 1 failed\n" )
-}
-
 SCENARIO("One parametrized test case registered with no assertions", "TestRunner")
 {
     GIVEN( DummyTestRunner tr
@@ -337,6 +339,69 @@ SCENARIO("Two parametrized test cases registered with some succeeded assertions"
         , auto const failed = tr.RunAll(oss) )
     THEN( failed == 0
         , oss.str() == SUMMARY_SEP + "All tests passed (6 assertions in 4 test cases)\n")
+}
+
+SCENARIO("Detailed report with two test cases registered with some succeeded assertions", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
+         , DummyPTestCase<int> tc1("Test two assertions", __FILE__, __LINE__, {1, 2})
+         , ADD_ASSERTION(tc1, 1)
+         , ADD_ASSERTION(tc1, 1)
+         , DummyPTestCase<int> tc2("Test one assertion", __FILE__, __LINE__, {3, 4})
+         , ADD_ASSERTION(tc2, 3)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , auto const failed = tr.RunAll(oss, {"", "", true}))
+    THEN( failed == 2
+        , oss.str() == TEST_SEP + "Scenario: Test two assertions\n"
+                    + "   Param: 1\n"
+                    + " Require: 1 == GetParam()\n"
+                    + "     And: 1 == GetParam()\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": SUCCEEDED with argument [1]:\n"
+                    + "  1 == GetParam()\n" + "with expansion:\n" + "  1 == 1\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": SUCCEEDED with argument [1]:\n"
+                    + "  1 == GetParam()\n" + "with expansion:\n" + "  1 == 1\n"
+
+                    + TEST_SEP + "Scenario: Test two assertions\n"
+                    + "   Param: 2\n"
+                    + " Require: 1 == GetParam()\n"
+                    + "     And: 1 == GetParam()\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": FAILED with argument [2]:\n"
+                    + "  1 == GetParam()\n" + "with expansion:\n" + "  1 == 2\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": FAILED with argument [2]:\n"
+                    + "  1 == GetParam()\n" + "with expansion:\n" + "  1 == 2\n"
+
+                    + TEST_SEP + "Scenario: Test one assertion\n"
+                    + "   Param: 3\n"
+                    + " Require: 3 == GetParam()\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": SUCCEEDED with argument [3]:\n"
+                    + "  3 == GetParam()\n" + "with expansion:\n" + "  3 == 3\n"
+
+                    + TEST_SEP + "Scenario: Test one assertion\n"
+                    + "   Param: 4\n"
+                    + " Require: 3 == GetParam()\n"
+                    + TEST_SEP
+                    + fileAndLine + "\n"
+                    + ASSERT_SEP
+                    + fileAndLine + ": FAILED with argument [4]:\n"
+                    + "  3 == GetParam()\n" + "with expansion:\n" + "  3 == 4\n"
+
+                    + SUMMARY_SEP
+                    + "test cases: 4 | 2 passed | 2 failed\n"
+                    + "assertions: 6 | 3 passed | 3 failed\n" )
 }
 
 SCENARIO("One parametrized test cases registered with some failed assertion", "TestRunner")
@@ -455,4 +520,117 @@ SCENARIO("Two parametrized test cases registered with some failed assertions", "
                 + SUMMARY_SEP
                 + "test cases: 3 | 0 passed | 3 failed\n"
                 + "assertions: 6 | 2 passed | 4 failed\n" )
+}
+
+SCENARIO("Filter by name with two test cases registered", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc2, 2 == 2)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , auto const failed = tr.RunAll(oss, { "Test assertion 2", "", false }) )
+    THEN( failed == 0
+        , oss.str() == SUMMARY_SEP + "All tests passed (1 assertion in 1 test case, 1 test case skipped)\n" )
+}
+
+SCENARIO("Filter by name with two test cases registered and a failing assertion", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , auto const fileAndLine = BEDDEV_MAKE_FILE_LINE(__FILE__, __LINE__)
+         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc2, 2 == 3)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , auto const failed = tr.RunAll(oss, { "Test assertion 2", "", false }) )
+    THEN( failed == 1
+        , oss.str() == TEST_SEP
+        + "Scenario: Test assertion 2\n"
+        + " Require: 2 == 3\n"
+        + TEST_SEP
+        + fileAndLine + "\n"
+        + ASSERT_SEP
+        + fileAndLine + ": FAILED:\n"
+        + "  2 == 3\n"
+        + SUMMARY_SEP
+        + "test cases: 2 | 0 passed | 1 failed | 1 skipped\n"
+        + "assertions: 1 | 0 passed | 1 failed\n" )
+}
+
+SCENARIO("Filter by regex with three test cases registered", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc2, 2 == 2)
+         , DummyTestCase tc3("The test assertion 3", __FILE__, __LINE__)
+         , ADD_ASSERTION(tc3, 3 == 3)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , tr.Register(&tc3)
+        , auto const failed = tr.RunAll(oss, { "Test assertion.*", "", false }) )
+    THEN( failed == 0
+        , oss.str() == SUMMARY_SEP + "All tests passed (2 assertions in 2 test cases, 1 test case skipped)\n" )
+}
+
+SCENARIO("Filter by single tag with three test cases registered", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__, "cat1")
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__, "cat2")
+         , ADD_ASSERTION(tc2, 2 == 2)
+         , DummyTestCase tc3("The test assertion 3", __FILE__, __LINE__, "cat3")
+         , ADD_ASSERTION(tc3, 3 == 3)
+         , std::ostringstream oss)
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , tr.Register(&tc3)
+        , auto const failed = tr.RunAll(oss, { "", "cat1", false }) )
+    THEN( failed == 0
+        , oss.str() == SUMMARY_SEP + "All tests passed (1 assertion in 1 test case, 2 test cases skipped)\n" )
+}
+
+SCENARIO("Filter by two tags with three test cases registered", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__, "cat1")
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__, "cat2")
+         , ADD_ASSERTION(tc2, 2 == 2)
+         , DummyTestCase tc3("The test assertion 3", __FILE__, __LINE__, "cat3")
+         , ADD_ASSERTION(tc3, 3 == 3)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , tr.Register(&tc3)
+        , auto const failed = tr.RunAll(oss, { "", "cat1,cat3", false }) )
+    THEN( failed == 0
+        , oss.str() == SUMMARY_SEP + "All tests passed (2 assertions in 2 test cases, 1 test case skipped)\n" )
+}
+
+SCENARIO("Filter by two tags and regex with three test cases registered", "TestRunner")
+{
+    GIVEN( DummyTestRunner tr
+         , DummyTestCase tc1("Test assertion 1", __FILE__, __LINE__, "cat1")
+         , ADD_ASSERTION(tc1, 1 == 1)
+         , DummyTestCase tc2("Test assertion 2", __FILE__, __LINE__, "cat2")
+         , ADD_ASSERTION(tc2, 2 == 2)
+         , DummyTestCase tc3("The test assertion 3", __FILE__, __LINE__, "cat3")
+         , ADD_ASSERTION(tc3, 3 == 3)
+         , std::ostringstream oss )
+    WHEN( tr.Register(&tc1)
+        , tr.Register(&tc2)
+        , tr.Register(&tc3)
+        , auto const failed = tr.RunAll(oss, { "Test assertion.*", "cat1,cat3", false }) )
+    THEN( failed == 0
+        , oss.str() == SUMMARY_SEP + "All tests passed (1 assertion in 1 test case, 2 test cases skipped)\n" )
 }

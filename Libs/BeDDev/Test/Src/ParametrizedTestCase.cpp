@@ -1,4 +1,5 @@
 #include <Beddev/Beddev.h>
+#include <Beddev/SessionSummary.h>
 
 #include <sstream>
 
@@ -53,7 +54,7 @@ public:
         bool succeed = true;
         for (auto const& testValue : m_testValues)
         {
-            succeed &= AddTest(TOSTR(paramValue == testValue), __FILE__, __LINE__, ExpressionParser::Get() <= paramValue == testValue);
+            succeed &= AddTest({TOSTR(paramValue == testValue), __FILE__, __LINE__, ExpressionParser::Get() <= paramValue == testValue});
         }
         return succeed;
     }
@@ -84,7 +85,7 @@ SCENARIO("An empty parametrized test case")
         , ss.skipped == 0
         , ss.passedAssertions == 0
         , ss.failedAssertions == 0
-        , ss.nonAssertionFailures == 0
+        , ss.configFailures == 0
         , oss.str() == ""
         , tc.m_usedParams.size() == 2
         , tc.m_usedParams[0] == 1
@@ -110,7 +111,7 @@ SCENARIO("A parametrized test case with a single assertion")
                     + TEST_SEP
                     + fileAndLine + "\n"
                     + ASSERT_SEP
-                    + BEDDEV_MAKE_FILE_LINE(__FILE__, 56) + ": FAILED with argument [2]:\n"
+                    + BEDDEV_MAKE_FILE_LINE(__FILE__, 57) + ": FAILED with argument [2]:\n"
                     + "  paramValue == testValue\n"
                     + "with expansion:\n"
                     + "  2 == 1\n"
@@ -136,7 +137,7 @@ SCENARIO("A parametrized test case with a single assertion")
     + fileAndLine + "\n"
 
 #define MAKE_ASSERT(ARG, VALUE) ASSERT_SEP\
-    + BEDDEV_MAKE_FILE_LINE(__FILE__, 56) + ": FAILED with argument [" ARG "]:\n"\
+    + BEDDEV_MAKE_FILE_LINE(__FILE__, 57) + ": FAILED with argument [" ARG "]:\n"\
     + "  paramValue == testValue\nwith expansion:\n  " ARG " == " VALUE "\n"
 
 SCENARIO("A parametrized test case with some assertions")

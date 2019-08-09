@@ -12,15 +12,14 @@ public:
     BEDDEV_EXPORT TestCase(std::string const& desc, std::string const& file, long line, std::string const& category = "");
 
 protected:
-    BEDDEV_EXPORT void RunInternal(std::ostream& os, SessionSummary& summary) override;
+    BEDDEV_EXPORT void RunInternal(std::ostream& os, SessionSummary& summary, bool outputOnSuccess) override;
     virtual bool RunImpl() = 0;
 
     BEDDEV_EXPORT void AddFact(std::string const& fact) override;
     BEDDEV_EXPORT void AddAction(std::string const& action) override;
-    BEDDEV_EXPORT bool AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr) override;
-    BEDDEV_EXPORT bool AddTest(Assertion const& assertion);
+    BEDDEV_EXPORT bool AddTest(Assertion const& assertion) override;
 
-    BEDDEV_EXPORT void ReportFailure(std::ostream& os) const override;
+    BEDDEV_EXPORT void ReportFailure(std::ostream& os, bool outputOnSuccess) const override;
 
     BEDDEV_EXPORT void SummarizeAssertions(SessionSummary& summary) const;
 

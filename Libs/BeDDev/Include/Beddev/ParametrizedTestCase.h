@@ -1,155 +1,161 @@
 #pragma once
 
 #include "BaseTestCase.h"
+#include "ColoredOutput.h"
 #include "Expression.h"
-#include "SessionSummary.h"
 #include "TestCase.h"
 
-#include <cassert>
-#include <iomanip>
-#include <unordered_map>
+#include <algorithm>
+#include <functional>
 
 namespace beddev
 {
 
 template<typename PARAM_T>
+class ParametrizedInstance : public TestCase
+{
+public:
+    using RunCallback = std::function<bool()>;
+
+    ParametrizedInstance();
+    ParametrizedInstance(std::string const& desc, std::string const& file, long line, std::string const& category, PARAM_T param, RunCallback const& runCallback);
+
+    PARAM_T const& GetParam() const { return m_param; }
+
+    bool RunImpl() override { return m_runCallback(); }
+
+    void FormatHeader(std::ostream& os) const override;
+
+    template<typename U = PARAM_T>
+    typename std::enable_if<is_printable<U>::value, std::string>::type GetParamStr() const
+    {
+        std::ostringstream oss;
+        oss << m_param;
+        return oss.str();
+    }
+
+    template<typename U = PARAM_T>
+    typename std::enable_if_t<!is_printable<U>::value, std::string> GetParamStr() const { return "??"; }
+
+    void FormatAssertionMessage(std::ostream& os, bool assertionResult) const;
+
+    using TestCase::FormatHeader;
+    using TestCase::AddFact;
+    using TestCase::AddAction;
+    using TestCase::AddTest;
+    using TestCase::ReportFailure;
+    using TestCase::SummarizeAssertions;
+    using TestCase::RunInternal;
+
+private:
+    PARAM_T m_param;
+    RunCallback m_runCallback;
+};
+
+template<typename PARAM_T>
 class ParametrizedTestCase : public BaseTestCase
 {
 public:
-    ParametrizedTestCase(std::string const& desc, std::string const& file, long line, std::string const& category = "")
-        : BaseTestCase(desc, file, line, category)
-        , m_testInstances()
-        , m_currentInstance(0)
-    {
-    }
+    ParametrizedTestCase(std::string const& desc, std::string const& file, long line, std::string const& category = "");
 
 protected:
-    enum class ERunStep
-    {
-        REGISTER_TEST_PARAMS,
-        RUN_TEST
-    };
+    enum class ERunStep { REGISTER_TEST_PARAMS, RUN_TEST };
 
     virtual bool RunImpl(ERunStep runStep) = 0;
 
     PARAM_T const& GetParam() const { return RunningInstance().GetParam(); }
-    void SetParams(std::vector<PARAM_T> const& params)
-    {
-        for (auto const& param : params)
-        {
-            m_testInstances.push_back(TestInstance(this, param));
-        }
-    }
+    void SetParams(std::vector<PARAM_T> const& params);
 
-    void RunInternal(std::ostream& os, SessionSummary& summary) override
-    {
-        RunImpl(ERunStep::REGISTER_TEST_PARAMS);
-        if (m_testInstances.size() == 0)
-        {
-            FormatHeader(os);
-            FormatFileAndLineInfo(os);
-            os << std::setw(80) << std::setfill('.') << "." << std::endl << std::setfill(' ') << std::endl;
-            os << "  No parameters provided to a parametrized test case" << std::endl << std::endl;
-            summary.failed++;
-            summary.nonAssertionFailures++;
-            return;
-        }
+    void RunInternal(std::ostream& os, SessionSummary& summary, bool outputOnSuccess) override;
 
-        m_currentInstance = 0;
-        for (auto& testInstance : m_testInstances)
-        {
-            testInstance.RunInternal(os, summary);
-            m_currentInstance++;
-        }
-    }
+    void AddFact(std::string const& fact) override     { RunningInstance().AddFact(fact); }
+    void AddAction(std::string const& action) override { RunningInstance().AddAction(action); }
+    bool AddTest(Assertion const& assertion) override  { return RunningInstance().AddTest(assertion); }
 
-    void AddFact(std::string const& fact) override
-    {
-        RunningInstance().AddFact(fact);
-    }
-
-    void AddAction(std::string const& action) override
-    {
-        RunningInstance().AddAction(action);
-    }
-
-    bool AddTest(std::string const& test, std::string const& file, long line, IExpression const& expr)
-    {
-        std::ostringstream oss;
-        oss << "FAILED with argument [" << RunningInstance().GetParamStr() << "]:";
-        return AddTest({ test, file, line, expr.Succeeded(), expr.ExpandedExpression(), oss.str() });
-    }
-
-    bool AddTest(Assertion const& assertion)
-    {
-        RunningInstance().AddTest(assertion);
-        return assertion.result;
-    }
-
-    void ReportFailure(std::ostream& os) const override
-    {
-        RunningInstance().ReportFailure(os);
-    }
+    void ReportFailure(std::ostream& os, bool outputOnSuccess) const override { RunningInstance().ReportFailure(os, outputOnSuccess); }
 
 private:
-    class TestInstance : public TestCase
-    {
-    public:
-        TestInstance(ParametrizedTestCase<PARAM_T>* testCase, PARAM_T param)
-            : TestCase(testCase->GetDescription(), testCase->GetFile(), testCase->GetLine(), testCase->GetCategory())
-            , m_testCase(testCase)
-            , m_param(param)
-        {}
+    using PTestInstance = ParametrizedInstance<PARAM_T>;
+    PTestInstance const& RunningInstance() const { return m_testInstances[m_currentInstance]; }
+    PTestInstance& RunningInstance() { return m_testInstances[m_currentInstance]; }
 
-        PARAM_T const& GetParam() const { return m_param; }
-
-        bool RunImpl() override { return m_testCase->RunImpl(ERunStep::RUN_TEST); }
-
-        void FormatHeader(std::ostream& os) const override
-        {
-            TestCase::FormatHeader(os);
-            os << "   Param: " << GetParamStr() << std::endl;
-        }
-
-        template<typename U = PARAM_T>
-        typename std::enable_if<is_printable<U>::value, std::string>::type
-        GetParamStr() const
-        {
-            std::ostringstream oss;
-            oss << m_param;
-            return oss.str();
-        }
-
-        template<typename U = PARAM_T>
-        typename std::enable_if_t<!is_printable<U>::value, std::string>
-        GetParamStr() const { return "??"; }
-
-        ParametrizedTestCase<PARAM_T>* m_testCase;
-        PARAM_T m_param;
-
-        using TestCase::FormatHeader;
-        using TestCase::AddFact;
-        using TestCase::AddAction;
-        using TestCase::AddTest;
-        using TestCase::ReportFailure;
-        using TestCase::SummarizeAssertions;
-        using TestCase::RunInternal;
-    };
-
-    TestInstance const& RunningInstance() const
-    {
-        assert(m_currentInstance < m_testInstances.size());
-        return m_testInstances[m_currentInstance];
-    }
-
-    TestInstance& RunningInstance()
-    {
-        assert(m_currentInstance < m_testInstances.size());
-        return m_testInstances[m_currentInstance];
-    }
-
-    std::vector<TestInstance> m_testInstances;
+    std::vector<PTestInstance> m_testInstances;
     uint32_t m_currentInstance;
 };
+
+template<typename PARAM_T>
+ParametrizedTestCase<PARAM_T>::ParametrizedTestCase( std::string const& desc, std::string const& file
+                                                   , long line, std::string const& category )
+    : BaseTestCase(desc, file, line, category)
+    , m_testInstances()
+    , m_currentInstance(0)
+{
+}
+
+template<typename PARAM_T>
+void ParametrizedTestCase<PARAM_T>::SetParams(std::vector<PARAM_T> const& params)
+{
+    auto instanceFactory = [this](PARAM_T const& p)
+    {
+        auto instanceRunner = [this]() { return RunImpl(ERunStep::RUN_TEST); };
+        return PTestInstance(GetDescription(), GetFile(), GetLine(), GetTags(), p, instanceRunner);
+    };
+
+    m_testInstances.resize(params.size());
+    std::transform(params.begin(), params.end(), m_testInstances.begin(), instanceFactory);
+}
+
+template<typename PARAM_T>
+void ParametrizedTestCase<PARAM_T>::RunInternal(std::ostream& os, SessionSummary& summary, bool outputOnSuccess)
+{
+    RunImpl(ERunStep::REGISTER_TEST_PARAMS);
+    if (m_testInstances.size() == 0)
+    {
+        ReportConfigFailure(os, summary, "No parameters provided to a parametrized test case");
+        return;
+    }
+
+    m_currentInstance = 0;
+    for (auto& testInstance : m_testInstances)
+    {
+        testInstance.RunInternal(os, summary, outputOnSuccess);
+        m_currentInstance++;
+    }
+}
+
+template<typename PARAM_T>
+ParametrizedInstance<PARAM_T>::ParametrizedInstance()
+    : TestCase("", "", 0)
+{
+}
+
+template<typename PARAM_T>
+ParametrizedInstance<PARAM_T>::ParametrizedInstance(std::string const& desc, std::string const& file, long line, std::string const& category, PARAM_T param, RunCallback const& runCallback)
+    : TestCase(desc, file, line, category)
+    , m_param(param)
+    , m_runCallback(runCallback)
+{
+}
+
+template<typename PARAM_T>
+void ParametrizedInstance<PARAM_T>::FormatHeader(std::ostream& os) const
+{
+    TestCase::FormatHeader(os);
+    os << "   Param: " << GetParamStr() << std::endl;
+}
+
+template<typename PARAM_T>
+void ParametrizedInstance<PARAM_T>::FormatAssertionMessage(std::ostream& os, bool assertionResult) const
+{
+    if (assertionResult)
+    {
+        os << TestingImpl::Colour(TestingImpl::ColorCode::Success) << "SUCCEEDED with argument [" << GetParamStr() << "]:";
+    }
+    else
+    {
+        os << TestingImpl::Colour(TestingImpl::ColorCode::Error) << "FAILED with argument [" << GetParamStr() << "]:";
+    }
+    os << std::endl;
+}
 
 }
