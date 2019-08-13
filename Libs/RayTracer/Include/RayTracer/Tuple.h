@@ -2,6 +2,10 @@
 
 #include "raytracer_export.h"
 
+#if USE_SSE
+#   include "MathIntrinsics.h"
+#endif
+
 #include <ostream>
 
 class RAYTRACER_EXPORT Tuple
@@ -9,6 +13,9 @@ class RAYTRACER_EXPORT Tuple
 public:
     Tuple();
     Tuple(float x, float y, float z, float w);
+#if USE_SSE
+    Tuple(__m128 data) : m_sseData(data) {}
+#endif
 
     float operator[](size_t index) const;
     float& operator[](size_t index);
@@ -40,10 +47,19 @@ public:
     float& W() { return m_w; }
 
 private:
-    float m_x;
-    float m_y;
-    float m_z;
-    float m_w;
+    union
+    {
+#if USE_SSE
+        __m128 m_sseData;
+#endif
+        struct
+        {
+            float m_x;
+            float m_y;
+            float m_z;
+            float m_w;
+        };
+    };
 };
 
 RAYTRACER_EXPORT Tuple Point(float x, float y, float z);

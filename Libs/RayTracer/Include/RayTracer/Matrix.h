@@ -3,6 +3,10 @@
 #include "Tuple.h"
 #include "Util.h"
 
+#if USE_SSE
+#   include "MathIntrinsics.h"
+#endif
+
 #include <algorithm>
 #include <ostream>
 
@@ -17,10 +21,32 @@ public:
 
     template<uint8_t row, uint8_t col>
     typename std::enable_if<(row < ROWS) && (col < COLS), float>::type
-    At() const { return m_data[row][col]; }
+    At() const
+    {
+#if USE_SSE
+        return m_data[col][row];
+#else
+        return m_data[row][col];
+#endif
+    }
 
-    float At(uint8_t row, uint8_t col) const { return m_data[row][col]; }
-    float& At(uint8_t row, uint8_t col) { return m_data[row][col]; }
+    float At(uint8_t row, uint8_t col) const
+    {
+#if USE_SSE
+        return m_data[col][row];
+#else
+        return m_data[row][col];
+#endif
+    }
+
+    float& At(uint8_t row, uint8_t col)
+    {
+#if USE_SSE
+        return m_data[col][row];
+#else
+        return m_data[row][col];
+#endif
+    }
 
     bool operator==(Matrix const& other) const;
     bool operator!=(Matrix const& other) const { return !this->operator==(other); }
@@ -31,12 +57,33 @@ public:
     typename std::enable_if<(R == 4) && (C == 4), Tuple>::type
     operator*(Tuple const& tuple) const
     {
+#if USE_SSE
+        __m128 x = _mm_set1_ps(tuple.X());
+        __m128 y = _mm_set1_ps(tuple.Y());
+        __m128 z = _mm_set1_ps(tuple.Z());
+        __m128 w = _mm_set1_ps(tuple.W());
+
+        //__m128 p1 = _mm_mul_ps(x, m_sseData[0]);
+        //__m128 p2 = _mm_mul_ps(y, m_sseData[1]);
+        //__m128 p3 = _mm_mul_ps(z, m_sseData[2]);
+        //__m128 p4 = _mm_mul_ps(w, m_sseData[3]);
+
+        //return _mm_add_ps(_mm_add_ps(p1, p2), _mm_add_ps(p3, p4));
+
+        __m128 p1 = _mm_mul_ps(x, m_sseData[0]);
+        __m128 p2 = _mm_fmadd_ps(y, m_sseData[1], p1);
+        __m128 p3 = _mm_mul_ps(z, m_sseData[2]);
+        __m128 p4 = _mm_fmadd_ps(w, m_sseData[3], p3);
+
+        return _mm_add_ps(p2, p4);
+#else
         return {
             (At<0,0>() * tuple.X()) + (At<0,1>() * tuple.Y()) + (At<0,2>() * tuple.Z()) + (At<0,3>() * tuple.W()),
             (At<1,0>() * tuple.X()) + (At<1,1>() * tuple.Y()) + (At<1,2>() * tuple.Z()) + (At<1,3>() * tuple.W()),
             (At<2,0>() * tuple.X()) + (At<2,1>() * tuple.Y()) + (At<2,2>() * tuple.Z()) + (At<2,3>() * tuple.W()),
             (At<3,0>() * tuple.X()) + (At<3,1>() * tuple.Y()) + (At<3,2>() * tuple.Z()) + (At<3,3>() * tuple.W())
         };
+#endif
     }
 
     Matrix Transposed() const;
@@ -58,7 +105,13 @@ public:
     Matrix<ROWS - 1, COLS - 1> Submatrix(uint8_t row, uint8_t col) const;
 
 private:
-    float m_data[ROWS][COLS];
+    union
+    {
+#if USE_SSE
+        __m128 m_sseData[4];
+#endif
+        float m_data[ROWS][COLS];
+    };
 };
 
 using Mat22 = Matrix<2, 2>;
@@ -76,7 +129,11 @@ Matrix<ROWS, COLS>::Matrix(std::initializer_list<std::initializer_list<float>> d
         for (float v : row)
         {
             if (col >= COLS) break;
+#if USE_SSE
+            m_data[col++][i] = v;
+#else
             m_data[i][col++] = v;
+#endif
         }
         i++;
     }
@@ -97,6 +154,29 @@ bool Matrix<ROWS, COLS>::operator==(Matrix const& other) const
     }
     return true;
 }
+
+#if USE_SSE
+template<>
+inline Matrix<4,4> Matrix<4, 4>::operator*(Matrix const& other) const
+{
+    Matrix<4,4> r;
+    for (int i = 0; i < 4; i++)
+    {
+        __m128 brodX = _mm_set1_ps(other.m_sseData[i].m128_f32[0]);
+        __m128 brodY = _mm_set1_ps(other.m_sseData[i].m128_f32[1]);
+        __m128 brodZ = _mm_set1_ps(other.m_sseData[i].m128_f32[2]);
+        __m128 brodW = _mm_set1_ps(other.m_sseData[i].m128_f32[3]);
+        r.m_sseData[i] = _mm_add_ps(
+            _mm_add_ps(
+                _mm_mul_ps(brodX, m_sseData[0]),
+                _mm_mul_ps(brodY, m_sseData[1])),
+            _mm_add_ps(
+                _mm_mul_ps(brodZ, m_sseData[2]),
+                _mm_mul_ps(brodW, m_sseData[3])));
+    }
+    return r;
+}
+#endif
 
 template<uint8_t ROWS, uint8_t COLS>
 Matrix<ROWS, COLS> Matrix<ROWS, COLS>::operator*(Matrix const& other) const

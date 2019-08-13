@@ -99,7 +99,16 @@ Tuple Tuple::Normalized() const
 
 float Tuple::Dot(Tuple const& other) const
 {
+#if USE_SSE
+    union {
+        __m128 sseRes;
+        float data[4];
+    } res;
+    res.sseRes = _mm_dp_ps(m_sseData, other.m_sseData, 0xff);
+    return res.data[0];
+#else
     return (X() * other.X()) + (Y() * other.Y()) + (Z() * other.Z()) + (W() * other.W());
+#endif
 }
 
 Tuple Tuple::Cross(Tuple const& other) const
