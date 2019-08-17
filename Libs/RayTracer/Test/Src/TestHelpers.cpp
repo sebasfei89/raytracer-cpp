@@ -27,3 +27,12 @@ ShapePtr GlassySphere()
     s->ModifyMaterial().RefractiveIndex(1.5f);
     return s;
 }
+
+std::ostream& operator<<(std::ostream& os, TestArg const& arg)
+{
+    os << "{ " << arg.origin
+        << ", " << arg.direction
+        << ", " << arg.t1
+        << ", " << arg.t2 << " }";
+    return os;
+}

@@ -7,7 +7,9 @@ set( RT_SOURCES
     Include/RayTracer/Camera.h
     Include/RayTracer/Canvas.h
     Include/RayTracer/Color.h
+    Include/RayTracer/Cone.h
     Include/RayTracer/Cube.h
+    Include/RayTracer/Cylinder.h
     Include/RayTracer/Intersection.h
     Include/RayTracer/Lighting.h
     Include/RayTracer/Material.h
@@ -25,7 +27,9 @@ set( RT_SOURCES
     Include/RayTracer/World.h
     Src/Camera.cpp
     Src/Canvas.cpp
+    Src/Cone.cpp
     Src/Cube.cpp
+    Src/Cylinder.cpp
     Src/Intersection.cpp
     Src/Lighting.cpp
     Src/Material.cpp
@@ -52,7 +56,9 @@ set( TEST_SOURCES
     Test/Src/Canvas.cpp
     Test/Src/Camera.cpp
     Test/Src/Color.cpp
+    Test/Src/Cone.cpp
     Test/Src/Cube.cpp
+    Test/Src/Cylinder.cpp
     Test/Src/Intersection.cpp
     Test/Src/Light.cpp
     Test/Src/Main.cpp
