@@ -16,15 +16,3 @@ void Plane::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
     }
     xs.push_back({ (-ray.Origin().Y()) / yDirection, shared_from_this() });
 }
-
-bool Plane::IntersectsBefore(Ray const& ray, float distance) const
-{
-    float const yDirection = ray.Direction().Y();
-    if (std::abs(yDirection) < EPSILON)
-    {
-        return false;
-    }
-
-    float const r = -ray.Origin().Y() / yDirection;
-    return (r >= EPSILON) && (r < distance);
-}

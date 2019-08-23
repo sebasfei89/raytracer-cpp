@@ -12,6 +12,6 @@ namespace SampleUtils
 {
 
 SAMPLEUTILS_EXPORT void SaveCanvas(Canvas const& canvas, std::string const& outputFile);
-SAMPLEUTILS_EXPORT void RenderScene(Camera const& camera, World const& world, std::string const& outputFile);
+SAMPLEUTILS_EXPORT void RenderScene(Camera const& camera, World const& world, std::string const& outputFile = "");
 
 }

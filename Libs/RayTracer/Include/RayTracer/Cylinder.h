@@ -12,8 +12,6 @@ public:
     RAYTRACER_EXPORT Cylinder(float min, float max, bool closed = false);
 
     RAYTRACER_EXPORT void Intersect(Ray const& ray, std::vector<Intersection>& xs) const override;
-    RAYTRACER_EXPORT bool IntersectsBefore(Ray const& ray, float distance) const override;
-
     RAYTRACER_EXPORT Tuple NormalAtLocal(Tuple const& point) const override;
 
     float Minimum() const { return m_min; }
@@ -23,7 +21,6 @@ public:
 
 protected:
     void IntersectCaps(Ray const& ray, std::vector<Intersection>& xs) const;
-    bool IntersectsCapsBefore(Ray const& ray, float distance) const;
 
     virtual float A(Ray const& ray) const;
     virtual float B(Ray const& ray) const;
@@ -31,8 +28,9 @@ protected:
     virtual float RadiusAt(float y) const { return 1.f; }
     virtual float CalculateNormalY(float y, float d) const { return 0.f; }
 
-    virtual void EarlyTest(Ray const& ray, float a, std::vector<Intersection>& xs) const {}
-    virtual bool EarlyTestBefore(Ray const& ray, float a, float distance) const { return false; }
+    virtual void EarlyTest(Ray const& ray, std::vector<Intersection>& xs) const {}
+
+    bool IsInRange(Ray const& ray, float t) const;
 
 private:
     float m_min;

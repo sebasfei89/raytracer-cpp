@@ -145,6 +145,17 @@ SCENARIO("The shadow when an object is between the point and the light", "shadow
     THEN( w.IsShadowed(point, w.Lights()[0]) )
 }
 
+SCENARIO("The shadow when a cylinder isn't between the point and the light", "shadows")
+{
+    GIVEN( auto const w = DefaultWorld2()
+         , auto const p1 = Point(0.f, -1.f, -2.f)
+         , auto const p2 = Point(0.f, -5.f, -2.f)
+         , auto const p3 = Point(0.f, -2.5f, -2.f) )
+    THEN( !w.IsShadowed(p1, w.Lights()[0])
+        , !w.IsShadowed(p2, w.Lights()[0])
+        , !w.IsShadowed(p3, w.Lights()[0]) )
+}
+
 SCENARIO("There is no shadow when an object is behind the light", "shadows")
 {
     GIVEN( auto const w = DefaultWorld()

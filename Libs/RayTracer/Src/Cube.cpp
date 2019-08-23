@@ -17,18 +17,6 @@ void Cube::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
     }
 }
 
-bool Cube::IntersectsBefore(Ray const& ray, float distance) const
-{
-    auto[xtMin, xtMax] = CheckAxis(ray.Origin().X(), ray.Direction().X());
-    auto[ytMin, ytMax] = CheckAxis(ray.Origin().Y(), ray.Direction().Y());
-    auto[ztMin, ztMax] = CheckAxis(ray.Origin().Z(), ray.Direction().Z());
-
-    float const tMin = std::max(xtMin, std::max(ytMin, ztMin));
-    float const tMax = std::min(xtMax, std::min(ytMax, ztMax));
-
-    return (tMin <= tMax) && ((tMin > 0.f && tMin < distance) || (tMax > 0.f && tMax < distance));
-}
-
 Tuple Cube::NormalAtLocal(Tuple const& point) const
 {
     auto const absX = std::abs(point.X());

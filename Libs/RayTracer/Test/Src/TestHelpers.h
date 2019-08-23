@@ -5,6 +5,7 @@
 #include <RayTracer/World.h>
 
 World DefaultWorld();
+World DefaultWorld2();
 ShapePtr GlassySphere();
 
 class TestPattern : public IPattern

@@ -22,3 +22,18 @@ bool Shape::operator==(Shape const& other) const
     return GetMaterial() == other.GetMaterial()
         && Transform() == other.Transform();
 }
+
+bool Shape::IntersectsBefore(Ray const& ray, float distance) const
+{
+    std::vector<Intersection> xs;
+    xs.reserve(2);
+    Intersect(ray, xs);
+    for (auto const& i : xs)
+    {
+        if ((i.Distance() >= EPSILON) && (i.Distance() < distance))
+        {
+            return true;
+        }
+    }
+    return false;
+}

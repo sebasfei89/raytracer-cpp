@@ -26,6 +26,8 @@ function(AddTarget NAME)
         generate_export_header( ${NAME} )
     endif()
 
+    file( GLOB SOURCES_LIST RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${ADDTARGET_SOURCES} )
+
     if (ADDTARGET_EXECUTABLE OR ADDTARGET_LIBRARY OR ADDTARGET_TEST)
 
         target_compile_features( ${NAME} PUBLIC cxx_std_17 )
@@ -35,7 +37,7 @@ function(AddTarget NAME)
             set_property( TARGET ${NAME} PROPERTY FOLDER ${ADDTARGET_FOLDER} )
         endif()
 
-        target_sources( ${NAME} PRIVATE ${ADDTARGET_SOURCES} )
+        target_sources( ${NAME} PRIVATE ${SOURCES_LIST} )
         list(APPEND ADDTARGET_PUBLIC_DIRS "${CMAKE_BINARY_DIR}/Libs/${NAME}")
         target_include_directories( ${NAME} INTERFACE ${ADDTARGET_INTERFACE_DIRS} PUBLIC ${ADDTARGET_PUBLIC_DIRS} PRIVATE ${ADDTARGET_PRIVATE_DIRS} )
 
@@ -43,12 +45,12 @@ function(AddTarget NAME)
 
         target_compile_features( ${NAME} INTERFACE cxx_std_17 )
 
-        target_sources( ${NAME} INTERFACE ${ADDTARGET_SOURCES} )
+        target_sources( ${NAME} INTERFACE ${SOURCES_LIST} )
         target_include_directories( ${NAME} INTERFACE ${ADDTARGET_INTERFACE_DIRS} )
 
     endif()
 
-    source_group( TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ADDTARGET_SOURCES} )
+    source_group( TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES_LIST} )
 
     if (DEFINED ADDTARGET_DEPS)
         foreach(DEP ${ADDTARGET_DEPS})
@@ -67,4 +69,25 @@ function(AddTarget NAME)
 			target_compile_definitions( ${NAME} PRIVATE ${PRIV_DEF} )
         endforeach()
 	endif()
+endfunction()
+
+function(CompileShaders outputVar shaderSources outputDir)
+	if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+		set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin/glslangValidator.exe")
+	else()
+		set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin32/glslangValidator.exe")
+	endif()
+
+	file( GLOB_RECURSE GLSL_SOURCE_FILES ${shaderSources} )
+	foreach(GLSL ${GLSL_SOURCE_FILES})
+		get_filename_component(FILE_NAME ${GLSL} NAME)
+		set(SPIRV "${outputDir}/${FILE_NAME}.spv")
+		add_custom_command( OUTPUT ${SPIRV}
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${outputDir}"
+			COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
+			DEPENDS ${GLSL} )
+		list( APPEND TMP_SPIRV_BINARY_FILES ${SPIRV})
+	endforeach(GLSL)
+
+	set(${outputVar} ${TMP_SPIRV_BINARY_FILES} PARENT_SCOPE)
 endfunction()

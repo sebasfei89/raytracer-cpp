@@ -20,7 +20,7 @@ float Cone::B(Ray const& ray) const
 {
     auto const& d = ray.Direction();
     auto const& o = ray.Origin();
-    return (2.f * o.X() * d.X()) - (2.f * o.Y() * d.Y()) + (2.f * o.Z() * d.Z());
+    return 2.f * ((o.X() * d.X()) - (o.Y() * d.Y()) + (o.Z() * d.Z()));
 }
 
 float Cone::C(Ray const& ray) const
@@ -29,25 +29,18 @@ float Cone::C(Ray const& ray) const
     return (o.X() * o.X()) - (o.Y() * o.Y()) + (o.Z() * o.Z());
 }
 
-void Cone::EarlyTest(Ray const& ray, float a, std::vector<Intersection>& xs) const
+void Cone::EarlyTest(Ray const& ray, std::vector<Intersection>& xs) const
 {
-    float const b = B(ray);
-    if (std::abs(b) > EPSILON)
+    Ray const normalizedRay(ray.Origin(), ray.Direction().Normalized());
+    float const b = B(normalizedRay);
+    if (std::abs(b) >= EPSILON)
     {
-        float const c = C(ray);
-        xs.push_back({ -c / (2.f * b), shared_from_this() });
+        float const localDistance = -C(normalizedRay) / (2.f * b);
+        if (IsInRange(normalizedRay, localDistance))
+        {
+            xs.push_back({ -C(ray) / (2.f * B(ray)), shared_from_this() });
+        }
     }
-}
-
-bool Cone::EarlyTestBefore(Ray const& ray, float a, float distance) const
-{
-    float const b = B(ray);
-    if (std::abs(b) > EPSILON)
-    {
-        auto const d = -C(ray) / (2.f * b);
-        return (d >= EPSILON) && (d < distance);
-    }
-    return false;
 }
 
 float Cone::CalculateNormalY(float y, float d) const

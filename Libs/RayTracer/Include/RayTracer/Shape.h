@@ -35,7 +35,7 @@ public:
     virtual void Intersect(Ray const& ray, std::vector<Intersection>& xs) const = 0;
 
     // ray is in shape's local space
-    virtual bool IntersectsBefore(Ray const& ray, float distance) const = 0;
+    RAYTRACER_EXPORT bool IntersectsBefore(Ray const& ray, float distance) const;
 
     RAYTRACER_EXPORT virtual bool operator==(Shape const& other) const;
 

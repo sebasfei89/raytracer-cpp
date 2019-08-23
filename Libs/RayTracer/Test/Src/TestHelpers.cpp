@@ -1,5 +1,7 @@
 #include "TestHelpers.h"
 
+#include <RayTracer/Cylinder.h>
+
 World DefaultWorld()
 {
     World w;
@@ -15,6 +17,22 @@ World DefaultWorld()
     w.Add(s2);
 
     PointLight l(Point(-10.f, 10.f, -10.f), Color(1.f, 1.f, 1.f));
+    w.Add(l);
+
+    return w;
+}
+
+World DefaultWorld2()
+{
+    World w;
+    auto cyl = std::make_shared<Cylinder>(0.f, 1.f);
+
+    cyl->ModifyMaterial().SetColor(Color(.8f, 1.f, .6f));
+    cyl->ModifyMaterial().Diffuse(.7f);
+    cyl->ModifyMaterial().Specular(.2f);
+    w.Add(cyl);
+
+    PointLight l(Point(0.f, -1.f, 0.f), Color(1.f, 1.f, 1.f));
     w.Add(l);
 
     return w;

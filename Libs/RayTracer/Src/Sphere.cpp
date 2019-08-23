@@ -8,47 +8,18 @@ Tuple Sphere::NormalAtLocal(Tuple const& localPoint) const
 
 void Sphere::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
 {
+    auto const& rayDir = ray.Direction();
     auto sphereToRay = ray.Origin();
     sphereToRay.W() = 0.f;
-    float const a = ray.Direction().Dot(ray.Direction());
-    float const b = 2.f * ray.Direction().Dot(sphereToRay);
+    float const a = rayDir.Dot(rayDir);
+    float const b = 2.f * rayDir.Dot(sphereToRay);
     float const c = sphereToRay.Dot(sphereToRay) - 1.f;
-    float const discriminant = (b * b) - (4.f * a * c);
 
-    if (discriminant < 0.f)
-    {
-        return;
-    }
+    float t1, t2;
+    if (!SolveQuadratic(a, b, c, t1, t2)) return;
 
-    float const aTimes2 = 1.f / (2.f * a);
-    float const sqrtDiscriminant = sqrtf(discriminant) * aTimes2;
-    float const t = -b * aTimes2;
-    xs.push_back({ t - sqrtDiscriminant, shared_from_this() });
-    xs.push_back({ t + sqrtDiscriminant, shared_from_this() });
-}
-
-bool Sphere::IntersectsBefore(Ray const& ray, float distance) const
-{
-    auto sphereToRay = ray.Origin();
-    sphereToRay.W() = 0.f;
-    float const a = ray.Direction().Dot(ray.Direction());
-    float const b = 2.f * ray.Direction().Dot(sphereToRay);
-    float const c = sphereToRay.Dot(sphereToRay) - 1.f;
-    float const discriminant = (b * b) - (4.f * a * c);
-
-    if (discriminant < EPSILON)
-    {
-        return false;
-    }
-
-    float const aTimes2 = 1.f / (2.f * a);
-    float const sqrtDiscriminant = sqrtf(discriminant) * aTimes2;
-    float const t = -b * aTimes2;
-
-    float const r1 = t - sqrtDiscriminant;
-    float const r2 = t + sqrtDiscriminant;
-
-    return ((r1 >= EPSILON) && (r1 < distance)) || ((r2 >= EPSILON) && (r2 < distance));
+    xs.push_back({ t1, shared_from_this() });
+    xs.push_back({ t2, shared_from_this() });
 }
 
 bool Sphere::operator==(Shape const& other) const
