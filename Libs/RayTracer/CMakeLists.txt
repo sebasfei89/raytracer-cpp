@@ -84,3 +84,8 @@ AddTarget( Ch13_CylindersAndCones EXECUTABLE
     FOLDER  3.Samples
     DEPS    RayTracer SampleUtils
     SOURCES Samples/Src/CylindersAndCones.cpp )
+
+AddTarget( Ch14_Groups EXECUTABLE
+    FOLDER  3.Samples
+    DEPS    RayTracer SampleUtils
+    SOURCES Samples/Src/Groups.cpp )

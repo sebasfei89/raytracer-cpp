@@ -2,12 +2,17 @@
 #include "Ray.h"
 
 Cone::Cone()
+    : Cone(-INF, INF, false)
 {
 }
 
 Cone::Cone(float min, float max, bool closed)
     : Cylinder(min, max, closed)
 {
+    auto& bounds = ModifyBounds();
+    auto const maxAbs = std::max(std::abs(min), std::abs(max));
+    bounds.Min(Point(-maxAbs, min, -maxAbs));
+    bounds.Max(Point(maxAbs, max, maxAbs));
 }
 
 float Cone::A(Ray const& ray) const

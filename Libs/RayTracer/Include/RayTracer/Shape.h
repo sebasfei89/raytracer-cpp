@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Bounds.h"
 #include "Material.h"
 #include "Matrix.h"
 #include "Intersection.h"
@@ -15,7 +16,9 @@ class Shape : public std::enable_shared_from_this<Shape>
 public:
     RAYTRACER_EXPORT Shape();
 
-    void SetTransform(Mat44 const& t) { m_transform = t; m_invTransform = t.Inverse(); }
+    Bounds const& GetBounds() const { return m_bounds; }
+
+    RAYTRACER_EXPORT void SetTransform(Mat44 const& t);
     Mat44 const& Transform() const { return m_transform; }
     Mat44 const& InvTransform() const { return m_invTransform; }
 
@@ -45,7 +48,12 @@ public:
     RAYTRACER_EXPORT Tuple WorldToLocal(Tuple const& point) const;
     RAYTRACER_EXPORT Tuple NormalToWorld(Tuple const& normal) const;
 
+protected:
+    Bounds& ModifyBounds() { return m_bounds; }
+    RAYTRACER_EXPORT virtual void UpdateBounds();
+
 private:
+    Bounds m_bounds;
     Mat44 m_transform;
     Mat44 m_invTransform;
     Material m_material;

@@ -52,8 +52,8 @@ SCENARIO("The minimum and maximum for a cylinder", "shape,cylinder")
 {
     GIVEN( auto const cyl = std::make_shared<Cylinder>()
          , auto const constrainedCyl = std::make_shared<Cylinder>(1.f, 2.f) )
-    THEN( cyl->Minimum() == -std::numeric_limits<float>::infinity()
-        , cyl->Maximum() == std::numeric_limits<float>::infinity()
+    THEN( cyl->Minimum() == -INF
+        , cyl->Maximum() == INF
         , constrainedCyl->Minimum() == 1.f
         , constrainedCyl->Maximum() == 2.f )
 }
@@ -111,4 +111,28 @@ PSCENARIO(TestArg, "The normal vector on a cylinder's end caps", "shape,cylinder
          , auto const cyl = std::make_shared<Cylinder>(1.f, 2.f, true) )
     WHEN( auto const n = cyl->NormalAtLocal(arg.origin) )
     THEN( n == arg.direction )
+}
+
+SCENARIO("A noncapped cylinder bounds", "shape,cylinder")
+{
+    GIVEN( auto const cyl = std::make_shared<Cylinder>() )
+    WHEN( auto const& b = cyl->GetBounds() )
+    THEN( b == Bounds(Point(-1.f, -INF, -1.f), Point(1.f, INF, 1.f)) )
+}
+
+SCENARIO("A one-side cylinder cone bounds", "shape,cylinder")
+{
+    GIVEN( auto const cyl = std::make_shared<Cylinder>(0.f, INF) )
+    WHEN( auto const& b = cyl->GetBounds() )
+    THEN( b == Bounds(Point(-1.f, 0.f, -1.f), Point(1.f, INF, 1.f)) )
+}
+
+using CapsT = std::pair<float, float>;
+PSCENARIO(CapsT, "A capped cylinder bounds", "shape,cylinder")
+{
+    PARAMS( std::make_pair(-1.5f, 3.5f)
+          , std::make_pair(-3.5f, 1.5f) )
+    GIVEN( auto const cyl = std::make_shared<Cylinder>(GetParam().first, GetParam().second) )
+    WHEN( auto const& b = cyl->GetBounds() )
+    THEN( b == Bounds(Point(-1.f, GetParam().first, -1.f), Point(1.f, GetParam().second, 1.f)) )
 }

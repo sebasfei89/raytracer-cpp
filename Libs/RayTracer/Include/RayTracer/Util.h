@@ -1,16 +1,27 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 
 constexpr float PI = 3.14159265359f;
 constexpr float PIOVR2 = PI / 2.f;
+constexpr float PIOVR3 = PI / 3.f;
+constexpr float PIOVR4 = PI / 4.f;
+constexpr float PIOVR6 = PI / 6.f;
+
 constexpr float EPSILON = 0.0001f;
 
 constexpr float SQRT2 = 1.414213562373f; // std::sqrtf(2.f);
 constexpr float SQRT2OVR2 = SQRT2 / 2.f; // std::sqrtf(2.f) / 2.f;
 
+constexpr float INF = std::numeric_limits<float>::infinity();
+
 inline bool Equals(float a, float b)
 {
+    if (std::isinf(a) || std::isinf(b))
+    {
+        return a == b;
+    }
     return std::abs(a - b) < EPSILON;
 }
 

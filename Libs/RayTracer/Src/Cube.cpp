@@ -3,17 +3,11 @@
 
 void Cube::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
 {
-    auto[xtMin, xtMax] = CheckAxis(ray.Origin().X(), ray.Direction().X());
-    auto[ytMin, ytMax] = CheckAxis(ray.Origin().Y(), ray.Direction().Y());
-    auto[ztMin, ztMax] = CheckAxis(ray.Origin().Z(), ray.Direction().Z());
-
-    float const tMin = std::max(xtMin, std::max(ytMin, ztMin));
-    float const tMax = std::min(xtMax, std::min(ytMax, ztMax));
-
-    if (tMin <= tMax)
+    float t1, t2;
+    if (GetBounds().Intersects(ray, t1, t2))
     {
-        xs.push_back({ tMin, shared_from_this() });
-        xs.push_back({ tMax, shared_from_this() });
+        xs.push_back({ t1, shared_from_this() });
+        xs.push_back({ t2, shared_from_this() });
     }
 }
 
@@ -33,12 +27,4 @@ Tuple Cube::NormalAtLocal(Tuple const& point) const
     }
 
     return Vector(0.f, 0.f, point.Z());
-}
-
-std::tuple<float, float> Cube::CheckAxis(float origin, float direction) const
-{
-    float const oneOverDir = 1.f / direction;
-    float const tMin = (-1.f - origin) * oneOverDir;
-    float const tMax = (1.f - origin) * oneOverDir;
-    return (tMin > tMax) ? std::tie(tMax, tMin) : std::tie(tMin, tMax);
 }

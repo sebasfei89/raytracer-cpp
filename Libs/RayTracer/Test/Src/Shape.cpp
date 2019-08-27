@@ -125,3 +125,10 @@ SCENARIO("Finding the normal on a child object", "shapes")
     WHEN( auto const n = s->NormalAt(Point(1.7321f, 1.1547f, -5.5774f)) )
     THEN( n == Vector(0.2857f, 0.4286f, -0.8571f) )
 }
+
+SCENARIO("A shape's bounds", "shape")
+{
+    GIVEN( auto const ts = TestShape() )
+    WHEN( auto const& b = ts.GetBounds() )
+    THEN( b == Bounds() )
+}

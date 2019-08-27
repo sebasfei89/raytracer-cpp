@@ -6,6 +6,7 @@ Shape::Shape()
     , m_material()
     , m_castShadows(true)
     , m_parent()
+    , m_bounds()
 {
 }
 
@@ -49,4 +50,19 @@ Tuple Shape::NormalToWorld(Tuple const& normal) const
     nParent[3] = 0.f;
     nParent.Normalize();
     return (m_parent != nullptr) ? m_parent->NormalToWorld(nParent) : nParent;
+}
+
+void Shape::SetTransform(Mat44 const& t)
+{
+    m_transform = t;
+    m_invTransform = t.Inverse();
+    if (m_parent != nullptr)
+    {
+        m_parent->UpdateBounds();
+    }
+}
+
+void Shape::UpdateBounds()
+{
+    throw std::runtime_error("A concrete shape cannot be set as a parent of other shape. Only groups are allowed!");
 }

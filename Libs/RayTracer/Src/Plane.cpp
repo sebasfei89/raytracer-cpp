@@ -2,6 +2,13 @@
 #include "Ray.h"
 #include "Util.h"
 
+Plane::Plane()
+{
+    auto& bounds = ModifyBounds();
+    bounds.Min(Point(-INF, 0.f, -INF));
+    bounds.Max(Point(INF, 0.f, INF));
+}
+
 Tuple Plane::NormalAtLocal(Tuple const& point) const
 {
     return Vector(0.f, 1.f, 0.f);

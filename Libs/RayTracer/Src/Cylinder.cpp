@@ -20,9 +20,7 @@ bool CheckCap(Ray const& ray, float t, float r)
 }
 
 Cylinder::Cylinder()
-    : Cylinder(-std::numeric_limits<float>::infinity()
-              , std::numeric_limits<float>::infinity()
-              , false)
+    : Cylinder(-INF, INF, false)
 {
 }
 
@@ -31,6 +29,9 @@ Cylinder::Cylinder(float min, float max, bool closed)
     , m_max(max)
     , m_closed(closed)
 {
+    auto& bounds = ModifyBounds();
+    bounds.Min(Point(-1.f, min, -1.f));
+    bounds.Max(Point(1.f, max, 1.f));
 }
 
 void Cylinder::Intersect(Ray const& ray, std::vector<Intersection>& xs) const

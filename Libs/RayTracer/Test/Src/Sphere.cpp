@@ -50,3 +50,10 @@ SCENARIO("Helper for producing a sphere with a glassy material", "geometry")
         , s->GetMaterial().Transparency() == 1.f
         , s->GetMaterial().RefractiveIndex() == 1.5f )
 }
+
+SCENARIO("A sphere bounds", "shape,sphere")
+{
+    GIVEN( auto const s = std::make_shared<Sphere>() )
+    WHEN( auto const& b = s->GetBounds() )
+    THEN( b == Bounds() )
+}

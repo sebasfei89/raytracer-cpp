@@ -4,6 +4,9 @@
 #include <RayTracer/Cone.h>
 #include <RayTracer/Ray.h>
 
+#include <numeric>
+#include <tuple>
+
 PSCENARIO(TestArg, "Intersecting a cone with a ray", "shape,cone")
 {
     PARAMS({ Point(0.f, 0.f,-5.f), Vector( 0.f, 0.f, 1.f), 5.f, 5.f }
@@ -11,7 +14,7 @@ PSCENARIO(TestArg, "Intersecting a cone with a ray", "shape,cone")
          , { Point(1.f, 1.f,-5.f), Vector(-.5f,-1.f, 1.f), 4.55006f, 49.44994f } )
     GIVEN( auto const arg = GetParam()
          , auto const cone = std::make_shared<Cone>()
-         , auto const dir = arg.direction.Normalized();
+         , auto const dir = arg.direction.Normalized()
          , auto const r = Ray(arg.origin, dir)
          , std::vector<Intersection> xs = {} )
     WHEN( r.Intersect(cone, xs) )
@@ -23,7 +26,7 @@ PSCENARIO(TestArg, "Intersecting a cone with a ray", "shape,cone")
 SCENARIO("Intersecting a cone with a ray parallel to one of its halves", "shape,cone")
 {
     GIVEN( auto const cone = std::make_shared<Cone>()
-         , auto const dir = Vector(0.f, 1.f, 1.f).Normalized();
+         , auto const dir = Vector(0.f, 1.f, 1.f).Normalized()
          , auto const r = Ray(Point(0.f, 0.f, -1.f), dir)
          , std::vector<Intersection> xs = {} )
     WHEN( r.Intersect(cone, xs) )
@@ -54,4 +57,28 @@ PSCENARIO(TestArg, "Computing the normal vector on a cone", "shape,cone")
          , auto const cone = std::make_shared<Cone>()
          , auto const n = cone->NormalAtLocal(arg.origin) )
     THEN( n == arg.direction )
+}
+
+SCENARIO("A noncapped cone bounds", "shape,cone")
+{
+    GIVEN( auto const cone = std::make_shared<Cone>() )
+    WHEN( auto const& b = cone->GetBounds() )
+    THEN( b == Bounds(Point(-INF, -INF, -INF), Point(INF, INF, INF)) )
+}
+
+SCENARIO("A one-side capped cone bounds", "shape,cone")
+{
+    GIVEN( auto const cone = std::make_shared<Cone>(0.f, INF) )
+    WHEN( auto const& b = cone->GetBounds() )
+    THEN( b == Bounds(Point(-INF, 0.f, -INF), Point(INF, INF, INF)) )
+}
+
+using CapsT = std::pair<float, float>;
+PSCENARIO(CapsT, "A capped cone bounds", "shape,cone")
+{
+    PARAMS( std::make_pair(-1.5f, 3.5f)
+          , std::make_pair(-3.5f, 1.5f) )
+    GIVEN( auto const cone = std::make_shared<Cone>(GetParam().first, GetParam().second) )
+    WHEN( auto const& b = cone->GetBounds() )
+    THEN( b == Bounds(Point(-3.5f, GetParam().first, -3.5f), Point(3.5f, GetParam().second, 3.5f)))
 }

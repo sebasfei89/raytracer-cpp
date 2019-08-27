@@ -42,5 +42,11 @@ public:
         return Vector(point[0], point[1], point[2]);
     }
 
+    void SetBounds(Tuple const& min, Tuple const& max)
+    {
+        ModifyBounds().Min(min);
+        ModifyBounds().Max(max);
+    }
+
     Ray m_localRay;
 };
