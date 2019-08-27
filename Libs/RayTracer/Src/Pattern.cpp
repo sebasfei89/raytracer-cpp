@@ -10,7 +10,7 @@ IPattern::IPattern()
 
 Color IPattern::ShapeColorAt(ShapeConstPtr const& shape, Tuple const& point) const
 {
-    Tuple const objectPoint = shape->InvTransform() * point;
+    Tuple const objectPoint = shape->WorldToLocal(point);
     Tuple const patternPoint = InvTransform() * objectPoint;
     return ColorAt(patternPoint);
 }

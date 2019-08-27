@@ -2,10 +2,12 @@
 
 #include <algorithm>
 
+constexpr float PI = 3.14159265359f;
+constexpr float PIOVR2 = PI / 2.f;
 constexpr float EPSILON = 0.0001f;
 
 constexpr float SQRT2 = 1.414213562373f; // std::sqrtf(2.f);
-constexpr float SQRT2OVR2 = SQRT2 * .5f; // std::sqrtf(2.f) / 2.f;
+constexpr float SQRT2OVR2 = SQRT2 / 2.f; // std::sqrtf(2.f) / 2.f;
 
 inline bool Equals(float a, float b)
 {

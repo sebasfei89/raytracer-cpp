@@ -30,6 +30,7 @@ add_custom_command(TARGET VulkApp POST_BUILD
 
 CompileShaders( SPIRV_BINARY_FILES "Resources/Shaders/*.glsl" "${PROJECT_BINARY_DIR}/Resources/Shaders" )
 add_custom_target( VulkAppShaders DEPENDS ${SPIRV_BINARY_FILES} )
+set_property( TARGET VulkAppShaders PROPERTY FOLDER 4.Utilities )
 add_dependencies( VulkApp VulkAppShaders )
 
 # VulkApp tests ################################################################

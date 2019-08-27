@@ -19,6 +19,9 @@ public:
     Mat44 const& Transform() const { return m_transform; }
     Mat44 const& InvTransform() const { return m_invTransform; }
 
+    ShapePtr Parent() { return m_parent; }
+    void SetParent(ShapePtr parent) { m_parent = parent; }
+
     Material& ModifyMaterial() { return m_material; }
     Material const& GetMaterial() const { return m_material; }
     void SetMaterial(Material const& material) { m_material = material; }
@@ -39,9 +42,13 @@ public:
 
     RAYTRACER_EXPORT virtual bool operator==(Shape const& other) const;
 
+    RAYTRACER_EXPORT Tuple WorldToLocal(Tuple const& point) const;
+    RAYTRACER_EXPORT Tuple NormalToWorld(Tuple const& normal) const;
+
 private:
     Mat44 m_transform;
     Mat44 m_invTransform;
     Material m_material;
     bool m_castShadows;
+    std::shared_ptr<Shape> m_parent;
 };

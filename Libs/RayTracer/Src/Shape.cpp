@@ -5,16 +5,15 @@ Shape::Shape()
     , m_invTransform(Mat44::Identity())
     , m_material()
     , m_castShadows(true)
+    , m_parent()
 {
 }
 
 Tuple Shape::NormalAt(Tuple const& worldPoint) const
 {
-    auto const localPoint = m_invTransform * worldPoint;
+    auto const localPoint = WorldToLocal(worldPoint);
     auto const localNormal = NormalAtLocal(localPoint);
-    auto worldNormal = m_invTransform.Transposed() * localNormal;
-    worldNormal[3] = 0.f;
-    return worldNormal.Normalized();
+    return NormalToWorld(localNormal);
 }
 
 bool Shape::operator==(Shape const& other) const
@@ -36,4 +35,18 @@ bool Shape::IntersectsBefore(Ray const& ray, float distance) const
         }
     }
     return false;
+}
+
+Tuple Shape::WorldToLocal(Tuple const& point) const
+{
+    auto localPnt = (m_parent != nullptr) ? m_parent->WorldToLocal(point) : point;
+    return m_invTransform * localPnt;
+}
+
+Tuple Shape::NormalToWorld(Tuple const& normal) const
+{
+    auto nParent = m_invTransform.Transposed() * normal;
+    nParent[3] = 0.f;
+    nParent.Normalize();
+    return (m_parent != nullptr) ? m_parent->NormalToWorld(nParent) : nParent;
 }

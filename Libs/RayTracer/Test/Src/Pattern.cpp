@@ -1,6 +1,7 @@
 #include "TestHelpers.h"
 
 #include <RayTracer/Color.h>
+#include <RayTracer/Group.h>
 #include <RayTracer/Pattern.h>
 #include <RayTracer/Sphere.h>
 #include <RayTracer/Transformations.h>
@@ -123,4 +124,17 @@ SCENARIO("Solid pattern always return same color", "patterns")
     THEN( p.ColorAt(Point(0.f, 0.f, 0.f)) == Color(1.f, 0.f, 0.f)
         , p.ColorAt(Point(0.f, 0.f, 0.99f)) == Color(1.f, 0.f, 0.f)
         , p.ColorAt(Point(0.f, 0.f, 1.01f)) == Color(1.f, 0.f, 0.f) )
+}
+
+SCENARIO("A pattern applied to a shape in a group", "patterns")
+{
+    GIVEN( auto g = std::make_shared<Group>()
+         , g->SetTransform(matrix::Scaling(1.f, 1.f, 2.f))
+         , auto s = std::make_shared<Sphere>()
+         , s->SetTransform(matrix::Scaling(1.f, 2.f, 1.f))
+         , g->AddChild(s)
+         , auto p = TestPattern()
+         , p.SetTransform(matrix::Scaling(2.f, 2.f, 2.f)) )
+    WHEN( auto const c = p.ShapeColorAt(s, Point(2.f, 3.f, 4.f)) )
+    THEN( c == Color(1.f, .75f, 1.f) )
 }

@@ -25,9 +25,9 @@ void VulkanTexture::Load(VulkanContext const& vkContext, glm::vec3 const& color,
     {
         for (int w = 0; w < width; w++)
         {
-            pixels[(h * width * 4) + (w * 4)] = color.r * 255.f;
-            pixels[(h * width * 4) + (w * 4) + 1] = color.g * 255.f;
-            pixels[(h * width * 4) + (w * 4) + 2] = color.b * 255.f;
+            pixels[(h * width * 4) + (w * 4)] = static_cast<unsigned char>(color.r * 255.f);
+            pixels[(h * width * 4) + (w * 4) + 1] = static_cast<unsigned char>(color.g * 255.f);
+            pixels[(h * width * 4) + (w * 4) + 2] = static_cast<unsigned char>(color.b * 255.f);
             pixels[(h * width * 4) + (w * 4) + 3] = 255;
         }
     }
