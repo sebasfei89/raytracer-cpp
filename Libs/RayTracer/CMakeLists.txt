@@ -88,4 +88,5 @@ AddTarget( Ch13_CylindersAndCones EXECUTABLE
 AddTarget( Ch14_Groups EXECUTABLE
     FOLDER  3.Samples
     DEPS    RayTracer SampleUtils
-    SOURCES Samples/Src/Groups.cpp )
+    SOURCES Samples/Src/Groups.cpp
+    PRIVATE_DIRS "../../ThirdParty/nlohmann-json-v3.7.0" )
