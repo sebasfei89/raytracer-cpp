@@ -5,7 +5,7 @@ AddTarget( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 1.Libs
     SOURCES Src/*.cpp Include/RayTracer/*.h
     PUBLIC_DIRS "./Include"
-    PRIVATE_DIRS "./Include/RayTracer" "./Src"
+    PRIVATE_DIRS "./Include/RayTracer" "./Src" "../../ThirdParty/nlohmann-json-v3.7.0"
     #PUBLIC_DEFS "USE_SSE" "_ENABLE_EXTENDED_ALIGNED_STORAGE" stuff for MathIntrinsics.h
     PRIVATE_DEFS "RENDER_TASKS=12" )
 
@@ -88,5 +88,5 @@ AddTarget( Ch13_CylindersAndCones EXECUTABLE
 AddTarget( Ch14_Groups EXECUTABLE
     FOLDER  3.Samples
     DEPS    RayTracer SampleUtils
-    SOURCES Samples/Src/Groups.cpp
+    SOURCES Samples/Src/Groups.cpp Samples/Resources/Ch14_groups.scene.json
     PRIVATE_DIRS "../../ThirdParty/nlohmann-json-v3.7.0" )

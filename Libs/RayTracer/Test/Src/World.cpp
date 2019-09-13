@@ -1,5 +1,6 @@
 #include "TestHelpers.h"
 
+#include <RayTracer/Group.h>
 #include <RayTracer/Plane.h>
 #include <RayTracer/Ray.h>
 #include <RayTracer/Sphere.h>
@@ -8,6 +9,47 @@
 #include <RayTracer/World.h>
 
 #include <Beddev/Beddev.h>
+
+#include <sstream>
+
+namespace
+{
+constexpr static char const* g_testWorld = R"({
+    "objects": [{
+        "name": "TestGroup",
+        "archetype" : "TestArchetype",
+        "scaling": [3.0, 3.0, 3.0]
+    },{
+        "name": "TestCube",
+        "type" : "Cube"
+    }],
+    "lights": [{
+        "name": "sun",
+        "type" : "PointLight",
+        "position" : [0, 5, 0],
+        "intensity" : [1, 1, 1]
+    }],
+    "archetypes": [{
+        "name": "TestArchetype",
+        "type": "Group",
+        "scaling": [2.0, 2.0, 2.0],
+        "children": [{
+            "name": "TestCylinder",
+            "type": "Cylinder",
+            "caps": [0, 1],
+            "position": [0, 0, -1],
+            "rotation": [0, 1.57079633, 0],
+            "scaling": [0.25, 1.0, 0.25]
+        },{
+            "name": "TestSphere",
+            "type": "Sphere",
+            "position": [0, 0, -1],
+            "scaling": [0.25, 0.25, 0.25]
+        }]
+    }]
+})";
+
+}
 
 SCENARIO("Creating a world", "world")
 {
@@ -369,4 +411,37 @@ SCENARIO("ShadeHit() with a reflective, transparent material", "refraction")
     WHEN( auto const comps = r.Precompute(xs[0], xs)
         , auto const color = w.ShadeHit(comps, 5) )
     THEN( color == Color(.93391f, .69643f, .69243f) )
+}
+
+SCENARIO("Loading a world from an empty scene.json file", "world")
+{
+    GIVEN( auto w = World()
+         , std::istringstream ss("") )
+    THEN( !w.Load(ss) )
+}
+
+SCENARIO("Loading a world from an invalid scene.json file", "world")
+{
+    GIVEN( auto w = World()
+         , std::istringstream ss(R"([{"objects":[]}])") )
+    THEN( !w.Load(ss) )
+}
+
+SCENARIO("Loading a world from a scene.json file", "world")
+{
+    GIVEN( auto w = World()
+         , std::istringstream ss(g_testWorld) )
+    WHEN( w.Load(ss)
+        , auto lights = w.Lights()
+        , auto objects = w.Objects()
+        , auto archetypes = w.Archetypes() )
+    THEN( lights.size() == 1
+        , lights[0].GetName() == "sun"
+        , lights[0].Position() == Point(0.f, 5.f, 0.f)
+        , lights[0].Intensity() == Color(1.f, 1.f, 1.f)
+        , objects.size() == 2
+        , objects[0]->Name() == "TestGroup"
+        , objects[0]->Transform() == matrix::Scaling(3.f, 3.f, 3.f)
+        , std::dynamic_pointer_cast<Group>(objects[0]) != nullptr
+        , archetypes.size() == 1 )
 }

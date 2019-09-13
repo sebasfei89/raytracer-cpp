@@ -52,11 +52,11 @@
 
 #define BEDDEV_FACT(fact) AddFact(#fact); fact;
 #define BEDDEV_ACTION(action) AddAction(#action); action;
-#define BEDDEV_TEST(test) result &= AddTest({#test, __FILE__, __LINE__, beddev::ExpressionParser::Get() <= test});
+#define BEDDEV_TEST(test) __beddev__result &= AddTest({#test, __FILE__, __LINE__, beddev::ExpressionParser::Get() <= test});
 
 #define BEDDEV_SCENARIO(desc, ...) BEDDEV_START_SCENARIO(desc, __FILE__, __LINE__, BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
 #define BEDDEV_PSCENARIO(ARGT, DESC, ...) BEDDEV_START_PSCENARIO(ARGT, DESC, __FILE__, __LINE__, BEDDEV_MAKE_TESTCASE_NAME(TestCase_, __LINE__), __VA_ARGS__)
 #define BEDDEV_GIVEN(...) BEDDEV_FOREACH(BEDDEV_FACT,__VA_ARGS__)
 #define BEDDEV_WHEN(...) BEDDEV_FOREACH(BEDDEV_ACTION,__VA_ARGS__)
-#define BEDDEV_THEN(...) bool result = true; BEDDEV_FOREACH(BEDDEV_TEST,__VA_ARGS__) return result; BEDDEV_END_SCENARIO()
+#define BEDDEV_THEN(...) bool __beddev__result = true; BEDDEV_FOREACH(BEDDEV_TEST,__VA_ARGS__) return __beddev__result; BEDDEV_END_SCENARIO()
 #define BEDDEV_PARAMS(...) if (runStep == ERunStep::REGISTER_TEST_PARAMS) { SetParams({__VA_ARGS__}); return true; }

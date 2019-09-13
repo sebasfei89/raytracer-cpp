@@ -1,6 +1,9 @@
 #include "World.h"
 
+#include "Archetype.h"
+#include "Cube.h"
 #include "Lighting.h"
+#include "Loader.h"
 #include "Ray.h"
 
 Color World::ShadeHit(IntersectionData const& data, uint8_t remaining) const
@@ -86,4 +89,19 @@ Color World::RefractedColor(IntersectionData const& data, uint8_t maxRecursion) 
     Ray const refractedRay(data.m_underPoint, direction);
 
     return ColorAt(refractedRay, maxRecursion - 1) * transparency;
+}
+
+void World::Add(ArchetypePtr const& a)
+{
+    m_archetypes[a->Name()] = a;
+}
+
+ArchetypePtr World::FindArchetype(std::string const& name) const
+{
+    return m_archetypes.at(name);
+}
+
+bool World::Load(std::istream& is)
+{
+    return Loader::Load(*this, is);
 }

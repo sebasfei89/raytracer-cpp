@@ -10,67 +10,6 @@
 #include <nlohmann/json.hpp>
 using nlohmann::json;
 
-namespace
-{
-
-std::string const scene = R"({
-    "objects": [{
-        "name": "Hexagon0"
-        "archetpye": "Hexagon"
-    },{
-        "name": "sun",
-        "type": "pointlight",
-        "position": [0, 5, 0],
-        "intensity: [1, 1, 1]"
-    }],
-    "archetypes": [{
-        "name": "Hexagon",
-        "type": "Group",
-        "children": [{
-            "name": "Side0"
-            "archetpye": "HexagonSide"
-        },{
-            "name": "Side1"
-            "archetpye": "HexagonSide",
-            "rotation": [0, 1.04719755, 0]
-        },{
-            "name": "Side2"
-            "archetpye": "HexagonSide",
-            "rotation": [0, 2.09439510, 0]
-        },{
-            "name": "Side3"
-            "archetpye": "HexagonSide",
-            "rotation": [0, 3.14159265, 0]
-        },{
-            "name": "Side4"
-            "archetpye": "HexagonSide",
-            "rotation": [0, 4.18879020, 0]
-        },{
-            "name": "Side5"
-            "archetpye": "HexagonSide",
-            "rotation": [0, 5.23598776, 0]
-        }]
-    },{
-        "name": "HexagonSide",
-        "type": "Group",
-        "children": [{
-            "name": "Edge"
-            "type": "Cylinder",
-            "caps": [0, 1],
-            "position": [0, 0, -1],
-            "rotation": [0, -0.52359878, -1.57079633],
-            "scaling": [0.25, 1.0, 0.25]
-        },{
-            "name": "Corner"
-            "type": "Sphere",
-            "position": [0, 0, -1],
-            "scaling": [0.25, 0.25, 0.25]
-        }]
-    }]
-})"_json;
-
-}
-
 ShapePtr HexagonCorner()
 {
     auto corner = std::make_shared<Sphere>();

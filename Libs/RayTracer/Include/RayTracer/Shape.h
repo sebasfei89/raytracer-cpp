@@ -7,6 +7,7 @@
 #include "raytracer_export.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 class Ray;
@@ -48,11 +49,15 @@ public:
     RAYTRACER_EXPORT Tuple WorldToLocal(Tuple const& point) const;
     RAYTRACER_EXPORT Tuple NormalToWorld(Tuple const& normal) const;
 
+    std::string const& Name() const { return m_name; }
+    void Name(std::string const& name) { m_name = name; }
+
 protected:
     Bounds& ModifyBounds() { return m_bounds; }
     RAYTRACER_EXPORT virtual void UpdateBounds();
 
 private:
+    std::string m_name;
     Bounds m_bounds;
     Mat44 m_transform;
     Mat44 m_invTransform;
