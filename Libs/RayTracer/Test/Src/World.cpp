@@ -1,5 +1,6 @@
 #include "TestHelpers.h"
 
+#include <RayTracer/Archetype.h>
 #include <RayTracer/Group.h>
 #include <RayTracer/Plane.h>
 #include <RayTracer/Ray.h>
@@ -14,14 +15,19 @@
 
 namespace
 {
+
 constexpr static char const* g_testWorld = R"({
     "objects": [{
         "name": "TestGroup",
         "archetype" : "TestArchetype",
         "scaling": [3.0, 3.0, 3.0]
     },{
-        "name": "TestCube",
-        "type" : "Cube"
+        "name": "TestCylinder",
+        "type": "Cylinder",
+        "caps": [0, 1],
+        "position": [0, 0, -1],
+        "rotation": [0, 1.57079633, 0],
+        "scaling": [0.25, 1.0, 0.25]
     }],
     "lights": [{
         "name": "sun",
@@ -34,20 +40,13 @@ constexpr static char const* g_testWorld = R"({
         "type": "Group",
         "scaling": [2.0, 2.0, 2.0],
         "children": [{
-            "name": "TestCylinder",
-            "type": "Cylinder",
-            "caps": [0, 1],
-            "position": [0, 0, -1],
-            "rotation": [0, 1.57079633, 0],
-            "scaling": [0.25, 1.0, 0.25]
+            "name": "TestCube",
+            "type" : "Cube"
         },{
             "name": "TestSphere",
-            "type": "Sphere",
-            "position": [0, 0, -1],
-            "scaling": [0.25, 0.25, 0.25]
+            "type": "Sphere"
         }]
-    }]
-})";
+    }]})";
 
 }
 
@@ -442,6 +441,12 @@ SCENARIO("Loading a world from a scene.json file", "world")
         , objects.size() == 2
         , objects[0]->Name() == "TestGroup"
         , objects[0]->Transform() == matrix::Scaling(3.f, 3.f, 3.f)
-        , std::dynamic_pointer_cast<Group>(objects[0]) != nullptr
-        , archetypes.size() == 1 )
+        , std::dynamic_pointer_cast<Group>(objects[0])->Children().size() == 2
+        //, std::dynamic_pointer_cast<Group>(objects[0])->Children()[0]->Name() == "TestCube"
+        //, std::dynamic_pointer_cast<Group>(objects[0])->Children()[1]->Name() == "TestSphere"
+        , objects[1]->Name() == "TestCylinder"
+        , objects[1]->Transform() == (matrix::Translation(0.f, 0.f, -1.f) * matrix::RotationY(PIOVR2) * matrix::Scaling(0.25f, 1.0f, 0.25f))
+        , archetypes.size() == 1
+        , archetypes["TestArchetype"]->Name() == "TestArchetype"
+        , archetypes["TestArchetype"]->Template().type() == json::value_t::object )
 }

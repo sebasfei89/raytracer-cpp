@@ -2,7 +2,9 @@
 
 #include "Archetype.h"
 #include "Cube.h"
+#include "Cylinder.h"
 #include "Group.h"
+#include "Sphere.h"
 #include "Tuple.h"
 #include "World.h"
 
@@ -76,7 +78,7 @@ ShapePtr Loader::LoadObject(World const& world, json const& data)
 {
     if (data.contains(json_key_type))
     {
-        return LoadShape(data);
+        return LoadShape(world, data);
     }
     else if (data.contains(json_key_archetype))
     {
@@ -116,6 +118,7 @@ ShapePtr Loader::LoadArchetypeInstance(World const& world, json const& data)
         return nullptr;
     }
 
+    // TODO: the same is done inside LoadObject
     if (data.contains(json_key_scaling))
     {
         Tuple scaling = data.at(json_key_scaling);
@@ -157,7 +160,7 @@ bool Loader::LoadLight(World& world, json const& data)
     return true;
 }
 
-ShapePtr Loader::LoadShape(json const& data)
+ShapePtr Loader::LoadShape(World const& world, json const& data)
 {
     ShapePtr shape;
 
@@ -166,20 +169,60 @@ ShapePtr Loader::LoadShape(json const& data)
     {
         shape = std::make_shared<Cube>();
     }
-    else if(type == "Group")
+    else if (type == "Group")
     {
         shape = std::make_shared<Group>();
+        if (data.contains(json_key_children))
+        {
+            std::vector<json> children = data.at(json_key_children);
+            for (auto const& childTpl : children)
+            {
+                if (auto child = LoadObject(world, childTpl))
+                {
+                    std::dynamic_pointer_cast<Group>(shape)->AddChild(child);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    else if (type == "Cylinder")
+    {
+        // TODO:
+        float min = -std::numeric_limits<float>::infinity();
+        float max = std::numeric_limits<float>::infinity();
+        bool caps = false;
+        shape = std::make_shared<Cylinder>(min, max, caps);
+    }
+    else if (type == "Sphere")
+    {
+        shape = std::make_shared<Sphere>();
     }
     else
     {
+        // TODO: log error
         return nullptr;
     }
 
+    Mat44 tx = Mat44::Identity();
+    if (data.contains(json_key_position))
+    {
+        Tuple positionData = data.at(json_key_position);
+        tx = matrix::Translation(positionData.X(), positionData.Y(), positionData.Z());
+    }
+    if (data.contains(json_key_rotation))
+    {
+        Tuple angles = data.at(json_key_rotation);
+        tx = tx * matrix::RotationX(angles.X()) * matrix::RotationY(angles.Y()) * matrix::RotationZ(angles.Z());
+    }
     if (data.contains(json_key_scaling))
     {
-        Tuple scaling = data.at(json_key_scaling);
-        shape->SetTransform(matrix::Scaling(scaling.X(), scaling.Y(), scaling.Z()));
+        Tuple scalingData = data.at(json_key_scaling);
+        tx = tx * matrix::Scaling(scalingData.X(), scalingData.Y(), scalingData.Z());
     }
+    shape->SetTransform(tx);
 
     shape->Name(data.contains(json_key_name) ? data.at(json_key_name) : "<unnamed>");
     return shape;

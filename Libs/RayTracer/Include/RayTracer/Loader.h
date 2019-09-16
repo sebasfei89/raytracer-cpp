@@ -22,14 +22,16 @@ private:
     constexpr static char const* json_key_lights = "lights";
     constexpr static char const* json_key_archetypes = "archetypes";
     constexpr static char const* json_key_archetype = "archetype";
+    constexpr static char const* json_key_children = "children";
     constexpr static char const* json_key_type = "type";
-    constexpr static char const* json_key_position = "position";
     constexpr static char const* json_key_intensity = "intensity";
     constexpr static char const* json_key_name = "name";
+    constexpr static char const* json_key_position = "position";
+    constexpr static char const* json_key_rotation = "rotation";
     constexpr static char const* json_key_scaling = "scaling";
 
     static bool LoadArchetypes(World& world, std::vector<json> const& archetypes);
     static bool LoadLight(World& world, json const& data);
-    static ShapePtr LoadShape(json const& data);
+    static ShapePtr LoadShape(World const& world, json const& data);
     static ShapePtr LoadArchetypeInstance(World const& world, json const& data);
 };

@@ -18,6 +18,8 @@ public:
     RAYTRACER_EXPORT void AddChild(ShapePtr child);
     RAYTRACER_EXPORT bool Includes(ShapePtr child) const;
 
+    std::vector<ShapePtr> const& Children() const { return m_children;  }
+
 protected:
     void UpdateBounds(ShapePtr child);
     virtual void UpdateBounds() override;

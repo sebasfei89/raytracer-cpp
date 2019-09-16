@@ -5,7 +5,7 @@ include(GenerateExportHeader)
 function(AddTarget NAME)
     set( options EXECUTABLE LIBRARY TEST INTERFACE EXPORT_HEADER )
     set( oneValueArgs FOLDER )
-    set( multiValueArgs SOURCES DEPS INTERFACE_DIRS PUBLIC_DIRS PRIVATE_DIRS PUBLIC_DEFS PRIVATE_DEFS )
+    set( multiValueArgs SOURCES DEPS INTERFACE_DIRS PUBLIC_DIRS PRIVATE_DIRS PUBLIC_DEFS PRIVATE_DEFS RESOURCES )
     cmake_parse_arguments( ADDTARGET "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
     if (ADDTARGET_EXECUTABLE OR ADDTARGET_TEST)
@@ -67,6 +67,15 @@ function(AddTarget NAME)
 	if (DEFINED ADDTARGET_PRIVATE_DEFS)
 		foreach(PRIV_DEF ${ADDTARGET_PRIVATE_DEFS})
 			target_compile_definitions( ${NAME} PRIVATE ${PRIV_DEF} )
+        endforeach()
+	endif()
+
+    if (DEFINED ADDTARGET_RESOURCES)
+		foreach(RES ${ADDTARGET_RESOURCES})
+            add_custom_command(TARGET ${NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${NAME}>/Resources/
+                COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${RES}" $<TARGET_FILE_DIR:${NAME}>/Resources/
+                COMMENT "Copying resources to output directory..." )
         endforeach()
 	endif()
 endfunction()

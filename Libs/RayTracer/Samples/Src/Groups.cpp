@@ -8,6 +8,9 @@
 #include <SampleUtils.h>
 
 #include <nlohmann/json.hpp>
+
+#include <fstream>
+
 using nlohmann::json;
 
 ShapePtr HexagonCorner()
@@ -50,9 +53,11 @@ ShapePtr Hexagon()
 int main()
 {
     auto world = World();
+    std::ifstream ifs("Resources/Ch14_groups.scene.json");
+    world.Load(ifs);
 
-    world.Add(PointLight(Point(0.f, 5.f, 0.f), { 1.f, 1.f, 1.f }));
-    world.Add(Hexagon());
+    //world.Add(PointLight(Point(0.f, 5.f, 0.f), { 1.f, 1.f, 1.f }));
+    //world.Add(Hexagon());
 
     auto camera = Camera(800, 600, PI / 3.f);
     camera.SetTransform(matrix::View(Point(0.f, 3.f, -3.f), Point(0.f, -1.f, 1.f), Vector(0.f, 1.f, 0.f)));
