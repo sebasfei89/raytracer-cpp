@@ -3,7 +3,7 @@ cmake_minimum_required( VERSION 3.14 )
 # RayTracer library ###########################################################
 AddTarget( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 1.Libs
-    SOURCES Src/*.cpp Include/RayTracer/*.h
+    SOURCES Src/*.cpp Src/*/*.cpp Include/RayTracer/*.h Include/RayTracer/*/*.h
     PUBLIC_DIRS "./Include" "../../ThirdParty/nlohmann-json-v3.7.0"
     PRIVATE_DIRS "./Include/RayTracer" "./Src"
     #PUBLIC_DEFS "USE_SSE" "_ENABLE_EXTENDED_ALIGNED_STORAGE" stuff for MathIntrinsics.h

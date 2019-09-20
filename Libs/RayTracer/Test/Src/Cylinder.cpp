@@ -1,8 +1,8 @@
 #include "TestHelpers.h"
 
 #include <Beddev/Beddev.h>
-#include <RayTracer/Cylinder.h>
 #include <RayTracer/Ray.h>
+#include <RayTracer/Shapes/Cylinder.h>
 
 #include <numeric>
 

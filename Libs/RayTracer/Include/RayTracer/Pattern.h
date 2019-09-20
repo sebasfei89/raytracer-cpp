@@ -7,9 +7,14 @@
 
 #include <algorithm>
 
+class IPattern;
+using PatternPtr = std::shared_ptr<IPattern>;
+
 class IPattern
 {
 public:
+    RAYTRACER_EXPORT static PatternPtr FromJSON(json const& data);
+
     RAYTRACER_EXPORT IPattern();
 
     RAYTRACER_EXPORT Color ShapeColorAt(ShapeConstPtr const& shape, Tuple const& point) const;
@@ -19,12 +24,12 @@ public:
     Mat44 const& Transform() const { return m_transform; }
     Mat44 const& InvTransform() const { return m_invTransform; }
 
+    virtual bool operator==(PatternPtr const& other) const = 0;
+
 private:
     Mat44 m_transform;
     Mat44 m_invTransform;
 };
-
-using PatternPtr = std::shared_ptr<IPattern>;
 
 class SolidPattern : public IPattern
 {
@@ -32,6 +37,7 @@ public:
     SolidPattern(Color const& color) : m_color(color) {}
 
     RAYTRACER_EXPORT Color ColorAt(Tuple const&) const override { return m_color; }
+    RAYTRACER_EXPORT bool operator==(PatternPtr const& other) const override;
 
 private:
     Color m_color;
@@ -43,6 +49,7 @@ public:
     PerlinNoisePattern(PatternPtr pattern) : m_pattern(pattern) {}
 
     RAYTRACER_EXPORT Color ColorAt(Tuple const& point) const override;
+    RAYTRACER_EXPORT bool operator==(PatternPtr const& other) const override;
 
 private:
     PatternPtr m_pattern;
@@ -57,6 +64,8 @@ protected:
     Color ColorA(Tuple const& point) const;
     Color ColorB(Tuple const& point) const;
 
+    RAYTRACER_EXPORT bool operator==(PatternPtr const& other) const override;
+
 private:
     PatternPtr m_patternA;
     PatternPtr m_patternB;
@@ -69,6 +78,7 @@ private:
         className(Color const& a, Color const& b) : className(std::make_shared<SolidPattern>(a), std::make_shared<SolidPattern>(b)) {} \
         className(PatternPtr a, PatternPtr b) : BinaryPattern(a, b) {} \
         RAYTRACER_EXPORT Color ColorAt(Tuple const& point) const override; \
+        RAYTRACER_EXPORT bool operator==(PatternPtr const& other) const override; \
     };
 
 DECLARE_BINARY_PATTERN(StripPattern)
@@ -79,3 +89,8 @@ DECLARE_BINARY_PATTERN(RadialGradientPattern)
 DECLARE_BINARY_PATTERN(BlendPattern)
 
 #undef DECLARE_BINARY_PATTERN
+
+std::ostream& operator<<(std::ostream& os, IPattern const& p);
+
+RAYTRACER_EXPORT void to_json(json& j, IPattern const& p);
+RAYTRACER_EXPORT void from_json(json const& j, IPattern& p);

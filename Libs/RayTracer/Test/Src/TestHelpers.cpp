@@ -1,6 +1,7 @@
 #include "TestHelpers.h"
 
-#include <RayTracer/Cylinder.h>
+#include <RayTracer/Shapes/Cylinder.h>
+#include <RayTracer/Shapes/Sphere.h>
 
 World DefaultWorld()
 {

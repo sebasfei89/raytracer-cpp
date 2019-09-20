@@ -1,9 +1,9 @@
 #include "TestHelpers.h"
 
 #include <RayTracer/Intersection.h>
-#include <RayTracer/Plane.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Plane.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Util.h>
 
 #include <Beddev/Beddev.h>

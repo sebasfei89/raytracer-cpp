@@ -1,5 +1,5 @@
-#include <RayTracer/Plane.h>
 #include <RayTracer/Ray.h>
+#include <RayTracer/Shapes/Plane.h>
 
 #include <Beddev/Beddev.h>
 

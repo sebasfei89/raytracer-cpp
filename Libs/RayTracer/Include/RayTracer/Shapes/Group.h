@@ -10,6 +10,8 @@ class Group : public Shape
 public:
     RAYTRACER_EXPORT Group();
 
+    RAYTRACER_EXPORT void Initialize(json const& data, json const& dataOverride, ArchetypeMap const& archetypes) override;
+
     RAYTRACER_EXPORT void Intersect(Ray const& ray, std::vector<Intersection>& xs) const override;
     RAYTRACER_EXPORT Tuple NormalAtLocal(Tuple const& point) const override;
 

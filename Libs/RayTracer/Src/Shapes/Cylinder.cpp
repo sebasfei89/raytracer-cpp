@@ -1,12 +1,18 @@
-#include "Cylinder.h"
+#include "Shapes/Cylinder.h"
 
 #include "Ray.h"
+#include "Shapes/ShapeFactory.h"
+
 
 #include <numeric>
 #include <utility>
 
 namespace
 {
+
+constexpr static char const* json_key_closed = "closed";
+constexpr static char const* json_key_min = "min";
+constexpr static char const* json_key_max = "max";
 
 bool CheckCap(Ray const& ray, float t, float r)
 {
@@ -18,6 +24,8 @@ bool CheckCap(Ray const& ray, float t, float r)
 }
 
 }
+
+REGISTER_SHAPE(Cylinder);
 
 Cylinder::Cylinder()
     : Cylinder(-INF, INF, false)
@@ -32,6 +40,27 @@ Cylinder::Cylinder(float min, float max, bool closed)
     auto& bounds = ModifyBounds();
     bounds.Min(Point(-1.f, min, -1.f));
     bounds.Max(Point(1.f, max, 1.f));
+}
+
+void Cylinder::Initialize(json const& data, json const& dataOverride, ArchetypeMap const& archetypes)
+{
+    Shape::Initialize(data, dataOverride, archetypes);
+
+    GetProperty(json_key_closed, data, dataOverride, m_closed);
+
+    bool needUpdateBounds = GetProperty(json_key_min, data, dataOverride, m_min);
+    needUpdateBounds |= GetProperty(json_key_max, data, dataOverride, m_max);
+    if (needUpdateBounds)
+    {
+        UpdateBounds();
+    }
+}
+
+void Cylinder::UpdateBounds()
+{
+    auto& bounds = ModifyBounds();
+    bounds.Min(Point(-1.f, m_min, -1.f));
+    bounds.Max(Point(1.f, m_max, 1.f));
 }
 
 void Cylinder::Intersect(Ray const& ray, std::vector<Intersection>& xs) const

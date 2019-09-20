@@ -1,7 +1,7 @@
 #include "TestHelpers.h"
 
 #include <Beddev/Beddev.h>
-#include <RayTracer/Cone.h>
+#include <RayTracer/Shapes/Cone.h>
 #include <RayTracer/Ray.h>
 
 #include <numeric>

@@ -1,7 +1,7 @@
 #include <RayTracer/Camera.h>
 #include <RayTracer/Pattern.h>
-#include <RayTracer/Plane.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Plane.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 #include <RayTracer/World.h>
 

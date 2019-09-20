@@ -1,5 +1,9 @@
-#include "Sphere.h"
+#include "Shapes/Sphere.h"
+#include "Shapes/ShapeFactory.h"
+
 #include "Ray.h"
+
+REGISTER_SHAPE(Sphere);
 
 Tuple Sphere::NormalAtLocal(Tuple const& localPoint) const
 {

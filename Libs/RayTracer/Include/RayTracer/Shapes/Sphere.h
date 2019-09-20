@@ -1,7 +1,8 @@
 #pragma once
 
-#include "raytracer_export.h"
 #include "Shape.h"
+
+#include "raytracer_export.h"
 
 class Sphere : public Shape
 {

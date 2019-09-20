@@ -1,5 +1,9 @@
-#include "Cone.h"
+#include "Shapes/Cone.h"
+
 #include "Ray.h"
+#include "Shapes/ShapeFactory.h"
+
+REGISTER_SHAPE(Cone);
 
 Cone::Cone()
     : Cone(-INF, INF, false)
@@ -52,4 +56,12 @@ float Cone::CalculateNormalY(float y, float d) const
 {
     float const t = sqrtf(d);
     return (y > 0.f) ? -t : t;
+}
+
+void Cone::UpdateBounds()
+{
+    auto& bounds = ModifyBounds();
+    auto const maxAbs = std::max(std::abs(Minimum()), std::abs(Maximum()));
+    bounds.Min(Point(-maxAbs, Minimum(), -maxAbs));
+    bounds.Max(Point(maxAbs, Maximum(), maxAbs));
 }

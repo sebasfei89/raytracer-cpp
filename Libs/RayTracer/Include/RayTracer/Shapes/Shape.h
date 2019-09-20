@@ -1,14 +1,19 @@
 #pragma once
 
-#include "Bounds.h"
-#include "Material.h"
-#include "Matrix.h"
-#include "Intersection.h"
 #include "raytracer_export.h"
+
+#include "../Bounds.h"
+#include "../Material.h"
+#include "../Matrix.h"
+#include "../Intersection.h"
+
+#include <nlohmann/json.hpp>
 
 #include <memory>
 #include <string>
 #include <vector>
+
+using nlohmann::json;
 
 class Ray;
 
@@ -16,6 +21,8 @@ class Shape : public std::enable_shared_from_this<Shape>
 {
 public:
     RAYTRACER_EXPORT Shape();
+
+    RAYTRACER_EXPORT virtual void Initialize(json const& data, json const& dataOverride, ArchetypeMap const& archetypes);
 
     Bounds const& GetBounds() const { return m_bounds; }
 
@@ -55,6 +62,15 @@ public:
 protected:
     Bounds& ModifyBounds() { return m_bounds; }
     RAYTRACER_EXPORT virtual void UpdateBounds();
+
+    template<typename T>
+    bool GetProperty(char const* key, json const& data, json const& dataOverride, T& value) const
+    {
+        if (dataOverride.contains(key)) dataOverride.at(key).get_to(value);
+        else if (data.contains(key)) data.at(key).get_to(value);
+        else return false;
+        return true;
+    }
 
 private:
     std::string m_name;

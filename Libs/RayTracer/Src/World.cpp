@@ -1,10 +1,21 @@
 #include "World.h"
 
 #include "Archetype.h"
-#include "Cube.h"
 #include "Lighting.h"
-#include "Loader.h"
 #include "Ray.h"
+#include "Shapes/ShapeFactory.h"
+
+namespace
+{
+
+constexpr static char const* json_key_archetypes = "archetypes";
+constexpr static char const* json_key_lights = "lights";
+constexpr static char const* json_key_objects = "objects";
+constexpr static char const* json_key_position = "position";
+constexpr static char const* json_key_intensity = "intensity";
+constexpr static char const* json_key_name = "name";
+
+}
 
 Color World::ShadeHit(IntersectionData const& data, uint8_t remaining) const
 {
@@ -96,12 +107,94 @@ void World::Add(ArchetypePtr const& a)
     m_archetypes[a->Name()] = a;
 }
 
-ArchetypePtr World::FindArchetype(std::string const& name) const
+ArchetypeConstPtr World::FindArchetype(std::string const& name) const
 {
     return m_archetypes.at(name);
 }
 
 bool World::Load(std::istream& is)
 {
-    return Loader::Load(*this, is);
+    auto data = json::parse(is, nullptr, false);
+    if ((data == json::value_t::discarded) || (data.type() != json::value_t::object))
+    {
+        return false;
+    }
+
+    if (data.contains(json_key_archetypes))
+    {
+        if (!LoadArchetypes(data.at(json_key_archetypes)))
+        {
+            return false;
+        }
+    }
+
+    if (data.contains(json_key_lights))
+    {
+        std::vector<json> lights = data.at(json_key_lights);
+        for (auto const& light : lights)
+        {
+            if (!LoadLight(light))
+            {
+                return false;
+            }
+        }
+    }
+
+    if (data.contains(json_key_objects))
+    {
+        std::vector<json> objects = data.at(json_key_objects);
+        for (auto const& obj : objects)
+        {
+            if (auto shape = ShapeFactory::Get().Create(obj, {}, m_archetypes))
+            {
+                m_objects.push_back(shape);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool World::LoadArchetypes(std::vector<json> const& archetypes)
+{
+    for (auto const& arcTemplate : archetypes)
+    {
+        if (!arcTemplate.contains(json_key_name))
+        {
+            return false;
+        }
+
+        std::string const name = arcTemplate.at(json_key_name);
+        m_archetypes[name] = std::make_shared<Archetype>(name, arcTemplate);
+    }
+    return true;
+}
+
+bool World::LoadLight(json const& data)
+{
+    Tuple pos;
+    if (data.contains(json_key_position))
+    {
+        pos = data.at(json_key_position);
+        pos[3] = 1.f;
+    }
+
+    Tuple intensity;
+    if (data.contains(json_key_intensity))
+    {
+        intensity = data.at(json_key_intensity);
+    }
+
+    auto light = PointLight(pos, intensity);
+    if (data.contains(json_key_name))
+    {
+        light.SetName(data.at(json_key_name));
+    }
+
+    m_lights.push_back(light);
+    return true;
 }

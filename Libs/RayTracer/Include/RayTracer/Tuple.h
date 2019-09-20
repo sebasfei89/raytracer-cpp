@@ -2,7 +2,11 @@
 
 #include "raytracer_export.h"
 
+#include <nlohmann/json.hpp>
+
 #include <ostream>
+
+using nlohmann::json;
 
 class RAYTRACER_EXPORT Tuple
 {
@@ -60,3 +64,6 @@ inline Tuple operator/(Tuple const& t, float s) { return t * (1.f / s); }
 inline Tuple operator-(Tuple const& t) { return { -t.X(), -t.Y(), -t.Z(), -t.W() }; }
 
 RAYTRACER_EXPORT std::ostream& operator<<(std::ostream& os, Tuple const& t);
+
+RAYTRACER_EXPORT void to_json(json& j, Tuple const& t);
+RAYTRACER_EXPORT void from_json(json const& j, Tuple& t);

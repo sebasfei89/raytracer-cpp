@@ -3,7 +3,7 @@
 #include <RayTracer/Intersection.h>
 #include <RayTracer/Lighting.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <SampleUtils.h>

@@ -1,6 +1,20 @@
 #include "Tuple.h"
 #include "Util.h"
 
+void to_json(json& j, Tuple const& t)
+{
+    j = json::array({ t[0], t[1], t[2], t[3] });
+}
+
+void from_json(json const& j, Tuple& t)
+{
+    auto coords = j.get<std::vector<float>>();
+    for (int i = 0; i < coords.size(); i++)
+    {
+        t[i] = coords[i];
+    }
+}
+
 Tuple Point(float x, float y, float z)
 {
     return {x, y, z, 1.0f};

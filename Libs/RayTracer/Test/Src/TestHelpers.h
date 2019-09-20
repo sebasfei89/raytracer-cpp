@@ -2,8 +2,7 @@
 
 #include <RayTracer/Pattern.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Shape.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Shape.h>
 #include <RayTracer/World.h>
 
 World DefaultWorld();
@@ -14,6 +13,7 @@ class TestPattern : public IPattern
 {
 public:
     Color ColorAt(Tuple const& point) const override { return Color(point.X(), point.Y(), point.Z()); }
+    bool operator==(PatternPtr const& other) const override { return std::dynamic_pointer_cast<TestPattern>(other) != nullptr; }
 };
 
 struct TestArg
@@ -29,7 +29,8 @@ class TestShape : public Shape
 {
 public:
     TestShape()
-        : m_localRay(Point(0.f, 0.f, 0.f), Vector(0.f, 0.f, 1.f))
+        : m_localRay(Point(0.f, 0.f, 0.f)
+        , Vector(0.f, 0.f, 1.f))
     {}
 
     void Intersect(Ray const& ray, std::vector<Intersection>& xs) const override

@@ -2,10 +2,10 @@
 
 #include <Beddev/Beddev.h>
 
-#include <RayTracer/Cone.h>
-#include <RayTracer/Cube.h>
-#include <RayTracer/Group.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Cone.h>
+#include <RayTracer/Shapes/Cube.h>
+#include <RayTracer/Shapes/Group.h>
+#include <RayTracer/Shapes/Sphere.h>
 
 SCENARIO("Creating a new group", "shapes,groups")
 {

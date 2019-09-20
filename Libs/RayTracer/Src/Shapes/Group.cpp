@@ -1,14 +1,42 @@
-#include "Group.h"
+#include "Shapes/Group.h"
 
 #include "Ray.h"
+#include "Shapes/ShapeFactory.h"
 
 #include <algorithm>
+
+namespace
+{
+
+constexpr static char const* json_key_children = "children";
+constexpr static char const* json_key_type = "type";
+constexpr static char const* json_key_archetype = "archetype";
+
+}
+
+REGISTER_SHAPE(Group);
 
 Group::Group()
 {
     auto& bounds = ModifyBounds();
     bounds.Min(Point(INF, INF, INF));
     bounds.Max(Point(-INF, -INF, -INF));
+}
+
+void Group::Initialize(json const& data, json const& dataOverride, ArchetypeMap const& archetypes)
+{
+    Shape::Initialize(data, dataOverride, archetypes);
+
+    std::vector<json> children;
+    GetProperty(json_key_children, data, dataOverride, children);
+    for (auto const& child : children)
+    {
+        auto instance = ShapeFactory::Get().Create(child, {}, archetypes);
+        if (instance != nullptr)
+        {
+            AddChild(instance);
+        }
+    }
 }
 
 void Group::Intersect(Ray const& ray, std::vector<Intersection>& xs) const

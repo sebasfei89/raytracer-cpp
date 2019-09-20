@@ -1,7 +1,7 @@
 #include "TestHelpers.h"
 
 #include <RayTracer/Material.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <Beddev/Beddev.h>

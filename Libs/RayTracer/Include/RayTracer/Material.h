@@ -12,6 +12,9 @@ class Material
 {
 public:
     RAYTRACER_EXPORT Material();
+    RAYTRACER_EXPORT Material(float ambient, float diffuse, float specular,
+                              float shininess, float reflective,
+                              float transparency, float refractiveIndex);
 
     RAYTRACER_EXPORT void SetColor(Color const& color);
     RAYTRACER_EXPORT Color const& GetColor() const;
@@ -35,6 +38,7 @@ public:
     void RefractiveIndex(float refractiveIndex) { m_refractiveIndex = refractiveIndex; }
 
     void Pattern(PatternPtr const& pattern) { m_pattern = pattern; }
+    PatternPtr const& Pattern() const { return m_pattern; }
     PatternPtr& ModifyPattern() { return m_pattern; }
 
     RAYTRACER_EXPORT bool operator==(Material const& other) const;
@@ -55,3 +59,8 @@ private:
     float m_refractiveIndex;
     PatternPtr m_pattern;
 };
+
+RAYTRACER_EXPORT std::ostream& operator<<(std::ostream& os, Material const& m);
+
+RAYTRACER_EXPORT void to_json(json& j, Material const& t);
+RAYTRACER_EXPORT void from_json(json const& j, Material& t);

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Cylinder.h"
 #include "raytracer_export.h"
+
+#include "Cylinder.h"
 
 class Cone : public Cylinder
 {
@@ -17,4 +18,6 @@ protected:
     float RadiusAt(float y) const override { return std::abs(y); }
     float CalculateNormalY(float y, float d) const override;
     void EarlyTest(Ray const& ray, std::vector<Intersection>& xs) const override;
+
+    void UpdateBounds() override;
 };

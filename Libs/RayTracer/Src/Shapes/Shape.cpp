@@ -1,13 +1,51 @@
-#include "Shape.h"
+#include "Shapes/Shape.h"
+#include "Transformations.h"
+
+namespace
+{
+
+constexpr static char const* json_key_name = "name";
+constexpr static char const* json_key_position = "position";
+constexpr static char const* json_key_rotation = "rotation";
+constexpr static char const* json_key_scaling = "scaling";
+constexpr static char const* json_key_material = "material";
+constexpr static char const* json_key_cast_shadows = "cast_shadows";
+
+}
 
 Shape::Shape()
-    : m_transform(Mat44::Identity())
+    : m_name("<unnamed>")
+    , m_transform(Mat44::Identity())
     , m_invTransform(Mat44::Identity())
     , m_material()
     , m_castShadows(true)
     , m_parent()
     , m_bounds()
 {
+}
+
+void Shape::Initialize(json const& data, json const& dataOverride, ArchetypeMap const& archetypes)
+{
+    GetProperty(json_key_name, data, dataOverride, m_name);
+
+    Tuple pos = Point(0.f, 0.f, 0.f);
+    Tuple angles = Point(0.f, 0.f, 0.f);
+    Tuple scale = Point(1.f, 1.f, 1.f);
+    GetProperty(json_key_position, data, dataOverride, pos);
+    GetProperty(json_key_rotation, data, dataOverride, angles);
+    GetProperty(json_key_scaling, data, dataOverride, scale);
+
+    SetTransform(
+        matrix::Translation(pos.X(), pos.Y(), pos.Z())
+        * matrix::RotationX(angles.X())
+        * matrix::RotationY(angles.Y())
+        * matrix::RotationZ(angles.Z())
+        * matrix::Scaling(scale.X(), scale.Y(), scale.Z()) );
+
+    GetProperty(json_key_cast_shadows, data, dataOverride, m_castShadows);
+
+    // TODO: reference material by name
+    GetProperty(json_key_material, data, dataOverride, m_material);
 }
 
 Tuple Shape::NormalAt(Tuple const& worldPoint) const

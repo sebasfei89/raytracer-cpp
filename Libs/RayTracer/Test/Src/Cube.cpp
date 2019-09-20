@@ -2,8 +2,8 @@
 
 #include <Beddev/Beddev.h>
 
-#include <RayTracer/Cube.h>
 #include <RayTracer/Ray.h>
+#include <RayTracer/Shapes/Cube.h>
 
 PSCENARIO(TestArg, "A ray intersects a cube", "shape,cube")
 {

@@ -1,5 +1,9 @@
-#include "Cube.h"
+#include "Shapes/Cube.h"
+
 #include "Ray.h"
+#include "Shapes/ShapeFactory.h"
+
+REGISTER_SHAPE(Cube);
 
 void Cube::Intersect(Ray const& ray, std::vector<Intersection>& xs) const
 {

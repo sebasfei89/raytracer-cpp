@@ -1,6 +1,10 @@
-#include "Plane.h"
+#include "Shapes/Plane.h"
+
 #include "Ray.h"
+#include "Shapes/ShapeFactory.h"
 #include "Util.h"
+
+REGISTER_SHAPE(Plane);
 
 Plane::Plane()
 {

@@ -2,9 +2,9 @@
 #include <RayTracer/Canvas.h>
 #include <RayTracer/Intersection.h>
 #include <RayTracer/Lighting.h>
-#include <RayTracer/Plane.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Plane.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <SampleUtils.h>

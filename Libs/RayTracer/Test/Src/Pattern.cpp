@@ -1,9 +1,9 @@
 #include "TestHelpers.h"
 
 #include <RayTracer/Color.h>
-#include <RayTracer/Group.h>
 #include <RayTracer/Pattern.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Group.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <Beddev/Beddev.h>

@@ -1,7 +1,7 @@
 #include <RayTracer/Canvas.h>
 #include <RayTracer/Intersection.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <SampleUtils.h>

@@ -1,7 +1,7 @@
-#include <RayTracer/Group.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Shape.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Group.h>
+#include <RayTracer/Shapes/Shape.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 #include <RayTracer/Util.h>
 

@@ -1,6 +1,6 @@
 #include <RayTracer/Lighting.h>
 #include <RayTracer/Pattern.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Sphere.h>
 
 #include <Beddev/Beddev.h>
 

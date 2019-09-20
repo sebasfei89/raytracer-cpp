@@ -11,6 +11,8 @@ public:
     RAYTRACER_EXPORT Cylinder();
     RAYTRACER_EXPORT Cylinder(float min, float max, bool closed = false);
 
+    RAYTRACER_EXPORT void Initialize(json const& data, json const& dataOverride, ArchetypeMap const& archetypes) override;
+
     RAYTRACER_EXPORT void Intersect(Ray const& ray, std::vector<Intersection>& xs) const override;
     RAYTRACER_EXPORT Tuple NormalAtLocal(Tuple const& point) const override;
 
@@ -31,6 +33,8 @@ protected:
     virtual void EarlyTest(Ray const& ray, std::vector<Intersection>& xs) const {}
 
     bool IsInRange(Ray const& ray, float t) const;
+
+    void UpdateBounds() override;
 
 private:
     float m_min;
