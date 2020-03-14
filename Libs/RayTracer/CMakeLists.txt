@@ -83,10 +83,11 @@ AddTarget( Ch12_Cubes EXECUTABLE
 AddTarget( Ch13_CylindersAndCones EXECUTABLE
     FOLDER  3.Samples
     DEPS    RayTracer SampleUtils
-    SOURCES Samples/Src/CylindersAndCones.cpp )
+    SOURCES Samples/Src/CylindersAndCones.cpp Samples/Resources/Ch13_CylindersAndCones.scene.json
+    RESOURCES Samples/Resources/Ch13_CylindersAndCones.scene.json )
 
 AddTarget( Ch14_Groups EXECUTABLE
     FOLDER  3.Samples
     DEPS    RayTracer SampleUtils
-    SOURCES Samples/Src/Groups.cpp Samples/Resources/Ch14_groups.scene.json
-    RESOURCES Samples/Resources/Ch14_groups.scene.json )
+    SOURCES Samples/Src/Groups.cpp Samples/Resources/Ch14_Groups.scene.json
+    RESOURCES Samples/Resources/Ch14_Groups.scene.json )

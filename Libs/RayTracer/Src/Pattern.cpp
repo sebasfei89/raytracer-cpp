@@ -27,6 +27,7 @@ PatternPtr IPattern::FromJSON(json const& data)
     }
 
     std::string const type = data.at(json_key_type);
+    PatternPtr pattern;
     if (type == "Solid")
     {
         Color color = Color::Black();
@@ -34,51 +35,72 @@ PatternPtr IPattern::FromJSON(json const& data)
         {
             data.at(json_key_color).get_to(color);
         }
-        return std::make_shared<SolidPattern>(color);
+        pattern = std::make_shared<SolidPattern>(color);
     }
     else if (type == "PerlinNoise")
     {
         auto inner = FromJSON(data.at(json_key_pattern));
-        return std::make_shared<PerlinNoisePattern>(inner);
+        pattern = std::make_shared<PerlinNoisePattern>(inner);
     }
     else if (type == "Strip")
     {
         auto innerA = FromJSON(data.at(json_key_pattern_a));
         auto innerB = FromJSON(data.at(json_key_pattern_b));
-        return std::make_shared<StripPattern>(innerA, innerB);
+        pattern = std::make_shared<StripPattern>(innerA, innerB);
     }
     else if (type == "Gradient")
     {
         auto innerA = FromJSON(data.at(json_key_pattern_a));
         auto innerB = FromJSON(data.at(json_key_pattern_b));
-        return std::make_shared<GradientPattern>(innerA, innerB);
+        pattern = std::make_shared<GradientPattern>(innerA, innerB);
     }
     else if (type == "Ring")
     {
         auto innerA = FromJSON(data.at(json_key_pattern_a));
         auto innerB = FromJSON(data.at(json_key_pattern_b));
-        return std::make_shared<RingPattern>(innerA, innerB);
+        pattern = std::make_shared<RingPattern>(innerA, innerB);
     }
     else if (type == "Checker")
     {
         auto innerA = FromJSON(data.at(json_key_pattern_a));
         auto innerB = FromJSON(data.at(json_key_pattern_b));
-        return std::make_shared<CheckerPattern>(innerA, innerB);
+        pattern = std::make_shared<CheckerPattern>(innerA, innerB);
     }
     else if (type == "RadialGradient")
     {
         auto innerA = FromJSON(data.at(json_key_pattern_a));
         auto innerB = FromJSON(data.at(json_key_pattern_b));
-        return std::make_shared<RadialGradientPattern>(innerA, innerB);
+        pattern = std::make_shared<RadialGradientPattern>(innerA, innerB);
     }
     else if (type == "Blend")
     {
         auto innerA = FromJSON(data.at(json_key_pattern_a));
         auto innerB = FromJSON(data.at(json_key_pattern_b));
-        return std::make_shared<BlendPattern>(innerA, innerB);
+        pattern = std::make_shared<BlendPattern>(innerA, innerB);
     }
 
-    return nullptr;
+    if (pattern != nullptr)
+    {
+        Mat44 tx = Mat44::Identity();
+        if (data.contains(json_key_position))
+        {
+            Tuple positionData = data.at(json_key_position);
+            tx = matrix::Translation(positionData.X(), positionData.Y(), positionData.Z());
+        }
+        if (data.contains(json_key_rotation))
+        {
+            Tuple angles = data.at(json_key_rotation);
+            tx = tx * matrix::RotationX(angles.X()) * matrix::RotationY(angles.Y()) * matrix::RotationZ(angles.Z());
+        }
+        if (data.contains(json_key_scaling))
+        {
+            Tuple scalingData = data.at(json_key_scaling);
+            tx = tx * matrix::Scaling(scalingData.X(), scalingData.Y(), scalingData.Z());
+        }
+        pattern->SetTransform(tx);
+    }
+
+    return pattern;
 }
 
 IPattern::IPattern()
@@ -208,30 +230,4 @@ std::ostream& operator<<(std::ostream& os, IPattern const& p)
 {
     os << "{" << p.Transform() << "}";
     return os;
-}
-
-void to_json(json& j, IPattern const& p)
-{
-    //TODO: separate m_transform into T,R,S vectors and store into j
-}
-
-void from_json(json const& j, IPattern& p)
-{
-    Mat44 tx = Mat44::Identity();
-    if (j.contains(json_key_position))
-    {
-        Tuple positionData = j.at(json_key_position);
-        tx = matrix::Translation(positionData.X(), positionData.Y(), positionData.Z());
-    }
-    if (j.contains(json_key_rotation))
-    {
-        Tuple angles = j.at(json_key_rotation);
-        tx = tx * matrix::RotationX(angles.X()) * matrix::RotationY(angles.Y()) * matrix::RotationZ(angles.Z());
-    }
-    if (j.contains(json_key_scaling))
-    {
-        Tuple scalingData = j.at(json_key_scaling);
-        tx = tx * matrix::Scaling(scalingData.X(), scalingData.Y(), scalingData.Z());
-    }
-    p.SetTransform(tx);
 }

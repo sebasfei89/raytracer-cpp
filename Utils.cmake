@@ -75,6 +75,8 @@ function(AddTarget NAME)
             add_custom_command(TARGET ${NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${NAME}>/Resources/
                 COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${RES}" $<TARGET_FILE_DIR:${NAME}>/Resources/
+                DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${RES}"
+                MAIN_DEPENDENCY "${CMAKE_CURRENT_SOURCE_DIR}/${RES}"
                 COMMENT "Copying resources to output directory..." )
         endforeach()
 	endif()

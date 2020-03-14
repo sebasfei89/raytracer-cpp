@@ -91,6 +91,3 @@ DECLARE_BINARY_PATTERN(BlendPattern)
 #undef DECLARE_BINARY_PATTERN
 
 std::ostream& operator<<(std::ostream& os, IPattern const& p);
-
-RAYTRACER_EXPORT void to_json(json& j, IPattern const& p);
-RAYTRACER_EXPORT void from_json(json const& j, IPattern& p);

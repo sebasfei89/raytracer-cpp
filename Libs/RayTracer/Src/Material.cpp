@@ -100,7 +100,8 @@ void to_json(json& j, Material const& m)
         {json_key_reflective, m.Reflective()},
         {json_key_transparency, m.Transparency()},
         {json_key_refractive_index, m.RefractiveIndex()},
-        {json_key_pattern, *m.Pattern().get()}
+        //  TODO:
+        //{json_key_pattern, *m.Pattern().get()}
     };
 }
 
