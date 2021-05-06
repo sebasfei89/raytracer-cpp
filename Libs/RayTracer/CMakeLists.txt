@@ -1,5 +1,11 @@
 cmake_minimum_required( VERSION 3.14 )
 
+include(ProcessorCount)
+ProcessorCount(PC)
+if(PC EQUAL 0)
+    set(PC 2)
+endif()
+
 # RayTracer library ###########################################################
 AddTarget( RayTracer LIBRARY EXPORT_HEADER
     FOLDER 1.Libs
@@ -7,7 +13,7 @@ AddTarget( RayTracer LIBRARY EXPORT_HEADER
     PUBLIC_DIRS "./Include" "../../ThirdParty/nlohmann-json-v3.7.0"
     PRIVATE_DIRS "./Include/RayTracer" "./Src"
     #PUBLIC_DEFS "USE_SSE" "_ENABLE_EXTENDED_ALIGNED_STORAGE" stuff for MathIntrinsics.h
-    PRIVATE_DEFS "RENDER_TASKS=12" )
+    PRIVATE_DEFS "RENDER_TASKS=${PC}" )
 
 # RayTracer tests #############################################################
 AddTarget( RayTracerTest TEST
