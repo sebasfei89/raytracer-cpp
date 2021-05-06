@@ -12,8 +12,8 @@ find_package( glfw3 CONFIG REQUIRED )
 target_link_libraries( VulkApp PUBLIC glfw )
 
 # GLM
-find_package( glm REQUIRED )
-target_link_libraries( VulkApp PRIVATE glm )
+find_package( glm CONFIG REQUIRED )
+target_link_libraries( VulkApp PRIVATE glm::glm )
 
 # Vulkan
 find_package( Vulkan REQUIRED )

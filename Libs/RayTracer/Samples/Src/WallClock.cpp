@@ -24,7 +24,7 @@ int main()
         canvas.WritePixel((uint32_t)actualHour[0], canvas.Height() - (uint32_t)actualHour[1], white);
     }
 
-    SampleUtils::SaveCanvas(canvas, "wall_clock.ppm");
+    SampleUtils::RenderScene(canvas, "wall_clock.ppm");
 
     return 0;
 }
