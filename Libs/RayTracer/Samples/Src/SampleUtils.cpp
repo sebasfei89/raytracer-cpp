@@ -52,6 +52,19 @@ void SaveCanvas(Canvas const& canvas, std::string const& outputFile)
     ppmFile.close();
 }
 
+void RenderScene(Canvas const &canvas, std::string const &outputFile)
+{
+#ifdef SAVE_SCENE_AS_PPM
+    if (!outputFile.empty())
+    {
+        std::cout << "Saving scene to ppm file " << outputFile << " ..." << std::endl;
+        SaveCanvas(canvas, outputFile);
+    }
+#endif
+    std::cout << "Displaying scene with vulkan renderer ..." << std::endl;
+    ShowCanvas(canvas);
+}
+
 void RenderScene(Camera const& camera, World const& world, std::string const& outputFile)
 {
     std::cout << "Rendering scene..." << std::endl;
@@ -63,18 +76,7 @@ void RenderScene(Camera const& camera, World const& world, std::string const& ou
     auto time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
     std::cout << "Scene rendered in " << time_span.count() << " seconds." << std::endl;
 
-#ifdef SAVE_SCENE_AS_PPM
-    if (!outputFile.empty())
-    {
-        std::cout << "Saving scene to ppm file " << outputFile << " ..." << std::endl;
-        SaveCanvas(canvas, outputFile);
-    }
-    else
-#endif
-    {
-        std::cout << "Displaying scene with vulkan renderer ..." << std::endl;
-        ShowCanvas(canvas);
-    }
+    RenderScene(canvas, outputFile);
 }
 
 }

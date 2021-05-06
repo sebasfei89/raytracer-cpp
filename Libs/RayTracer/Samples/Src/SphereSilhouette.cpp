@@ -40,7 +40,7 @@ int main()
         }
     }
 
-    SampleUtils::SaveCanvas(canvas, "SphereSilhouette.ppm");
+    SampleUtils::RenderScene(canvas, "SphereSilhouette.ppm");
 
     return 0;
 }

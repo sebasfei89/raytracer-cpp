@@ -49,7 +49,7 @@ int main()
         }
     }
 
-    SampleUtils::SaveCanvas(canvas, "LitSphere.ppm");
+    SampleUtils::RenderScene(canvas, "LitSphere.ppm");
 
     return 0;
 }
