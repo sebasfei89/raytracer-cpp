@@ -6,8 +6,6 @@
 
 using nlohmann::json;
 
-class World;
-
 class Archetype
 {
 public:
