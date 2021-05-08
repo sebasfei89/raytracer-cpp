@@ -1,7 +1,7 @@
 #include <RayTracer/Canvas.h>
 #include <RayTracer/Intersection.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <SampleUtils.h>
@@ -40,7 +40,7 @@ int main()
         }
     }
 
-    SampleUtils::SaveCanvas(canvas, "SphereSilhouette.ppm");
+    SampleUtils::RenderScene(canvas, "SphereSilhouette.ppm");
 
     return 0;
 }

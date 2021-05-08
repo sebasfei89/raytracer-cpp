@@ -3,8 +3,6 @@
 #include "Matrix.h"
 #include "raytracer_export.h"
 
-constexpr float PI = 3.1415927f;
-
 namespace matrix
 {
     RAYTRACER_EXPORT Matrix<4, 4> Translation(float x, float y, float z);

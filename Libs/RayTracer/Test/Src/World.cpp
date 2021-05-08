@@ -1,13 +1,63 @@
 #include "TestHelpers.h"
 
-#include <RayTracer/Plane.h>
+#include <RayTracer/Archetype.h>
 #include <RayTracer/Ray.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Group.h>
+#include <RayTracer/Shapes/Plane.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 #include <RayTracer/Util.h>
 #include <RayTracer/World.h>
 
 #include <Beddev/Beddev.h>
+
+#include <sstream>
+
+namespace
+{
+
+    constexpr static char const* g_testWorld = R"(
+{
+    "objects": [{
+        "name": "TestGroup",
+        "archetype" : "TestArchetype",
+        "scaling": [3.0, 3.0, 3.0]
+    },{
+        "name": "TestCylinder",
+        "type": "Cylinder",
+        "caps": [0, 1],
+        "position": [0, 0, -1],
+        "rotation": [0, 1.57079633, 0],
+        "scaling": [0.25, 1.0, 0.25]
+    }],
+    "lights": [{
+        "name": "sun",
+        "type" : "PointLight",
+        "position" : [0, 5, 0],
+        "intensity" : [1, 1, 1]
+    }],
+    "archetypes": [{
+        "name": "TestArchetype",
+        "type": "Group",
+        "scaling": [2.0, 2.0, 2.0],
+        "children": [{
+            "name": "TestCube",
+            "type" : "Cube"
+        },{
+            "name": "TestSphere",
+            "type": "Sphere"
+        },{
+            "name": "TestArch2",
+            "archetype": "TestArchetype2"
+        }]
+    },{
+        "name": "TestArchetype2",
+        "type": "Sphere",
+        "scaling": [2.0, 2.0, 2.0]
+    }]
+})";
+
+}
 
 SCENARIO("Creating a world", "world")
 {
@@ -143,6 +193,17 @@ SCENARIO("The shadow when an object is between the point and the light", "shadow
     GIVEN( auto const w = DefaultWorld()
          , auto const point = Point(10.f, -10.f, 10.f) )
     THEN( w.IsShadowed(point, w.Lights()[0]) )
+}
+
+SCENARIO("The shadow when a cylinder isn't between the point and the light", "shadows")
+{
+    GIVEN( auto const w = DefaultWorld2()
+         , auto const p1 = Point(0.f, -1.f, -2.f)
+         , auto const p2 = Point(0.f, -5.f, -2.f)
+         , auto const p3 = Point(0.f, -2.5f, -2.f) )
+    THEN( !w.IsShadowed(p1, w.Lights()[0])
+        , !w.IsShadowed(p2, w.Lights()[0])
+        , !w.IsShadowed(p3, w.Lights()[0]) )
 }
 
 SCENARIO("There is no shadow when an object is behind the light", "shadows")
@@ -358,4 +419,45 @@ SCENARIO("ShadeHit() with a reflective, transparent material", "refraction")
     WHEN( auto const comps = r.Precompute(xs[0], xs)
         , auto const color = w.ShadeHit(comps, 5) )
     THEN( color == Color(.93391f, .69643f, .69243f) )
+}
+
+SCENARIO("Loading a world from an empty scene.json file", "World")
+{
+    GIVEN( auto w = World()
+         , std::istringstream ss("") )
+    THEN( !w.Load(ss) )
+}
+
+SCENARIO("Loading a world from an invalid scene.json file", "World")
+{
+    GIVEN( auto w = World()
+         , std::istringstream ss(R"([{"objects":[]}])") )
+    THEN( !w.Load(ss) )
+}
+
+SCENARIO("Loading a world from a scene.json file", "World")
+{
+    GIVEN( auto w = World()
+         , std::istringstream ss(g_testWorld) )
+    WHEN( auto const& lights = w.Lights()
+        , auto const& objects = w.Objects()
+        , auto const& archetypes = w.Archetypes() )
+    THEN( w.Load(ss)
+        , lights.size() == 1
+        , lights.at(0).GetName() == "sun"
+        , lights.at(0).Position() == Point(0.f, 5.f, 0.f)
+        , lights.at(0).Intensity() == Color(1.f, 1.f, 1.f)
+        , objects.size() == 2
+        , objects.at(0)->Name() == "TestGroup"
+        , objects.at(0)->Transform() == matrix::Scaling(3.f, 3.f, 3.f)
+        , std::dynamic_pointer_cast<Group>(objects.at(0))->Children().size() == 3
+        , std::dynamic_pointer_cast<Group>(objects.at(0))->Children()[0]->Name() == "TestCube"
+        , std::dynamic_pointer_cast<Group>(objects.at(0))->Children()[1]->Name() == "TestSphere"
+        , std::dynamic_pointer_cast<Group>(objects[0])->Children()[2]->Name() == "TestArch2"
+        , std::dynamic_pointer_cast<Sphere>(std::dynamic_pointer_cast<Group>(objects[0])->Children()[2]) != nullptr
+        , objects.at(1)->Name() == "TestCylinder"
+        , objects.at(1)->Transform() == (matrix::Translation(0.f, 0.f, -1.f) * matrix::RotationY(PIOVR2) * matrix::Scaling(0.25f, 1.0f, 0.25f))
+        , archetypes.size() == 2
+        , archetypes.at("TestArchetype")->Name() == "TestArchetype"
+        , archetypes.at("TestArchetype")->Template().type() == json::value_t::object )
 }

@@ -2,6 +2,7 @@
 
 #include "beddev_export.h"
 
+#include <string>
 #include <vector>
 
 namespace beddev

@@ -10,7 +10,7 @@ Ray::Ray(Tuple const& origin, Tuple const& direction)
 void Ray::Intersect(ShapePtr const& shape, std::vector<Intersection>& xs) const
 {
     Ray const r = shape->InvTransform() * (*this);
-    return shape->Intersect(r, xs);
+    shape->Intersect(r, xs);
 }
 
 void Ray::Intersect(World const& world, std::vector<Intersection>& xs) const

@@ -89,15 +89,13 @@ void BaseTestCase::Run(std::ostream& os, SessionSummary& summary, bool outputOnS
     {
         RunInternal(os, summary, outputOnSuccess);
     }
-    catch (std::exception const&)
+    catch (std::exception const& e)
     {
-        // TODO: summary.nonAssertionFailures++;
-        // ReportFailure(os);
+        ReportConfigFailure(os, summary, e.what());
     }
     catch (...)
     {
-        // TODO: summary.nonAssertionFailures++;
-        // ReportFailure(os);
+        ReportConfigFailure(os, summary, "Unhandled exception!");
     }
 }
 

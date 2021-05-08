@@ -1,0 +1,5 @@
+* RayTracer:
+    - Lights should be regular objects
+    - Serialization:
+        * Shape factory
+        * Add test for all primitive types

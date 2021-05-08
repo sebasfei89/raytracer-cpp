@@ -48,7 +48,7 @@ int main()
         Tick(env, proj);
     } while (proj.m_position[1] > 0.0f);
 
-    SampleUtils::SaveCanvas(canvas, "projectil_trajectory.ppm");
+    SampleUtils::RenderScene(canvas, "projectil_trajectory.ppm");
 
     return 0;
 }

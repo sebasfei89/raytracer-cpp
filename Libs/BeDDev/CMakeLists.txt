@@ -1,41 +1,15 @@
 cmake_minimum_required( VERSION 3.14 )
 
-include(../../BuildSystem/Utils.cmake)
-
 # BeDDev library ###############################################################
-set( LIB_SOURCES
-    Include/Beddev/BaseTestCase.h
-    Include/Beddev/Beddev.h
-    Include/Beddev/BeddevImpl.h
-    Include/Beddev/ColoredOutput.h
-    Include/Beddev/Expression.h
-    Include/Beddev/ExpressionParser.h
-    Include/Beddev/ParametrizedTestCase.h
-    Include/Beddev/SessionSummary.h
-    Include/Beddev/TestCase.h
-    Include/Beddev/TestRunner.h
-    Src/BaseTestCase.cpp
-    Src/SessionSummary.cpp
-    Src/TestCase.cpp
-    Src/TestRunner.cpp )
-
 AddTarget( BeDDev LIBRARY EXPORT_HEADER
     FOLDER 1.Libs
-    SOURCES ${LIB_SOURCES}
+    SOURCES Include/Beddev/*.h Src/*.cpp
     INTERFACE_DIRS "./Include"
     PRIVATE_DIRS "./Include/Beddev" )
 
 # BeDDev tests #################################################################
-set( TEST_SOURCES
-    Test/Src/Beddev.cpp
-    Test/Src/ExpressionParser.cpp
-    Test/Src/Main.cpp
-    Test/Src/ParametrizedTestCase.cpp
-    Test/Src/TestCase.cpp
-    Test/Src/TestRunner.cpp )
-
 AddTarget( BeDDevTests TEST
     FOLDER  2.Tests
     DEPS    BeDDev
-    SOURCES ${TEST_SOURCES}
+    SOURCES Test/Src/*.cpp
     PRIVATE_DIRS "./Test/Src" )

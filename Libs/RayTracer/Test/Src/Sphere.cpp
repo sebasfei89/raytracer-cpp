@@ -1,7 +1,7 @@
 #include "TestHelpers.h"
 
 #include <RayTracer/Material.h>
-#include <RayTracer/Sphere.h>
+#include <RayTracer/Shapes/Sphere.h>
 #include <RayTracer/Transformations.h>
 
 #include <Beddev/Beddev.h>
@@ -49,4 +49,11 @@ SCENARIO("Helper for producing a sphere with a glassy material", "geometry")
     THEN( s->Transform() == Mat44::Identity()
         , s->GetMaterial().Transparency() == 1.f
         , s->GetMaterial().RefractiveIndex() == 1.5f )
+}
+
+SCENARIO("A sphere bounds", "shape,sphere")
+{
+    GIVEN( auto const s = std::make_shared<Sphere>() )
+    WHEN( auto const& b = s->GetBounds() )
+    THEN( b == Bounds() )
 }

@@ -41,5 +41,6 @@ Color Lighting(Material const& m, ShapeConstPtr const& shape, PointLight const& 
 bool PointLight::operator==(PointLight const& other) const
 {
     return m_position == other.m_position
-        && m_intensity == other.m_intensity;
+        && m_intensity == other.m_intensity
+        && m_name == other.m_name;
 }

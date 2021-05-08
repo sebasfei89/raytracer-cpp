@@ -1,5 +1,8 @@
 #include "TestHelpers.h"
 
+#include <RayTracer/Shapes/Cylinder.h>
+#include <RayTracer/Shapes/Sphere.h>
+
 World DefaultWorld()
 {
     World w;
@@ -20,10 +23,35 @@ World DefaultWorld()
     return w;
 }
 
+World DefaultWorld2()
+{
+    World w;
+    auto cyl = std::make_shared<Cylinder>(0.f, 1.f);
+
+    cyl->ModifyMaterial().SetColor(Color(.8f, 1.f, .6f));
+    cyl->ModifyMaterial().Diffuse(.7f);
+    cyl->ModifyMaterial().Specular(.2f);
+    w.Add(cyl);
+
+    PointLight l(Point(0.f, -1.f, 0.f), Color(1.f, 1.f, 1.f));
+    w.Add(l);
+
+    return w;
+}
+
 ShapePtr GlassySphere()
 {
     auto s = std::make_shared<Sphere>();
     s->ModifyMaterial().Transparency(1.f);
     s->ModifyMaterial().RefractiveIndex(1.5f);
     return s;
+}
+
+std::ostream& operator<<(std::ostream& os, TestArg const& arg)
+{
+    os << "{ " << arg.origin
+        << ", " << arg.direction
+        << ", " << arg.t1
+        << ", " << arg.t2 << " }";
+    return os;
 }
